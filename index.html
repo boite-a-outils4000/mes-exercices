@@ -347,6 +347,20 @@ select.leg:disabled{opacity:1;color:var(--label)}
 .cl-seg button:disabled{color:inherit}
 .clic-wrap{cursor:crosshair}.pin.mine{background:var(--orange)}.pin.mine.ok{background:var(--green)}.pin.mine.ko{background:var(--red)}
 .qedit .seg button{white-space:normal;line-height:1.2}
+.stp{background:var(--card);border-radius:14px;padding:12px 14px 14px;margin-top:12px}.stp-h{font-size:12px;font-weight:700;text-transform:uppercase;color:var(--blue);letter-spacing:.02em}
+.stp-q{font-size:17px;font-weight:600;margin:4px 0 2px}.stp .opt{background:var(--bg);padding:12px 14px;font-size:16px}.stp .vf{margin-top:10px}.stp .vf .opt{padding:14px 10px}
+.stp .sinp{border-radius:10px;background:var(--bg);margin-top:10px}.stp.stp-ok{box-shadow:inset 0 0 0 2px var(--green)}.stp.stp-ko{box-shadow:inset 0 0 0 2px var(--red)}
+.opt.picked{box-shadow:inset 0 0 0 2px var(--blue)}
+.num-row{display:flex;align-items:center;gap:10px}.num-in{font-size:22px;font-weight:600;border-radius:12px;background:var(--card);flex:1}.num-u{font-size:18px;color:var(--label2)}
+.num-in.num-ok{box-shadow:inset 0 0 0 2px var(--green)}.num-in.num-ko{box-shadow:inset 0 0 0 2px var(--red);text-decoration:line-through}
+.fr-axis{position:relative;height:74px;margin:6px 14px 0}.fr-line{position:absolute;left:0;right:0;top:30px;height:4px;border-radius:2px;background:var(--label3)}
+.fr-tick{position:absolute;top:40px;transform:translateX(-50%);font-size:12px;color:var(--label2)}.fr-tick i{position:absolute;left:50%;top:-14px;width:2px;height:10px;background:var(--label3)}
+.fr-pin{top:31px}.fr-row{flex-direction:column;align-items:stretch;gap:6px}.fr-h{display:flex;align-items:center;gap:10px}.fr-l{flex:1;font-size:16px}.fr-y{font-size:16px;min-width:3.5ch;text-align:right}
+.fr-r{width:100%;accent-color:var(--blue)}
+.intrus-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.intrus-grid .opt{margin:0;text-align:center;font-weight:600}
+.vfc-text{font-size:20px;line-height:1.7;background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.vw{border-radius:6px;padding:1px 2px}.vw.vw-tap{background:var(--fill);cursor:pointer}.vw.vw-on{background:var(--blue);color:#fff}
+.vw.vw-err{text-decoration:line-through;color:var(--red);background:none}.vw-fix{color:var(--green);font-weight:700}
 .clic-zone{position:absolute;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;border:2px dashed var(--green);pointer-events:none}
 .leg-fix{flex-basis:100%;padding:0 0 8px 40px;font-size:14px;color:var(--red);line-height:1.35}
 .leg-fix::before{content:'Bonne réponse : ';color:var(--label2)}
@@ -642,12 +656,18 @@ const I = {
   vf:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l3 3 5-6M15 9l6 6M21 9l-6 6"/></svg>',
   trous:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h5M16 8h5M3 16h8"/><path d="M10 8h4" stroke-dasharray="1.5 2"/><path d="M13 16h8" stroke-dasharray="1.5 2"/></svg>'
 };
-const TYPE_LABEL = { qcm:'Choix multiple', vf:'Vrai ou faux', trous:'Texte à trous', chrono:'Ligne du temps', image:'Image à légender', assoc:'Associer', classer:'Classer', clic:'Toucher sur la carte' };
+const TYPE_LABEL = { qcm:'Choix multiple', vf:'Vrai ou faux', trous:'Texte à trous', chrono:'Ligne du temps', image:'Image à légender', assoc:'Associer', classer:'Classer', clic:'Toucher sur la carte', etapes:'Analyse de document', nombre:'Lire une valeur', frise:'Placer sur une frise', intrus:'Trouver l’intrus', vfc:'Vrai ou faux à corriger', lien:'Cause ou conséquence' };
 I.speaker = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h4l5 4v-13l-5 4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12"/></svg>';
 I.bulb = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0012 3z"/></svg>';
 I.assoc = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="6" r="2" fill="currentColor"/><circle cx="5" cy="18" r="2" fill="currentColor"/><circle cx="19" cy="6" r="2" fill="currentColor"/><circle cx="19" cy="18" r="2" fill="currentColor"/><path d="M7 6.5l10 11M7 17.5l10-11"/></svg>';
 I.classer = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 10h7v10H3zM14 10h7v10h-7z"/><path d="M6.5 3v4M17.5 3v4M5 5.5l1.5 1.5L8 5.5M16 5.5l1.5 1.5L19 5.5"/></svg>';
 I.clic = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3" fill="currentColor"/></svg>';
+I.etapes = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 19h4"/></svg>';
+I.nombre = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V4M4 20h16"/><path d="M7 15l4-5 3 3 5-7"/></svg>';
+I.frise = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 16h18M6 13v6M12 13v6M18 13v6"/><path d="M12 9V4M10 6l2-2 2 2"/></svg>';
+I.intrus = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><circle cx="17.5" cy="17.5" r="3.5"/></svg>';
+I.vfc = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l3 3 5-6"/><path d="M14 20h4L21 17l-3-3-7 7v-1"/><path d="M3 14l5 5M8 14l-5 5"/></svg>';
+I.lien = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8" width="6" height="8" rx="1.5"/><rect x="15.5" y="8" width="6" height="8" rx="1.5"/><path d="M9 12h6M13 10l2 2-2 2"/></svg>';
 I.chrono = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h18"/><circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="18" cy="12" r="2" fill="currentColor"/><path d="M6 7V5M12 19v-2M18 7V5"/></svg>';
 I.image = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.6" fill="currentColor"/></svg>';
 I.book = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 016.5 3H20v15H6.5A2.5 2.5 0 004 20.5v-15z"/><path d="M4 20.5A2.5 2.5 0 016.5 18H20v3H6.5"/></svg>';
@@ -675,7 +695,32 @@ I.target = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="
 I.timer = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2M9.5 2.5h5"/></svg>';
 I.redo = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.3-5.6L4 8.7"/><path d="M4 4v4.7h4.7"/></svg>';
 I.printer = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>';
+function parseNumFR(v){
+  let t = String(v ?? '').trim().replace(/[\s  ]/g, '').replace(/^\+/, '');
+  if (!t) return null;
+  if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
+  else if (/^-?\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');
+  const n = Number(t); return isFinite(n) ? n : null;
+}
+const fmtFR = n => { const r = Math.round(n * 100) / 100; const [a, b] = String(Math.abs(r)).split('.'); return (r < 0 ? '−' : '') + a.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + (b ? ',' + b : ''); };
+const LIENS = ['donc', 'parce que'];
+function vfcParse(text){
+  const out = []; String(text || '').split(/(\[[^\]]*\])/).forEach(part => {
+    const m = part.match(/^\[([^\]]*)\]$/);
+    if (m){ const a = m[1].split('|').map(x => x.trim()).filter(Boolean); out.push({ w: a[0] || '', err: true, fix: a.slice(1) }); }
+    else part.split(/\s+/).filter(Boolean).forEach(w => out.push({ w, err: false }));
+  });
+  return out;
+}
+const vfcShown = t => vfcParse(t).map(x => x.w).join(' ').replace(/\s+([,.;:!?»)])/g, '$1').replace(/([«(])\s+/g, '$1');
+function stepAnswer(st){ return st.kind === 'vf' ? (st.answer ? 'Vrai' : 'Faux') : st.kind === 'court' ? String(st.answers || '').split('|')[0].trim() : (st.options || [])[st.answer] || ''; }
 function answerText(q){
+  if (q.type === 'etapes') return (q.steps || []).map((st, k) => (k + 1) + '. ' + stepAnswer(st)).join(' · ');
+  if (q.type === 'nombre') return fmtFR(+q.answer) + (q.unit ? ' ' + q.unit : '') + (+q.tol ? ' (à ' + fmtFR(+q.tol) + ' près)' : '');
+  if (q.type === 'frise') return (q.events || []).map(e => e.label + ' : ' + e.year).join(' · ');
+  if (q.type === 'intrus') return (q.items || [])[q.answer] || '';
+  if (q.type === 'vfc'){ const e = vfcParse(q.text).find(x => x.err); return e ? 'Faux : « ' + e.w + ' » devait être « ' + (e.fix[0] || '') + ' »' : 'Vrai'; }
+  if (q.type === 'lien') return (q.lines || []).map(l => l.a + ' ' + LIENS[l.link || 0] + ' ' + l.b).join(' · ');
   if (q.type === 'qcm') return (q.options || [])[q.answer] || '';
   if (q.type === 'vf') return q.answer ? 'Vrai' : 'Faux';
   if (q.type === 'trous') return parseTrous(q.text).filter(p => p.blank).map(p => p.answers[0]).join(' · ');
@@ -837,10 +882,15 @@ function claudePrompt(c){
     { type: 'trous', text: 'Une phrase avec un {mot} à trouver.', explanation: '…' },
     { type: 'chrono', prompt: 'Remets dans l’ordre chronologique.', items: ['le plus ancien', '…', 'le plus récent'], explanation: 'les dates' },
     { type: 'assoc', prompt: 'Associe chaque élément à sa paire.', pairs: [{ a: '…', b: '…' }, { a: '…', b: '…' }, { a: '…', b: '…' }], explanation: '…' },
-    { type: 'classer', prompt: 'Classe chaque élément.', categories: ['Catégorie A', 'Catégorie B'], items: [{ text: '…', cat: 0 }, { text: '…', cat: 1 }, { text: '…', cat: 0 }], explanation: '…' }
+    { type: 'classer', prompt: 'Classe chaque élément.', categories: ['Catégorie A', 'Catégorie B'], items: [{ text: '…', cat: 0 }, { text: '…', cat: 1 }, { text: '…', cat: 0 }], explanation: '…' },
+    { type: 'intrus', prompt: 'Trouve l’intrus.', items: ['…', '…', '…', '…'], answer: 2, explanation: 'pourquoi c’est l’intrus' },
+    { type: 'vfc', text: 'Une phrase avec un [mot faux|mot juste].', explanation: '…' },
+    { type: 'lien', prompt: 'Relie par « donc » ou « parce que ».', lines: [{ a: 'fait 1', b: 'fait 2', link: 0 }, { a: 'fait 3', b: 'fait 4', link: 1 }], explanation: '…' },
+    { type: 'frise', prompt: 'Place ces événements.', start: 1900, end: 2025, tol: 2, events: [{ label: '…', year: 1946 }], explanation: '…' },
+    { type: 'etapes', prompt: 'Analyse ce document.', doc: { text: 'extrait du cours', source: 'auteur, date' }, steps: [{ kind: 'qcm', prompt: '…', options: ['…', '…', '…'], answer: 0 }, { kind: 'vf', prompt: '…', answer: true }, { kind: 'court', prompt: '…', answers: 'réponse|variante' }], explanation: '…' }
   ] };
   return 'Crée une série d’exercices pour mes élèves de l’enseignement secondaire professionnel en Belgique (' + (c.subject || 'histoire-géographie') + '), à partir du cours ci-dessous.\n\n' +
-    'Consignes :\n- 8 à 10 questions, avec un vocabulaire simple et des phrases courtes.\n- Varie les types : qcm, vf, trous, chrono, assoc (associer des paires) et classer (ranger dans 2 ou 3 catégories ; « cat » est le numéro de la catégorie en partant de 0).\n- Reste fidèle au contenu du cours.\n- Ajoute une explication courte à chaque question, et un indice quand c’est utile.\n- Réponds uniquement avec le JSON, sans texte autour.\n\n' +
+    'Consignes :\n- 8 à 10 questions, avec un vocabulaire simple et des phrases courtes.\n- Varie les types : qcm, vf, trous, chrono, assoc (associer des paires) classer (ranger dans 2 ou 3 catégories ; « cat » est le numéro de la catégorie en partant de 0), intrus, vfc, lien (link 0 = donc, 1 = parce que), frise et etapes (analyse d’un document en plusieurs étapes).\n- Reste fidèle au contenu du cours.\n- Ajoute une explication courte à chaque question, et un indice quand c’est utile.\n- Réponds uniquement avec le JSON, sans texte autour.\n\n' +
     'Format attendu :\n' + JSON.stringify(fmt, null, 2) + '\n\nPour « qcm », « answer » est le numéro de la bonne réponse en partant de 0.\n\nCOURS : ' + (c.title || '') + '\n\n' + txt;
 }
 let deferredInstall = null;
@@ -931,6 +981,8 @@ function parseTrous(text){
     : { blank:false, text:p });
 }
 function qLabel(q){
+  if (q.type === 'vfc') return vfcShown(q.text);
+  if (q.type === 'etapes') return q.prompt || 'Analyse de document';
   if (q.type === 'trous') return String(q.text||'').replace(/\{([^}]*)\}/g, (m, a) => '[' + a.split('|')[0] + ']');
   if (q.type === 'chrono') return (q.prompt || 'Ligne du temps') + ' (' + (q.items || []).length + ' éléments)';
   return q.prompt || '';
@@ -945,12 +997,30 @@ function normalizeQuestions(arr){
     else if (['assoc','associer','association','relier','match','matching','paires'].includes(t)) t = 'assoc';
     else if (['classer','tri','trier','categories','categoriser','sort'].includes(t)) t = 'classer';
     else if (['clic','cliquer','toucher','pointer','localiser'].includes(t)) t = 'clic';
+    else if (['etapes','analyse','analysededocument','multi','etape'].includes(t)) t = 'etapes';
+    else if (['nombre','valeur','numerique','number','lireunevaleur'].includes(t)) t = 'nombre';
+    else if (['frise','placersurunefrise','placer'].includes(t)) t = 'frise';
+    else if (['intrus','trouverlintrus','oddoneout'].includes(t)) t = 'intrus';
+    else if (['vfc','vraifauxcorrige','vraioufauxacorriger','corriger'].includes(t)) t = 'vfc';
+    else if (['lien','causeconsequence','causeouconsequence','cause'].includes(t)) t = 'lien';
     else t = 'qcm';
     const dd = q.doc ?? q.document;
     const base = { id: q.id ? String(q.id) : uid(), type: t, explanation: String(q.explanation ?? q.explication ?? ''), hint: String(q.hint ?? q.indice ?? '') };
     if (dd) base.doc = typeof dd === 'string' ? { text: dd, image: '', source: '' } : { text: String(dd.text ?? dd.texte ?? ''), image: String(dd.image ?? ''), source: String(dd.source ?? '') };
     if (t === 'chrono') return { ...base, top: q.top ? String(q.top) : undefined, bottom: q.bottom ? String(q.bottom) : undefined, prompt: String(q.prompt ?? q.question ?? 'Remets dans l\u2019ordre chronologique.'), items: (q.items || q.elements || []).map(x => typeof x === 'string' ? x : String(x.text ?? x.label ?? '')) };
     if (t === 'image') return { ...base, prompt: String(q.prompt ?? q.question ?? 'Légende l\u2019image.'), image: String(q.image ?? q.url ?? ''), points: (q.points || []).map(p => ({ x: Number(p.x) || 0, y: Number(p.y) || 0, label: String(p.label ?? p.legende ?? '') })) };
+    if (t === 'etapes') return { ...base, prompt: String(q.prompt ?? ''), doc: base.doc || { text: '', image: '', source: '' }, steps: (q.steps || q.etapes || []).map(st => {
+      const k = String(st.kind ?? st.type ?? 'qcm').toLowerCase();
+      if (k === 'vf') return { kind: 'vf', prompt: String(st.prompt ?? ''), answer: typeof st.answer === 'string' ? /^(v|vrai|true)/i.test(st.answer) : !!st.answer };
+      if (k === 'court' || k === 'trous' || k === 'texte') return { kind: 'court', prompt: String(st.prompt ?? ''), answers: Array.isArray(st.answers) ? st.answers.join('|') : String(st.answers ?? st.answer ?? '') };
+      const o = (st.options || []).map(String); let a = st.answer; if (typeof a === 'string') a = Math.max(0, o.indexOf(a));
+      return { kind: 'qcm', prompt: String(st.prompt ?? ''), options: o, answer: Number(a) || 0 };
+    }) };
+    if (t === 'nombre') return { ...base, prompt: String(q.prompt ?? q.question ?? ''), answer: Number(q.answer) || 0, tol: Number(q.tol ?? q.tolerance) || 0, unit: String(q.unit ?? q.unite ?? '') };
+    if (t === 'frise') return { ...base, prompt: String(q.prompt ?? 'Place chaque événement sur la frise.'), start: Number(q.start) || 1900, end: Number(q.end) || 2025, tol: Number(q.tol ?? 2), events: (q.events || q.items || []).map(e => ({ label: String(e.label ?? e.text ?? ''), year: Number(e.year ?? e.annee) || 0 })) };
+    if (t === 'intrus'){ const it = (q.items || q.options || []).map(String); let a = q.answer; if (typeof a === 'string') a = Math.max(0, it.indexOf(a)); return { ...base, prompt: String(q.prompt ?? 'Trouve l’intrus.'), items: it, answer: Number(a) || 0 }; }
+    if (t === 'vfc') return { ...base, prompt: String(q.prompt ?? 'Vrai ou faux ? Si c’est faux, corrige.'), text: String(q.text ?? q.texte ?? '') };
+    if (t === 'lien') return { ...base, prompt: String(q.prompt ?? 'Relie les deux faits par « donc » ou « parce que ».'), lines: (q.lines || q.items || []).map(l => ({ a: String(l.a ?? ''), b: String(l.b ?? ''), link: typeof l.link === 'string' ? Math.max(0, LIENS.indexOf(l.link)) : Number(l.link) || 0 })) };
     if (t === 'assoc') return { ...base, prompt: String(q.prompt ?? q.question ?? 'Associe chaque élément à sa paire.'), pairs: (q.pairs || q.paires || []).map(p => Array.isArray(p) ? { a: String(p[0] ?? ''), b: String(p[1] ?? '') } : { a: String(p.a ?? p.left ?? p.gauche ?? ''), b: String(p.b ?? p.right ?? p.droite ?? '') }) };
     if (t === 'classer'){
       const cats = (q.categories || q.categorie || []).map(String);
@@ -1011,6 +1081,43 @@ function cleanAndValidate(d){
       q.categories = cats;
       q.items = (q.items || []).map(x => ({ text: String(x.text || '').trim(), cat: Math.min(cats.length - 1, Math.max(0, +x.cat || 0)) })).filter(x => x.text);
       if (q.items.length < 3) return n + 'il faut au moins trois éléments à classer.';
+    } else if (q.type === 'etapes'){
+      if (!q.doc || !(q.doc.text || q.doc.image)) return n + 'ajoute le document (texte ou image) à analyser.';
+      q.steps = (q.steps || []).filter(st => String(st.prompt || '').trim());
+      if (q.steps.length < 2) return n + 'il faut au moins deux étapes avec leur question.';
+      for (let k = 0; k < q.steps.length; k++){
+        const st = q.steps[k]; st.prompt = String(st.prompt).trim();
+        if (st.kind === 'qcm'){ const o = (st.options || []).map(x => String(x).trim()); const ans = o[st.answer]; st.options = o.filter(Boolean); st.answer = Math.max(0, st.options.indexOf(ans)); if (st.options.length < 2 || !ans) return n + 'étape ' + (k + 1) + ' : il faut au moins deux réponses et la bonne cochée.'; }
+        if (st.kind === 'court' && !String(st.answers || '').split('|').some(x => x.trim())) return n + 'étape ' + (k + 1) + ' : écris la réponse attendue.';
+      }
+    } else if (q.type === 'nombre'){
+      if (!String(q.prompt || '').trim()) return n + 'écris la question.';
+      const a = parseNumFR(q.answer), t = parseNumFR(q.tol);
+      if (a === null) return n + 'écris la valeur attendue (un nombre).';
+      q.answer = a; q.tol = Math.abs(t || 0); q.unit = String(q.unit || '').trim();
+    } else if (q.type === 'frise'){
+      q.start = parseNumFR(q.start); q.end = parseNumFR(q.end);
+      if (q.start === null || q.end === null || q.end <= q.start) return n + 'indique une année de début et une année de fin.';
+      q.events = (q.events || []).map(e => ({ label: String(e.label || '').trim(), year: parseNumFR(e.year) })).filter(e => e.label);
+      if (q.events.length < 1) return n + 'ajoute au moins un événement.';
+      if (q.events.some(e => e.year === null || e.year < q.start || e.year > q.end)) return n + 'chaque événement doit avoir une année entre ' + q.start + ' et ' + q.end + '.';
+      q.tol = Math.abs(+q.tol || 0);
+    } else if (q.type === 'intrus'){
+      const ans = String((q.items || [])[q.answer] || '').trim();
+      q.items = (q.items || []).map(x => String(x).trim()).filter(Boolean);
+      if (q.items.length < 3) return n + 'il faut au moins trois éléments.';
+      if (!ans) return n + 'coche l’intrus.';
+      q.answer = q.items.indexOf(ans);
+    } else if (q.type === 'vfc'){
+      const t = vfcParse(q.text);
+      if (!t.length) return n + 'écris la phrase.';
+      const errs = t.filter(x => x.err);
+      if (errs.length > 1) return n + 'une seule erreur par phrase, entre crochets.';
+      if (errs.length && !errs[0].fix.length) return n + 'donne la correction : [mot faux|mot juste].';
+    } else if (q.type === 'lien'){
+      q.lines = (q.lines || []).map(l => ({ a: String(l.a || '').trim(), b: String(l.b || '').trim(), link: +l.link ? 1 : 0 })).filter(l => l.a || l.b);
+      if (q.lines.some(l => !l.a || !l.b)) return n + 'chaque ligne doit avoir ses deux faits.';
+      if (q.lines.length < 2) return n + 'il faut au moins deux lignes.';
     } else if (q.type === 'clic'){
       if (!q.image) return n + 'ajoute une image.';
       if (!q.target) return n + 'touche l\u2019image pour placer le bon endroit.';
@@ -2311,6 +2418,42 @@ const Student = {
       body = '<div class="qprompt">' + nb(esc(q.prompt || 'Classe chaque élément dans la bonne catégorie.')) + '</div>' + hint +
         '<div class="group">' + order.map(i => '<div class="row cl-row" data-ci="' + i + '"><div class="cl-t">' + esc(q.items[i].text) + '</div><div class="seg cl-seg">' + q.categories.map((c, j) => '<button data-ci="' + i + '" data-cj="' + j + '">' + esc(c) + '</button>').join('') + '</div></div>').join('') + '</div>' + check;
       speech = (q.prompt || 'Classe chaque élément.') + ' Catégories : ' + q.categories.join(', ') + '. Éléments : ' + order.map(i => q.items[i].text).join(', ') + '.';
+    } else if (q.type === 'etapes'){
+      body = (q.prompt ? '<div class="qprompt" style="font-size:19px">' + nb(esc(q.prompt)) + '</div>' : '') + hint +
+        q.steps.map((st, k) => '<div class="stp" data-s="' + k + '"><div class="stp-h">Étape ' + (k + 1) + '</div><div class="stp-q">' + nb(esc(st.prompt)) + '</div>' +
+          (st.kind === 'qcm' ? shuffle(st.options.map((o, j) => j)).map(j => '<button class="opt sopt" data-s="' + k + '" data-j="' + j + '">' + esc(st.options[j]) + '</button>').join('')
+            : st.kind === 'vf' ? '<div class="vf"><button class="opt sopt" data-s="' + k + '" data-j="1">Vrai</button><button class="opt sopt" data-s="' + k + '" data-j="0">Faux</button></div>'
+            : '<input class="field sinp" data-s="' + k + '" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Ta réponse">') + '</div>').join('') + check;
+      speech = (q.prompt ? q.prompt + '. ' : '') + q.steps.map((st, k) => 'Étape ' + (k + 1) + ' : ' + st.prompt).join('. ');
+    } else if (q.type === 'nombre'){
+      body = '<div class="qprompt">' + nb(esc(q.prompt)) + '</div>' + hint +
+        '<div class="num-row"><input class="field num-in" id="numin" inputmode="decimal" autocomplete="off" placeholder="Ta réponse">' + (q.unit ? '<span class="num-u">' + esc(q.unit) + '</span>' : '') + '</div>' + check;
+      speech = q.prompt;
+    } else if (q.type === 'frise'){
+      const span = q.end - q.start, stp = [1, 2, 5, 10, 20, 25, 50, 100].find(x => span / x <= 6) || 100;
+      const ticks = []; for (let y = Math.ceil(q.start / stp) * stp; y <= q.end; y += stp) ticks.push(y);
+      const pct = y => (y - q.start) / span * 100;
+      body = '<div class="qprompt">' + nb(esc(q.prompt || 'Place chaque événement sur la frise.')) + '</div>' + hint +
+        '<div class="fr-axis" id="frax"><div class="fr-line"></div>' + ticks.map(y => '<span class="fr-tick" style="left:' + pct(y) + '%"><i></i>' + y + '</span>').join('') +
+        q.events.map((e, k) => '<span class="pin fr-pin" data-fp="' + k + '" style="left:50%" hidden>' + (k + 1) + '</span>').join('') + '</div>' +
+        '<div class="group mt">' + q.events.map((e, k) => '<div class="row fr-row" data-fr="' + k + '"><div class="fr-h"><span class="pin static">' + (k + 1) + '</span><span class="fr-l">' + esc(e.label) + '</span><b class="fr-y" data-fy="' + k + '">?</b></div>' +
+          '<input type="range" class="fr-r" data-k="' + k + '" min="' + q.start + '" max="' + q.end + '" step="1" value="' + Math.round((q.start + q.end) / 2) + '" aria-label="Année de ' + esc(e.label) + '"></div>').join('') + '</div>' +
+        '<p class="foot" style="margin:6px 0 0">Fais glisser chaque curseur jusqu’à la bonne année' + (q.tol ? ' (à ' + q.tol + ' an' + (q.tol > 1 ? 's' : '') + ' près)' : '') + '.</p>' + check;
+      speech = (q.prompt || 'Place chaque événement sur la frise.') + ' De ' + q.start + ' à ' + q.end + '. ' + q.events.map(e => e.label).join('. ');
+    } else if (q.type === 'intrus'){
+      order = shuffle(q.items.map((t, i) => i));
+      body = '<div class="qprompt">' + nb(esc(q.prompt || 'Trouve l’intrus.')) + '</div>' + hint + '<div class="intrus-grid">' + order.map(i => '<button class="opt" data-i="' + i + '">' + esc(q.items[i]) + '</button>').join('') + '</div>';
+      speech = (q.prompt || 'Trouve l’intrus.') + ' ' + order.map(i => q.items[i]).join(', ') + '.';
+    } else if (q.type === 'vfc'){
+      body = '<div class="qprompt" style="font-size:19px">' + nb(esc(q.prompt || 'Vrai ou faux ? Si c’est faux, corrige.')) + '</div>' + hint +
+        '<div class="vfc-text" id="vfct">' + vfcParse(q.text).map((x, k) => (k && !/^[,.;:!?)»]/.test(x.w) ? ' ' : '') + '<span class="vw" data-w="' + k + '">' + esc(x.w) + '</span>').join('') + '</div>' +
+        '<div class="vf" id="vfcb"><button class="opt" data-v="1">Vrai</button><button class="opt" data-v="0">Faux</button></div><div id="vfcfix"></div>';
+      speech = vfcShown(q.text) + '. Vrai ou faux ?';
+    } else if (q.type === 'lien'){
+      order = shuffle(q.lines.map((t, i) => i));
+      body = '<div class="qprompt">' + nb(esc(q.prompt || 'Relie les deux faits par « donc » ou « parce que ».')) + '</div>' + hint +
+        '<div class="group">' + order.map(i => '<div class="row cl-row" data-ci="' + i + '"><div class="cl-t">' + esc(q.lines[i].a) + '</div><div class="seg cl-seg">' + LIENS.map((c, j) => '<button data-ci="' + i + '" data-cj="' + j + '">… ' + c + ' …</button>').join('') + '</div><div class="cl-t">' + esc(q.lines[i].b) + '</div></div>').join('') + '</div>' + check;
+      speech = (q.prompt || 'Relie les deux faits.') + ' ' + order.map(i => q.lines[i].a + ', donc ou parce que, ' + q.lines[i].b).join('. ');
     } else if (q.type === 'clic'){
       body = '<div class="qprompt">' + nb(esc(q.prompt || ('Touche ' + (q.label || 'le bon endroit') + ' sur la carte.'))) + '</div>' + hint +
         '<div class="img-wrap clic-wrap" id="clk"><img src="' + esc(q.image) + '" alt="Carte"></div><p class="foot" id="clkh" style="margin:6px 0 0">Touche la carte pour placer ton repère. Tu peux le déplacer avant de valider.</p>' + check;
@@ -2424,6 +2567,124 @@ const Student = {
         });
         document.getElementById('cw').remove();
         this.answer(all, order.map(i => q.items[i].text + ' : ' + q.categories[pick[i]]).join(' · '), answerText(q), q.explanation);
+      };
+    } else if (q.type === 'etapes'){
+      const pick = {};
+      $app.querySelectorAll('.sopt').forEach(b => b.onclick = () => {
+        if (s.locked) return; const k = +b.dataset.s; pick[k] = +b.dataset.j;
+        $app.querySelectorAll('.sopt[data-s="' + k + '"]').forEach(x => x.classList.toggle('picked', x === b));
+      });
+      document.getElementById('verif').onclick = () => {
+        if (s.locked) return;
+        const val = k => q.steps[k].kind === 'court' ? ($app.querySelector('.sinp[data-s="' + k + '"]').value || '').trim() : pick[k];
+        const miss = q.steps.findIndex((st, k) => val(k) === undefined || val(k) === '');
+        if (miss >= 0){ toast('Réponds à l’étape ' + (miss + 1)); $app.querySelector('.stp[data-s="' + miss + '"]').scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
+        s.locked = true; let all = true; const given = [];
+        q.steps.forEach((st, k) => {
+          const v = val(k), box = $app.querySelector('.stp[data-s="' + k + '"]');
+          const ok = st.kind === 'court' ? String(st.answers).split('|').some(a => a.trim() && norm(a) === norm(v)) : st.kind === 'vf' ? (v === 1) === !!st.answer : v === st.answer;
+          if (!ok) all = false;
+          given.push((k + 1) + '. ' + (st.kind === 'court' ? v : st.kind === 'vf' ? (v ? 'Vrai' : 'Faux') : st.options[v]));
+          box.querySelectorAll('button,input').forEach(x => x.disabled = true);
+          if (T || this.conf) return;
+          box.classList.add(ok ? 'stp-ok' : 'stp-ko');
+          if (st.kind !== 'court') box.querySelectorAll('.sopt').forEach(x => { const j = +x.dataset.j; const right = st.kind === 'vf' ? (j === 1) === !!st.answer : j === st.answer; if (right) x.classList.add('correct'); else if (x.classList.contains('picked')) x.classList.add('wrong'); else x.classList.add('dim'); x.classList.remove('picked'); });
+          else if (!ok) box.insertAdjacentHTML('beforeend', '<div class="leg-fix" style="padding-left:0">' + esc(stepAnswer(st)) + '</div>');
+        });
+        document.getElementById('cw').remove();
+        this.answer(all, given.join(' · '), answerText(q), q.explanation);
+      };
+    } else if (q.type === 'nombre'){
+      const inp = document.getElementById('numin');
+      const verify = () => {
+        if (s.locked) return;
+        const v = parseNumFR(inp.value); if (v === null){ inp.focus(); return toast('Écris un nombre'); }
+        s.locked = true; const ok = Math.abs(v - q.answer) <= (q.tol || 0) + 1e-9;
+        inp.readOnly = true; if (!T && !this.conf) inp.classList.add(ok ? 'num-ok' : 'num-ko');
+        document.getElementById('cw').remove();
+        this.answer(ok, fmtFR(v) + (q.unit ? ' ' + q.unit : ''), answerText(q), q.explanation);
+      };
+      inp.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); verify(); } };
+      document.getElementById('verif').onclick = verify;
+    } else if (q.type === 'frise'){
+      const moved = {}, span = q.end - q.start;
+      $app.querySelectorAll('.fr-r').forEach(r => r.oninput = () => {
+        const k = +r.dataset.k, y = +r.value; moved[k] = y;
+        $app.querySelector('[data-fy="' + k + '"]').textContent = y;
+        const pin = $app.querySelector('[data-fp="' + k + '"]'); pin.hidden = false; pin.style.left = ((y - q.start) / span * 100) + '%';
+      });
+      document.getElementById('verif').onclick = () => {
+        if (s.locked) return;
+        const miss = q.events.findIndex((e, k) => !(k in moved));
+        if (miss >= 0) return toast('Place l’événement ' + (miss + 1) + ' sur la frise');
+        s.locked = true; let all = true;
+        q.events.forEach((e, k) => {
+          const ok = Math.abs(moved[k] - e.year) <= (q.tol || 0); if (!ok) all = false;
+          $app.querySelector('.fr-r[data-k="' + k + '"]').disabled = true;
+          if (T || this.conf) return;
+          const row = $app.querySelector('[data-fr="' + k + '"]'); row.classList.add(ok ? 'leg-ok' : 'leg-ko');
+          $app.querySelector('[data-fp="' + k + '"]').classList.add(ok ? 'ok' : 'ko');
+          if (!ok){ row.insertAdjacentHTML('beforeend', '<span class="leg-fix">' + e.year + '</span>'); document.getElementById('frax').insertAdjacentHTML('beforeend', '<span class="pin ok fr-pin" style="left:' + ((e.year - q.start) / span * 100) + '%">' + (k + 1) + '</span>'); }
+        });
+        document.getElementById('cw').remove();
+        this.answer(all, q.events.map((e, k) => e.label + ' : ' + moved[k]).join(' · '), answerText(q), q.explanation);
+      };
+    } else if (q.type === 'intrus'){
+      $app.querySelectorAll('.intrus-grid .opt').forEach(b => b.onclick = () => {
+        if (s.locked) return; s.locked = true;
+        const i = +b.dataset.i, ok = i === q.answer;
+        if (T || this.conf){ b.classList.add('picked'); return this.answer(ok, q.items[i], q.items[q.answer], q.explanation); }
+        $app.querySelectorAll('.intrus-grid .opt').forEach(o => { const j = +o.dataset.i; if (j === q.answer) o.classList.add('correct'); else if (o === b) o.classList.add('wrong'); else o.classList.add('dim'); });
+        this.answer(ok, q.items[i], q.items[q.answer], q.explanation);
+      });
+    } else if (q.type === 'vfc'){
+      const toks = vfcParse(q.text), errK = toks.findIndex(x => x.err);
+      const done = (ok, given) => { if (!T && !this.conf && errK >= 0){ const w = $app.querySelector('[data-w="' + errK + '"]'); w.classList.add('vw-err'); w.insertAdjacentHTML('afterend', ' <span class="vw-fix">' + esc(toks[errK].fix[0]) + '</span>'); } this.answer(ok, given, answerText(q), q.explanation); };
+      $app.querySelectorAll('#vfcb .opt').forEach(b => b.onclick = () => {
+        if (s.locked) return;
+        const v = b.dataset.v === '1';
+        $app.querySelectorAll('#vfcb .opt').forEach(o => { o.disabled = true; o.classList.toggle('picked', o === b); });
+        if (v || errK < 0){ s.locked = true; return done(v === (errK < 0), v ? 'Vrai' : 'Faux'); }
+        const fix = document.getElementById('vfcfix');
+        fix.innerHTML = '<p class="foot" style="margin:14px 0 6px">Touche le mot qui est faux dans la phrase.</p>';
+        const words = $app.querySelectorAll('.vw'); words.forEach(w => w.classList.add('vw-tap'));
+        let chosen = null;
+        words.forEach(w => w.onclick = () => {
+          if (s.locked) return; chosen = +w.dataset.w;
+          words.forEach(x => x.classList.toggle('vw-on', x === w));
+          if (!document.getElementById('vfcin')){
+            fix.insertAdjacentHTML('beforeend', '<input class="field" id="vfcin" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Écris le mot juste" style="border-radius:12px;background:var(--card);margin-top:6px">' + check);
+            const go = () => {
+              if (s.locked) return; const val = document.getElementById('vfcin').value.trim(); if (!val) return toast('Écris la correction');
+              s.locked = true; words.forEach(x => x.classList.remove('vw-tap'));
+              const ok = chosen === errK && toks[errK].fix.some(f => norm(f) === norm(val));
+              document.getElementById('cw').remove(); document.getElementById('vfcin').readOnly = true;
+              done(ok, 'Faux : « ' + toks[chosen].w + ' » → « ' + val + ' »');
+            };
+            document.getElementById('verif').onclick = go;
+            document.getElementById('vfcin').onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); go(); } };
+          }
+          setTimeout(() => document.getElementById('vfcin').focus(), 50);
+        });
+      });
+    } else if (q.type === 'lien'){
+      const pick = {};
+      $app.querySelectorAll('.cl-seg button').forEach(b => b.onclick = () => {
+        if (s.locked) return; const i = +b.dataset.ci; pick[i] = +b.dataset.cj;
+        $app.querySelectorAll('.cl-seg button[data-ci="' + i + '"]').forEach(x => x.classList.toggle('on', +x.dataset.cj === pick[i]));
+      });
+      document.getElementById('verif').onclick = () => {
+        if (s.locked) return;
+        if (order.some(i => !(i in pick))) return toast('Choisis « donc » ou « parce que » pour chaque ligne');
+        s.locked = true; let all = true;
+        order.forEach(i => {
+          const ok = pick[i] === (q.lines[i].link || 0); if (!ok) all = false;
+          const row = $app.querySelector('.cl-row[data-ci="' + i + '"]'); row.querySelectorAll('button').forEach(x => x.disabled = true);
+          if (T || this.conf) return; row.classList.add(ok ? 'leg-ok' : 'leg-ko');
+          if (!ok) row.insertAdjacentHTML('beforeend', '<span class="leg-fix">' + LIENS[q.lines[i].link || 0] + '</span>');
+        });
+        document.getElementById('cw').remove();
+        this.answer(all, order.map(i => q.lines[i].a + ' ' + LIENS[pick[i]] + ' ' + q.lines[i].b).join(' · '), answerText(q), q.explanation);
       };
     } else if (q.type === 'clic'){
       const wrap = document.getElementById('clk'); let pos = null;
@@ -3316,8 +3577,49 @@ const Prof = {
             (q.items.length > 3 ? '<button class="icon-btn mute" data-act="delcitem" data-q="' + i + '" data-o="' + k + '" aria-label="Retirer">' + I.x + '</button>' : '') +
             '<div class="seg" style="flex:1 1 100%;margin:2px 0 6px">' + q.categories.map((c, j) => '<button data-act="icat" data-q="' + i + '" data-o="' + k + '" data-v="' + j + '" class="' + (x.cat === j ? 'on' : '') + '">' + esc(c || 'Catégorie ' + (j + 1)) + '</button>').join('') + '</div></div>').join('') +
           (q.items.length < 12 ? '<button class="row center" data-act="addcitem" data-q="' + i + '" style="min-height:40px;font-size:15px">Ajouter un élément</button>' : '');
+      } else if (q.type === 'etapes'){
+        inner = '<input class="field" data-q="' + i + '" data-f="prompt" value="' + esc(q.prompt || '') + '" placeholder="Consigne générale (ex. Analyse ce témoignage.)">' +
+          '<div class="hint">Le document se règle plus bas (texte, image, source). L’élève le voit au-dessus de toutes les étapes.</div>' +
+          q.steps.map((st, k) => '<div class="step-ed"><div class="lbl" style="display:flex;justify-content:space-between;align-items:center">Étape ' + (k + 1) + (q.steps.length > 2 ? '<button class="icon-btn mute" data-act="delstep" data-q="' + i + '" data-o="' + k + '" aria-label="Retirer">' + I.x + '</button>' : '') + '</div>' +
+            '<div class="inner-pad" style="padding-top:0"><div class="seg">' + [['qcm', 'Choix multiple'], ['vf', 'Vrai/faux'], ['court', 'Réponse courte']].map(([v, l]) => '<button data-act="skind" data-q="' + i + '" data-o="' + k + '" data-v="' + v + '" class="' + (st.kind === v ? 'on' : '') + '">' + l + '</button>').join('') + '</div></div>' +
+            '<input class="field" data-q="' + i + '" data-f="sp" data-o="' + k + '" value="' + esc(st.prompt || '') + '" placeholder="Question de l’étape ' + (k + 1) + ' (ex. Qui a écrit ce texte ?)">' +
+            (st.kind === 'qcm' ? (st.options || []).map((o, j) => '<div class="opt-row"><button class="radio ' + (st.answer === j ? 'on' : '') + '" data-act="sradio" data-q="' + i + '" data-o="' + k + '" data-v="' + j + '" aria-label="Bonne réponse">' + (st.answer === j ? I.check : '') + '</button><input class="field" data-q="' + i + '" data-f="so" data-o="' + k + '" data-j="' + j + '" value="' + esc(o) + '" placeholder="Réponse ' + (j + 1) + '"></div>').join('')
+              : st.kind === 'vf' ? '<div class="inner-pad"><div class="seg"><button data-act="svf" data-q="' + i + '" data-o="' + k + '" data-v="1" class="' + (st.answer ? 'on' : '') + '">Vrai</button><button data-act="svf" data-q="' + i + '" data-o="' + k + '" data-v="0" class="' + (!st.answer ? 'on' : '') + '">Faux</button></div></div>'
+              : '<input class="field" data-q="' + i + '" data-f="sa" data-o="' + k + '" value="' + esc(st.answers || '') + '" placeholder="Réponse attendue (plusieurs possibles : 1946|mil neuf cent quarante-six)">') + '</div>').join('') +
+          (q.steps.length < 5 ? '<button class="row center" data-act="addstep" data-q="' + i + '" style="min-height:40px;font-size:15px">Ajouter une étape</button>' : '');
+      } else if (q.type === 'nombre'){
+        inner = '<textarea class="field" rows="2" data-q="' + i + '" data-f="prompt" placeholder="Question (ex. Combien de personnes ont immigré en 2018 ?)">' + esc(q.prompt) + '</textarea>' +
+          '<div class="opt-row"><input class="field" data-q="' + i + '" data-f="answer" value="' + esc(q.answer ?? '') + '" inputmode="decimal" placeholder="Valeur attendue"><input class="field" data-q="' + i + '" data-f="unit" value="' + esc(q.unit || '') + '" placeholder="Unité (facultatif)" style="max-width:40%"></div>' +
+          '<div class="opt-row"><span style="color:var(--label2);font-size:15px;flex:none">Marge acceptée ±</span><input class="field" data-q="' + i + '" data-f="tol" value="' + esc(q.tol ?? '') + '" inputmode="decimal" placeholder="0"></div>' +
+          '<div class="hint">Pour une lecture de graphique, ajoute l’image dans le document ci-dessous et prévois une marge (ex. 170 000 ± 10 000).</div>';
+      } else if (q.type === 'frise'){
+        inner = '<input class="field" data-q="' + i + '" data-f="prompt" value="' + esc(q.prompt || '') + '" placeholder="Consigne (ex. Place ces événements sur la frise.)">' +
+          '<div class="opt-row"><span style="color:var(--label2);font-size:15px;flex:none">De</span><input class="field" data-q="' + i + '" data-f="start" value="' + esc(q.start ?? '') + '" inputmode="numeric" placeholder="1900"><span style="color:var(--label2);font-size:15px;flex:none">à</span><input class="field" data-q="' + i + '" data-f="end" value="' + esc(q.end ?? '') + '" inputmode="numeric" placeholder="2025"></div>' +
+          '<div class="lbl">Événements et leur année</div>' +
+          q.events.map((e, k) => '<div class="opt-row"><span class="pin static">' + (k + 1) + '</span><input class="field" data-q="' + i + '" data-f="evl" data-o="' + k + '" value="' + esc(e.label) + '" placeholder="Événement"><input class="field" data-q="' + i + '" data-f="evy" data-o="' + k + '" value="' + esc(e.year ?? '') + '" inputmode="numeric" placeholder="Année" style="max-width:26%">' +
+            (q.events.length > 1 ? '<button class="icon-btn mute" data-act="delev" data-q="' + i + '" data-o="' + k + '" aria-label="Retirer">' + I.x + '</button>' : '') + '</div>').join('') +
+          (q.events.length < 6 ? '<button class="row center" data-act="addev" data-q="' + i + '" style="min-height:40px;font-size:15px">Ajouter un événement</button>' : '') +
+          '<div class="inner-pad"><div class="lbl" style="padding:0 0 6px">Marge acceptée</div><div class="seg">' + [0, 2, 5, 10].map(v => '<button data-act="ftol" data-q="' + i + '" data-v="' + v + '" class="' + ((+q.tol || 0) === v ? 'on' : '') + '">' + (v ? '± ' + v + ' ans' : 'Exacte') + '</button>').join('') + '</div></div>';
+      } else if (q.type === 'intrus'){
+        inner = '<input class="field" data-q="' + i + '" data-f="prompt" value="' + esc(q.prompt || '') + '" placeholder="Consigne (ex. Trouve l’intrus : lequel n’est pas une migration de travail ?)">' +
+          '<div class="lbl">Éléments · coche l’intrus</div>' +
+          q.items.map((o, k) => '<div class="opt-row"><button class="radio ' + (q.answer === k ? 'on' : '') + '" data-act="iradio" data-q="' + i + '" data-o="' + k + '" aria-label="Intrus">' + (q.answer === k ? I.check : '') + '</button><input class="field" data-q="' + i + '" data-f="iit" data-o="' + k + '" value="' + esc(o) + '" placeholder="Élément ' + (k + 1) + '">' +
+            (q.items.length > 3 ? '<button class="icon-btn mute" data-act="deliit" data-q="' + i + '" data-o="' + k + '" aria-label="Retirer">' + I.x + '</button>' : '') + '</div>').join('') +
+          (q.items.length < 6 ? '<button class="row center" data-act="addiit" data-q="' + i + '" style="min-height:40px;font-size:15px">Ajouter un élément</button>' : '') +
+          '<div class="hint">Explique dans l’explication pourquoi c’est l’intrus : c’est là que l’élève apprend.</div>';
+      } else if (q.type === 'vfc'){
+        inner = '<input class="field" data-q="' + i + '" data-f="prompt" value="' + esc(q.prompt || '') + '" placeholder="Consigne (ex. Vrai ou faux ? Si c’est faux, corrige.)">' +
+          '<textarea class="field" rows="3" data-q="' + i + '" data-f="text" placeholder="Le Bois du Cazier se trouve près de [Liège|Charleroi].">' + esc(q.text || '') + '</textarea>' +
+          '<div class="hint">Phrase fausse : mets le mot faux et la correction entre crochets, [Liège|Charleroi]. L’élève voit « Liège », doit dire Faux, toucher ce mot et écrire Charleroi. Phrase vraie : pas de crochets.</div>';
+      } else if (q.type === 'lien'){
+        inner = '<input class="field" data-q="' + i + '" data-f="prompt" value="' + esc(q.prompt || '') + '" placeholder="Consigne (ex. Relie les faits par « donc » ou « parce que ».)">' +
+          q.lines.map((l, k) => '<div class="step-ed"><div class="lbl" style="display:flex;justify-content:space-between;align-items:center">Ligne ' + (k + 1) + (q.lines.length > 2 ? '<button class="icon-btn mute" data-act="delline" data-q="' + i + '" data-o="' + k + '" aria-label="Retirer">' + I.x + '</button>' : '') + '</div>' +
+            '<input class="field" data-q="' + i + '" data-f="la" data-o="' + k + '" value="' + esc(l.a) + '" placeholder="Premier fait (ex. Le prix du pétrole est multiplié par 4)">' +
+            '<div class="inner-pad"><div class="seg">' + LIENS.map((c, j) => '<button data-act="llink" data-q="' + i + '" data-o="' + k + '" data-v="' + j + '" class="' + ((l.link || 0) === j ? 'on' : '') + '">… ' + c + ' …</button>').join('') + '</div></div>' +
+            '<input class="field" data-q="' + i + '" data-f="lb" data-o="' + k + '" value="' + esc(l.b) + '" placeholder="Second fait (ex. la Belgique entre en crise)"></div>').join('') +
+          (q.lines.length < 6 ? '<button class="row center" data-act="addline" data-q="' + i + '" style="min-height:40px;font-size:15px">Ajouter une ligne</button>' : '');
       } else if (q.type === 'clic'){
-        inner = '<input class="field" data-q="' + i + '" data-f="label" value="' + esc(q.label || '') + '" placeholder="Lieu à trouver (ex. Liège)">' +
+        inner = '<input class="field" data-q="' + i + '" data-f="label\" value="' + esc(q.label || '') + '" placeholder="Lieu à trouver (ex. Liège)">' +
           '<input class="field" data-q="' + i + '" data-f="prompt" value="' + esc(q.prompt) + '" placeholder="Consigne (ex. Touche Liège sur la carte.)">' +
           (q.image
             ? '<div class="inner-pad"><div class="img-wrap edit"><img src="' + esc(q.image) + '" alt="Carte" data-clicq="' + i + '">' +
@@ -3370,7 +3672,7 @@ const Prof = {
       '<p class="foot">Quand l\u2019élève a validé la série, un test de contrôle se débloque : des questions tirées au hasard dans la série choisie, un seul essai, la correction à la fin. Tu vois ensuite ses progrès par rapport à l\u2019évaluation. Choisis une autre série que celle-ci, pour que l\u2019élève ne retrouve pas les mêmes questions.</p>' +
       '<div class="section-h">Questions (' + d.questions.length + ')</div>' +
       (d.questions.length ? d.questions.map(qHtml).join('') : '<div class="empty">Ajoute une première question avec les boutons ci-dessous.</div>') +
-      '<div class="add-row"><button data-act="addq" data-t="qcm">' + I.qcm + 'Choix multiple</button><button data-act="addq" data-t="vf">' + I.vf + 'Vrai ou faux</button><button data-act="addq" data-t="trous">' + I.trous + 'Texte à trous</button><button data-act="addq" data-t="chrono">' + I.chrono + 'Ligne du temps</button><button data-act="addq" data-t="image">' + I.image + 'Image à légender</button><button data-act="addq" data-t="assoc">' + I.assoc + 'Associer</button><button data-act="addq" data-t="classer">' + I.classer + 'Classer</button><button data-act="addq" data-t="clic">' + I.clic + 'Toucher sur la carte</button></div>' +
+      '<div class="add-row"><button data-act="addq" data-t="qcm">' + I.qcm + 'Choix multiple</button><button data-act="addq" data-t="vf">' + I.vf + 'Vrai ou faux</button><button data-act="addq" data-t="trous">' + I.trous + 'Texte à trous</button><button data-act="addq" data-t="chrono">' + I.chrono + 'Ligne du temps</button><button data-act="addq" data-t="image">' + I.image + 'Image à légender</button><button data-act="addq" data-t="assoc">' + I.assoc + 'Associer</button><button data-act="addq" data-t="classer">' + I.classer + 'Classer</button><button data-act="addq" data-t="clic">' + I.clic + 'Toucher sur la carte</button><button data-act="addq" data-t="etapes">' + I.etapes + 'Analyse de document</button><button data-act="addq" data-t="nombre">' + I.nombre + 'Lire une valeur</button><button data-act="addq" data-t="frise">' + I.frise + 'Placer sur une frise</button><button data-act="addq" data-t="intrus">' + I.intrus + 'Trouver l’intrus</button><button data-act="addq" data-t="vfc">' + I.vfc + 'Vrai ou faux à corriger</button><button data-act="addq" data-t="lien">' + I.lien + 'Cause ou conséquence</button></div>' +
       '<div class="group mt2"><button class="row center" data-act="preview">Essayer comme un élève</button>' + (id ? '<button class="row danger" data-act="delset">Supprimer la série</button>' : '') + '</div></div>';
     this.shell('exercices', html);
     const ed = document.getElementById('ed');
@@ -3387,6 +3689,14 @@ const Prof = {
       else if (f === 'pb') q.pairs[+t.dataset.o].b = t.value;
       else if (f === 'cat'){ q.categories[+t.dataset.o] = t.value; document.querySelectorAll('[data-act="icat"][data-q="' + t.dataset.q + '"][data-v="' + t.dataset.o + '"]').forEach(x => { x.textContent = t.value || 'Catégorie ' + (+t.dataset.o + 1); }); }
       else if (f === 'citem') q.items[+t.dataset.o].text = t.value;
+      else if (f === 'sp') q.steps[+t.dataset.o].prompt = t.value;
+      else if (f === 'so') q.steps[+t.dataset.o].options[+t.dataset.j] = t.value;
+      else if (f === 'sa') q.steps[+t.dataset.o].answers = t.value;
+      else if (f === 'evl') q.events[+t.dataset.o].label = t.value;
+      else if (f === 'evy') q.events[+t.dataset.o].year = t.value;
+      else if (f === 'iit') q.items[+t.dataset.o] = t.value;
+      else if (f === 'la') q.lines[+t.dataset.o].a = t.value;
+      else if (f === 'lb') q.lines[+t.dataset.o].b = t.value;
       else q[f] = t.value;
     });
     const csel = document.getElementById('ctlsel'); if (csel) csel.addEventListener('change', () => { d.control_set_id = csel.value || null; if (d.control_set_id && !d.control_count) d.control_count = 10; const y = window.scrollY; this.renderEditor(id); window.scrollTo(0, y); });
@@ -3437,6 +3747,20 @@ const Prof = {
       if (act === 'delcitem'){ q.items.splice(+b.dataset.o, 1); return rerender(); }
       if (act === 'icat'){ q.items[+b.dataset.o].cat = +b.dataset.v; return rerender(); }
       if (act === 'clicr'){ q.r = +b.dataset.v; return rerender(); }
+      if (act === 'skind'){ const st = q.steps[+b.dataset.o], v = b.dataset.v; st.kind = v; if (v === 'qcm' && !st.options) { st.options = ['', '', '']; st.answer = 0; } if (v === 'vf' && typeof st.answer !== 'boolean') st.answer = true; if (v === 'qcm' && typeof st.answer !== 'number') st.answer = 0; return rerender(); }
+      if (act === 'sradio'){ q.steps[+b.dataset.o].answer = +b.dataset.v; return rerender(); }
+      if (act === 'svf'){ q.steps[+b.dataset.o].answer = b.dataset.v === '1'; return rerender(); }
+      if (act === 'addstep'){ q.steps.push({ kind: 'qcm', prompt: '', options: ['', '', ''], answer: 0 }); return rerender(); }
+      if (act === 'delstep'){ q.steps.splice(+b.dataset.o, 1); return rerender(); }
+      if (act === 'addev'){ q.events.push({ label: '', year: '' }); return rerender(); }
+      if (act === 'delev'){ q.events.splice(+b.dataset.o, 1); return rerender(); }
+      if (act === 'ftol'){ q.tol = +b.dataset.v; return rerender(); }
+      if (act === 'iradio'){ q.answer = +b.dataset.o; return rerender(); }
+      if (act === 'addiit'){ q.items.push(''); return rerender(); }
+      if (act === 'deliit'){ const k = +b.dataset.o; q.items.splice(k, 1); if (q.answer === k) q.answer = 0; else if (q.answer > k) q.answer--; return rerender(); }
+      if (act === 'llink'){ q.lines[+b.dataset.o].link = +b.dataset.v; return rerender(); }
+      if (act === 'addline'){ q.lines.push({ a: '', b: '', link: 0 }); return rerender(); }
+      if (act === 'delline'){ q.lines.splice(+b.dataset.o, 1); return rerender(); }
       if (act === 'adddoc'){ q.doc = { text: '', image: '', source: '' }; rerender(); const ta = document.querySelector('[data-q="' + i + '"][data-f="doctext"]'); if (ta) ta.focus({ preventScroll: true }); return; }
       if (act === 'reusedoc'){ q.doc = JSON.parse(JSON.stringify(d.questions[i - 1].doc)); return rerender(); }
       if (act === 'deldoc'){ delete q.doc; return rerender(); }
@@ -3453,6 +3777,12 @@ const Prof = {
           : t === 'assoc' ? { id: uid(), type: 'assoc', prompt: 'Associe chaque élément à sa paire.', pairs: [{ a: '', b: '' }, { a: '', b: '' }, { a: '', b: '' }], explanation: '' }
           : t === 'classer' ? { id: uid(), type: 'classer', prompt: 'Classe chaque élément dans la bonne catégorie.', categories: ['', ''], items: [{ text: '', cat: 0 }, { text: '', cat: 0 }, { text: '', cat: 1 }], explanation: '' }
           : t === 'clic' ? { id: uid(), type: 'clic', prompt: '', label: '', image: '', target: null, r: 8, explanation: '' }
+          : t === 'etapes' ? { id: uid(), type: 'etapes', prompt: 'Analyse ce document.', doc: { text: '', image: '', source: '' }, steps: [{ kind: 'qcm', prompt: 'Qui est l’auteur de ce document ?', options: ['', '', ''], answer: 0 }, { kind: 'qcm', prompt: 'De quel type de document s’agit-il ?', options: ['', '', ''], answer: 0 }, { kind: 'qcm', prompt: 'Que nous apprend-il ?', options: ['', '', ''], answer: 0 }], explanation: '' }
+          : t === 'nombre' ? { id: uid(), type: 'nombre', prompt: '', answer: '', tol: '', unit: '', explanation: '' }
+          : t === 'frise' ? { id: uid(), type: 'frise', prompt: 'Place chaque événement sur la frise.', start: 1900, end: 2025, tol: 2, events: [{ label: '', year: '' }, { label: '', year: '' }], explanation: '' }
+          : t === 'intrus' ? { id: uid(), type: 'intrus', prompt: 'Trouve l’intrus.', items: ['', '', '', ''], answer: 0, explanation: '' }
+          : t === 'vfc' ? { id: uid(), type: 'vfc', prompt: 'Vrai ou faux ? Si c’est faux, corrige.', text: '', explanation: '' }
+          : t === 'lien' ? { id: uid(), type: 'lien', prompt: 'Relie les deux faits par « donc » ou « parce que ».', lines: [{ a: '', b: '', link: 0 }, { a: '', b: '', link: 1 }], explanation: '' }
           : { id: uid(), type: 'trous', prompt: 'Complète le texte.', text: '', explanation: '' });
         this.renderEditor(id);
         const cards = document.querySelectorAll('.qedit'); const last = cards[cards.length - 1];
