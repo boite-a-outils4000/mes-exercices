@@ -417,6 +417,7 @@ a.cblock.row{display:flex;color:inherit;text-decoration:none}
 .chips{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px}
 .chip{border:0;border-radius:999px;padding:7px 14px;font-size:15px;font-weight:500;background:var(--fill);color:var(--label)}
 .chip.on{background:var(--blue);color:#fff}
+.chips.exnum .chip{min-width:44px;font-weight:600}
 .tb{display:flex;gap:6px;padding:8px 12px;border-bottom:.5px solid var(--sep);flex-wrap:wrap}
 .tb button{border:0;background:var(--fill);border-radius:8px;padding:6px 11px;font-size:13px;font-weight:600}
 .step-n{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:none}
@@ -3744,6 +3745,10 @@ const Prof = {
       '<p class="foot">Les pages sont enregistrées dans l’appli, pas sur un site public. Pense à cacher le nom de famille avant la photo.</p>' +
       '<div class="section-h">Mot général</div><div class="group"><textarea class="field" rows="3" data-f="general" placeholder="Facultatif. Ex. : Bon travail sur la carte, revois les capitales.">' + esc(d.general) + '</textarea></div>' +
       '<div class="section-h">Commentaires à côté des exercices (' + d.comments.length + ')</div>' +
+      (() => { const N = this.exCount(), has = k => d.comments.some(c => c.label === 'Exercice ' + k);
+        return '<div class="group"><div class="row" style="padding-bottom:0"><div class="main"><div class="t">Touche le numéro de l’exercice</div><div class="s">Le commentaire se crée avec son titre, il ne reste qu’à écrire.</div></div></div>' +
+          '<div class="chips exnum">' + Array.from({ length: N }, (x, k) => '<button class="chip ' + (has(k + 1) ? 'on' : '') + '" data-act="exn" data-i="' + (k + 1) + '" aria-label="Exercice ' + (k + 1) + '">' + (k + 1) + '</button>').join('') +
+          '<button class="chip" data-act="exless" aria-label="Moins d’exercices">−</button><button class="chip" data-act="exmore" aria-label="Plus d’exercices">+</button></div></div>'; })() +
       (d.comments.length ? d.comments.map(comHtml).join('') : '<div class="empty">Ajoute un commentaire par exercice à expliquer.</div>') +
       '<div class="group mt"><button class="row center" data-act="cadd" style="gap:8px;color:var(--blue)">' + I.plus + ' Ajouter un commentaire</button></div>' +
       '<p class="foot">Commentaires rédigés par l’IA : envoie la copie corrigée à Claude dans ta conversation. Ses propositions arrivent ici en violet, et tu les relis avant l’envoi.</p>' +
@@ -3786,7 +3791,7 @@ const Prof = {
       if (act === 'pdel'){ if (await confirmDialog('Retirer la page ' + (i + 1) + ' ?', '', 'Retirer', true)){ d.pages.splice(i, 1); d.comments.forEach(c => { if (c.page === i + 1) c.page = null; else if (c.page > i + 1) c.page--; }); rerender(); } return; }
       if (act === 'cadd'){
         d.comments.push({ label: '', text: '' }); rerender();
-        const cards = ed.querySelectorAll('.qedit'); const last = cards[cards.length - 1];
+        const cards = document.querySelectorAll('#ped .qedit'); const last = cards[cards.length - 1];
         if (last){ last.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => last.querySelector('input').focus({ preventScroll: true }), 300); }
         return;
       }
@@ -3794,6 +3799,18 @@ const Prof = {
       if (act === 'cdown' && i < d.comments.length - 1){ [d.comments[i + 1], d.comments[i]] = [d.comments[i], d.comments[i + 1]]; return rerender(); }
       if (act === 'cdel'){ if (await confirmDialog('Supprimer ce commentaire ?', '', 'Supprimer', true)){ d.comments.splice(i, 1); rerender(); } return; }
       if (act === 'cok'){ d.comments[i].ok = true; return rerender(); }
+      if (act === 'exmore' || act === 'exless'){ this.exCount(Math.max(1, Math.min(40, this.exCount() + (act === 'exmore' ? 1 : -1)))); return rerender(); }
+      if (act === 'exn'){
+        const lab = 'Exercice ' + i; let k = d.comments.findIndex(c => c.label === lab);
+        if (k < 0){
+          const num = c => { const m = /^Exercice (\d+)$/.exec(c.label || ''); return m ? +m[1] : null; };
+          k = d.comments.findIndex(c => num(c) != null && num(c) > i); if (k < 0) k = d.comments.length;
+          d.comments.splice(k, 0, { label: lab, text: '' }); rerender();
+        }
+        const ta = document.querySelector('#ped textarea[data-c="' + k + '"]');
+        if (ta){ ta.closest('.qedit').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => ta.focus({ preventScroll: true }), 300); }
+        return;
+      }
       if (act === 'pprev') return Student.showCopy(this.copyView(d), () => this.renderCopyEditor(id), 'Retour à la copie', true);
       if (act === 'pdelete'){
         if (!await confirmDialog('Supprimer cette copie ?', stu.first_name + ' ne la verra plus. Cette action est définitive.', 'Supprimer', true)) return;
@@ -3822,6 +3839,10 @@ const Prof = {
       toast(payload.published ? (d._was ? 'Copie mise à jour' : 'Copie envoyée à ' + esc(stu.first_name)) : 'Brouillon enregistré');
       go('#/prof/eleve/' + d.student_id);
     };
+  },
+  exCount(n){
+    if (n){ try { store.set('exos_nex', String(n)); } catch(e){} return n; }
+    const v = +(store.get('exos_nex') || 0); return v >= 1 && v <= 40 ? v : 10;
   },
   copyView(d){
     const sc = parseNum(d.score), tot = parseNum(d.total);
