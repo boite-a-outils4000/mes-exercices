@@ -124,7 +124,8 @@ textarea.field{min-height:80px;line-height:1.4}
 .tile .l{font-size:13px;color:var(--label2);margin-top:2px}
 .sbar{display:flex;gap:2px;height:7px;margin:7px 0 5px;border-radius:4px;overflow:hidden}.sbar i{display:block;height:100%}
 .ring{position:relative;width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center}.ring svg{position:absolute;inset:0}.ring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;line-height:1}
-.srow{align-items:center}.sdue{flex:none;text-align:right;font-size:12px;color:var(--label2);line-height:1.25}.sdue b{color:var(--label);font-size:13px}
+.srow{align-items:center}
+.cls-h{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;padding:20px 4px 2px;color:var(--label);text-align:left}.cls-h .n{font-size:21px;font-weight:700}.cls-h .m{flex:1;font-size:14px;color:var(--label2)}.cls-h .chev{color:var(--label3);display:flex}.cls-h .chev svg{transition:transform .2s}.cls-h.open .chev svg{transform:rotate(90deg)}.sdue{flex:none;text-align:right;font-size:12px;color:var(--label2);line-height:1.25}.sdue b{color:var(--label);font-size:13px}
 .bar{height:6px;background:var(--fill2);border-radius:3px;overflow:hidden;margin-top:8px}
 .bar i{display:block;height:100%;background:var(--green);border-radius:3px;transition:width .4s}
 .empty{background:var(--card);border-radius:12px;padding:28px 22px;text-align:center;color:var(--label2);font-size:15px;line-height:1.45}
@@ -2610,7 +2611,7 @@ const Prof = {
     this.user = session.user;
     const [tab, id] = parts;
     try {
-      if (!this.loaded){ loading(); await this.load(); }
+      if (!this.loaded){ loading(); await this.load(); const k = store.get('prof_classe'); if (k && (k === 'all' || this.classes.some(c => c.id === k))) this.classFilter = k; }
       else if (!tab || tab === 'suivi') await this.load();
     } catch(e){ console.error(e); $app.innerHTML = '<div class="screen center"><div class="empty"><b>Erreur de chargement</b>' + esc(e.message || '') + '</div><button class="btn mt" onclick="route()">Réessayer</button></div>'; return; }
     if (tab === 'suivi' && id) return this.renderSetProgress(id);
@@ -2683,7 +2684,7 @@ const Prof = {
   },
   bindSeg(rerender){
     const seg = document.getElementById('cseg'); if (!seg) return;
-    seg.querySelectorAll('button').forEach(b => b.onclick = () => { this.classFilter = b.dataset.c; rerender(); });
+    seg.querySelectorAll('button').forEach(b => b.onclick = () => { this.classFilter = b.dataset.c; store.set('prof_classe', b.dataset.c); rerender(); });
   },
   filteredAssignments(){
     return this.assignments.filter(a => {
@@ -2729,6 +2730,17 @@ const Prof = {
   },
 
   /* --- Suivi --- */
+  setStats(as){
+    const bySet = {};
+    as.forEach(x => (bySet[x.a.set_id] = bySet[x.a.set_id] || []).push(x));
+    return this.sets.filter(s => bySet[s.id]).map(s => {
+      const list = bySet[s.id];
+      const due = list.filter(x => !x.st.done && x.a.due_date).map(x => x.a.due_date).sort();
+      return { s, total: list.length, done: list.filter(x => x.st.done).length, late: list.filter(x => x.st.late).length,
+        progress: list.filter(x => x.st.status === 'progress').length, todo: list.filter(x => x.st.status === 'todo').length,
+        due: due.find(d => d >= todayLocal()) || null, lastAct: list.map(x => x.st.last || x.a.created_at).sort().pop() };
+    }).sort((x, y) => (y.lastAct || '').localeCompare(x.lastAct || ''));
+  },
   closedDashFolders(){ try { return JSON.parse(store.get('suivi_dossiers_fermes') || '[]'); } catch(e){ return []; } },
   ring(pct, col){
     const r = 17, c = 2 * Math.PI * r;
@@ -2739,10 +2751,12 @@ const Prof = {
     const seg = (n, col) => n ? '<i style="width:' + (n / x.total * 100) + '%;background:' + col + '"></i>' : '';
     return '<div class="sbar">' + seg(x.done, 'var(--green)') + seg(x.progress, 'var(--orange)') + seg(x.late, 'var(--red)') + seg(x.todo, 'var(--fill)') + '</div>';
   },
-  dashSetsHtml(sets){
+  dashSetsHtml(sets, as){
     if (!sets.length) return '<div class="section-h">Séries assignées</div>';
     const view = store.get('suivi_vue') === 'finies' ? 'finies' : 'cours';
-    const fin = sets.filter(x => x.done === x.total), cur = sets.filter(x => x.done < x.total);
+    const multiC = this.classFilter === 'all' && new Set(as.map(x => (this.studentById[x.a.student_id] || {}).class_id)).size > 1;
+    const perC = multiC ? this.classes.flatMap(c => this.setStats(as.filter(x => (this.studentById[x.a.student_id] || {}).class_id === c.id))) : sets;
+    const fin = perC.filter(x => x.done === x.total), cur = perC.filter(x => x.done < x.total);
     const shown = view === 'finies' ? fin : cur;
     const legend = x => [x.done ? '<span style="color:var(--green)">' + x.done + ' validé' + (x.done > 1 ? 's' : '') + '</span>' : '', x.progress ? '<span style="color:var(--orange)">' + x.progress + ' en cours</span>' : '',
       x.late ? '<span style="color:var(--red)">' + x.late + ' en retard</span>' : '', x.todo ? x.todo + ' pas commencé' + (x.todo > 1 ? 's' : '') : ''].filter(Boolean).join(' · ');
@@ -2752,19 +2766,35 @@ const Prof = {
         '<div class="main"><div class="t">' + esc(x.s.title) + '</div>' + this.stackBar(x) + '<div class="s" style="font-size:13px">' + legend(x) + '</div></div>' +
         (x.due && x.done < x.total ? '<span class="sdue">pour le<br><b>' + fmtDate(x.due) + '</b></span>' : '') + '<span class="chev">' + I.chevR + '</span></a>';
     };
+    const closed = this.closedDashFolders();
+    const foldersHtml = (items, ck) => {
     const by = new Map();
-    shown.forEach(x => { const f = (x.s.folder || '').trim(); if (!by.has(f)) by.set(f, []); by.get(f).push(x); });
+    items.forEach(x => { const f = (x.s.folder || '').trim(); if (!by.has(f)) by.set(f, []); by.get(f).push(x); });
     const keys = [...by.keys()].sort((a, b) => !a ? 1 : !b ? -1 : (by.get(b).map(x => x.lastAct || '').sort().pop() || '').localeCompare(by.get(a).map(x => x.lastAct || '').sort().pop() || ''));
-    const closed = this.closedDashFolders(), useF = keys.some(Boolean);
-    const body = keys.map(f => {
+    const useF = keys.some(Boolean);
+    return keys.map(f => {
       const list = by.get(f).sort((x, y) => useF ? x.s.title.localeCompare(y.s.title, 'fr', { numeric: true }) : 0);
       if (!useF) return '<div class="group">' + list.map(row).join('') + '</div>';
       const t = list.reduce((a, x) => ({ total: a.total + x.total, done: a.done + x.done, progress: a.progress + x.progress, late: a.late + x.late, todo: a.todo + x.todo }), { total: 0, done: 0, progress: 0, late: 0, todo: 0 });
-      const open = !closed.includes(f || '·');
-      return '<div class="group fold" style="margin-top:12px"><button class="row fold-h' + (open ? ' open' : '') + '" data-dfold="' + esc(f || '·') + '"><span class="fic"' + (f ? '' : ' style="background:var(--gray)"') + '>' + I.folder + '</span><div class="main"><div class="t" style="font-weight:600">' + esc(f || 'Sans dossier') + '</div>' +
+      const key = ck + (f || '·'), open = !closed.includes(key);
+      return '<div class="group fold" style="margin-top:12px"><button class="row fold-h' + (open ? ' open' : '') + '" data-dfold="' + esc(key) + '"><span class="fic"' + (f ? '' : ' style="background:var(--gray)"') + '>' + I.folder + '</span><div class="main"><div class="t" style="font-weight:600">' + esc(f || 'Sans dossier') + '</div>' +
         this.stackBar(t) + '<div class="s" style="font-size:13px">' + list.length + ' série' + (list.length > 1 ? 's' : '') + ' · ' + Math.round(t.done / t.total * 100) + ' % validé' + '</div></div>' +
         (t.late ? '<span class="pill red">' + t.late + ' en retard</span>' : '') + '<span class="chev">' + I.chevR + '</span></button>' + (open ? list.map(row).join('') : '') + '</div>';
     }).join('');
+    };
+    const multi = this.classFilter === 'all' && new Set(as.map(x => (this.studentById[x.a.student_id] || {}).class_id)).size > 1;
+    let body;
+    if (!multi) body = foldersHtml(shown, '');
+    else {
+      const ids = new Set(sets.map(x => x.s.id));
+      body = this.classes.map(c => {
+        const items = this.setStats(as.filter(x => (this.studentById[x.a.student_id] || {}).class_id === c.id)).filter(x => ids.has(x.s.id) && (view === 'finies' ? x.done === x.total : x.done < x.total));
+        if (!items.length) return '';
+        const late = items.reduce((t, x) => t + x.late, 0), key = 'c:' + c.id, open = !closed.includes(key);
+        return '<button class="cls-h' + (open ? ' open' : '') + '" data-dfold="' + key + '"><span class="chev">' + I.chevR + '</span><span class="n">' + esc(c.name) + '</span><span class="m">' + items.length + ' série' + (items.length > 1 ? 's' : '') + '</span>' + (late ? '<span class="pill red">' + late + ' en retard</span>' : '') + '</button>' +
+          (open ? foldersHtml(items, c.id + '|') : '');
+      }).join('');
+    }
     return '<div class="section-h">Séries assignées</div>' +
       '<div class="seg"><button data-dview="cours" class="' + (view === 'cours' ? 'on' : '') + '">En cours (' + cur.length + ')</button><button data-dview="finies" class="' + (view === 'finies' ? 'on' : '') + '">Terminées (' + fin.length + ')</button></div>' +
       (shown.length ? body : '<div class="empty">' + (view === 'finies' ? 'Aucune série n\u2019est encore validée par tous ses élèves.' : 'Toutes les séries assignées sont validées. Bravo !') + '</div>') +
@@ -2776,13 +2806,7 @@ const Prof = {
     const nDone = as.filter(x => x.st.done).length, nLate = as.filter(x => x.st.late).length, nTodo = as.length - nDone;
     const bySet = {};
     as.forEach(x => (bySet[x.a.set_id] = bySet[x.a.set_id] || []).push(x));
-    const sets = this.sets.filter(s => bySet[s.id]).map(s => {
-      const list = bySet[s.id];
-      const due = list.filter(x => !x.st.done && x.a.due_date).map(x => x.a.due_date).sort();
-      return { s, total: list.length, done: list.filter(x => x.st.done).length, late: list.filter(x => x.st.late).length,
-        progress: list.filter(x => x.st.status === 'progress').length, todo: list.filter(x => x.st.status === 'todo').length,
-        due: due.find(d => d >= todayLocal()) || null, lastAct: list.map(x => x.st.last || x.a.created_at).sort().pop() };
-    }).sort((x, y) => (y.lastAct || '').localeCompare(x.lastAct || ''));
+    const sets = this.setStats(as);
     const late = as.filter(x => x.st.late).map(x => ({ ...x, stu: this.studentById[x.a.student_id], set: this.sets.find(s => s.id === x.a.set_id) })).filter(x => x.set)
       .sort((x, y) => x.stu.class_name.localeCompare(y.stu.class_name, 'fr', { numeric: true }) || x.stu.first_name.localeCompare(y.stu.first_name, 'fr'));
     this._late = late;
@@ -2811,7 +2835,7 @@ const Prof = {
           (this.classes.length > 1 && this.classFilter === 'all' ? ' <span style="color:var(--label2);font-size:15px">· ' + esc(x.stu.class_name) + '</span>' : '') + '</div><div class="s">' + esc(x.set.title) + (x.st.count ? ' · ' + x.st.count + ' essai' + (x.st.count > 1 ? 's' : '') + ', meilleur ' + x.st.best + ' %' : ' · pas commencé') + '</div></div>' +
           '<span class="late-due">' + fmtDate(x.a.due_date) + '</span></a>').join('') +
         '<button class="row center" id="copylate">Copier la liste pour un message</button></div>' : '') +
-      this.dashSetsHtml(sets) +
+      this.dashSetsHtml(sets, as) +
       (sets.length ? ''
         : '<div class="empty"><b>Rien à suivre pour l\u2019instant</b>' + (this.classes.length ? 'Crée une série dans l\u2019onglet Exercices, puis assigne-la à des élèves.' : 'Commence par créer une classe et ses élèves dans l\u2019onglet Classes.') + '</div>') +
       '</div>';
