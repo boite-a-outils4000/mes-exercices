@@ -67,6 +67,10 @@ button.row:active,a.row:active{background:var(--fill2)}
 .row .s{font-size:14px;color:var(--label2);margin-top:2px}
 .row .val{color:var(--label2);font-size:17px;white-space:nowrap}
 .row .chev{color:var(--label3);flex:none;display:flex}
+.fold-h .fic{width:30px;height:30px;border-radius:8px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.fold-h .chev svg{transition:transform .2s}.fold-h.open .chev svg{transform:rotate(90deg)}
+.fold-h .more{flex:none;color:var(--blue);font-size:15px;padding:6px 2px 6px 8px}
+.fold+.fold,.fold+.section-h{margin-top:12px}
 .row.center{justify-content:center;color:var(--blue)}
 .row.danger{color:var(--red);justify-content:center}
 .clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -683,6 +687,7 @@ I.users = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="c
 I.gauge = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 17a8 8 0 1116 0"/><path d="M12 17l4-5"/><circle cx="12" cy="17" r="1.4" fill="currentColor"/></svg>';
 I.map = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>';
 I.steps = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h5v-5h5V9h5V4"/></svg>';
+I.folder = '<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6.5A2.5 2.5 0 0 1 5.5 4h3.6c.7 0 1.3.3 1.8.8L12.3 6h6.2A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/></svg>';
 I.info = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5h.01"/></svg>';
 const fmtN = n => Number(n).toLocaleString('fr-BE', { maximumFractionDigits: 3 });
 const parseN = v => { const t = String(v || '').replace(/[\s  ]/g, '').replace(/[a-zA-Z]/g, '').replace(',', '.'); return t === '' || isNaN(+t) ? null : +t; };
@@ -2914,27 +2919,58 @@ const Prof = {
   },
 
   /* --- Exercices --- */
+  folderNames(){
+    return [...new Set(this.sets.map(s => (s.folder || '').trim()).filter(Boolean))].sort((x, y) => x.localeCompare(y, 'fr', { numeric: true }));
+  },
+  folderGroups(list){
+    const all = list || this.sets, out = this.folderNames().map(f => [f, all.filter(s => (s.folder || '').trim() === f)
+      .sort((x, y) => x.title.localeCompare(y.title, 'fr', { numeric: true }))]).filter(g => g[1].length);
+    const loose = all.filter(s => !(s.folder || '').trim());
+    return loose.length ? out.concat([['', loose]]) : out;
+  },
+  openFolders(){ try { return JSON.parse(store.get('exos_dossiers_ouverts') || '[]'); } catch(e){ return []; } },
+
   renderSets(){
     const countFor = id => this.assignments.filter(a => a.set_id === id).length;
+    const rowS = s => {
+      const n = countFor(s.id);
+      return '<button class="row" data-s="' + s.id + '"><div class="main"><div class="t">' + esc(s.title) + '</div><div class="s">' +
+        [s.subject ? esc(s.subject) : null, s.questions.length + ' question' + (s.questions.length > 1 ? 's' : ''), n ? n + ' élève' + (n > 1 ? 's' : '') : 'non assignée'].filter(Boolean).join(' · ') +
+        '</div></div><span class="chev">' + I.chevR + '</span></button>';
+    };
+    const groups = this.folderGroups(), open = this.openFolders(), hasF = groups.some(g => g[0]);
+    const body = groups.map(([f, list], i) => {
+      if (!f) return (hasF ? '<div class="section-h">Sans dossier</div>' : '') + '<div class="group">' + list.map(rowS).join('') + '</div>';
+      const isOpen = open.includes(f), nA = list.filter(s => countFor(s.id)).length;
+      return '<div class="group fold"><button class="row fold-h' + (isOpen ? ' open' : '') + '" data-fold="' + i + '"><span class="fic">' + I.folder + '</span><div class="main"><div class="t" style="font-weight:600">' + esc(f) + '</div><div class="s">' +
+        list.length + ' série' + (list.length > 1 ? 's' : '') + (nA ? ' · ' + nA + ' assignée' + (nA > 1 ? 's' : '') : '') + '</div></div><span class="more" data-fmore="' + i + '">Modifier</span><span class="chev">' + I.chevR + '</span></button>' +
+        (isOpen ? list.map(rowS).join('') : '') + '</div>';
+    }).join('');
     const html = nav('<button class="nav-btn" id="imp">Importer</button>', '<button class="nav-btn" id="new" aria-label="Nouvelle série">' + I.plus + '</button>') +
       '<div class="wrap"><h1 class="large">Exercices</h1>' +
-      (this.sets.length ? '<div class="group">' + this.sets.map(s => {
-        const n = countFor(s.id);
-        return '<button class="row" data-s="' + s.id + '"><div class="main"><div class="t">' + esc(s.title) + '</div><div class="s">' +
-          [s.subject ? esc(s.subject) : null, s.questions.length + ' question' + (s.questions.length > 1 ? 's' : ''), n ? n + ' élève' + (n > 1 ? 's' : '') : 'non assignée'].filter(Boolean).join(' · ') +
-          '</div></div><span class="chev">' + I.chevR + '</span></button>';
-      }).join('') + '</div>'
+      (this.sets.length ? body + '<div class="group" style="margin-top:14px"><button class="row center" id="newfold">Nouveau dossier</button></div>'
         : '<div class="empty"><b>Aucune série</b>Crée ta première série avec le bouton +, ou importe une série préparée par Claude.</div>') +
-      '<p class="foot" style="margin-top:14px">Astuce : demande à Claude « crée une série d\u2019exercices sur… pour mon appli ». Il peut l\u2019ajouter directement ici ou te donner un texte à importer.</p></div>';
+      '<p class="foot" style="margin-top:14px">' + (this.sets.length ? 'Range tes séries dans des dossiers (par chapitre, par classe…) pour garder la liste claire. Les élèves ne voient pas les dossiers. ' : '') +
+      'Astuce : demande à Claude « crée une série d\u2019exercices sur… pour mon appli ». Il peut l\u2019ajouter directement ici ou te donner un texte à importer.</p></div>';
     this.shell('exercices', html);
     document.getElementById('new').onclick = () => { this.draft = null; go('#/prof/exercices/nouveau'); };
     document.getElementById('imp').onclick = () => this.importSheet();
+    const nf = document.getElementById('newfold'); if (nf) nf.onclick = () => this.folderSheet(null);
+    $app.querySelectorAll('[data-fold]').forEach(b => b.onclick = e => {
+      const f = groups[+b.dataset.fold][0];
+      if (e.target.closest('[data-fmore]')) return this.folderSheet(f);
+      const o = this.openFolders(), k = o.indexOf(f);
+      if (k >= 0) o.splice(k, 1); else o.push(f);
+      store.set('exos_dossiers_ouverts', JSON.stringify(o));
+      const y = window.scrollY; this.renderSets(); window.scrollTo(0, y);
+    });
     $app.querySelectorAll('[data-s]').forEach(b => b.onclick = () => {
       const s = this.sets.find(x => x.id === b.dataset.s);
       actionSheet(s.title, [
         { label: 'Assigner à des élèves', run: () => this.assignSheet(s) },
         { label: 'Voir le suivi', run: () => go('#/prof/suivi/' + s.id) },
         { label: 'Modifier', run: () => { this.draft = null; go('#/prof/exercices/' + s.id); } },
+        { label: s.folder ? 'Changer de dossier' : 'Ranger dans un dossier', run: () => this.moveSheet(s) },
         { label: 'Essayer comme un élève', run: () => Student.runPreview(s) },
         { label: 'Dupliquer', run: () => this.duplicate(s) },
         { label: 'Supprimer', red: true, run: () => this.deleteSet(s) }
@@ -2942,8 +2978,60 @@ const Prof = {
     });
   },
 
+  async setFolder(ids, folder){
+    if (!ids.length) return true;
+    const { error } = await sb.from('exercise_sets').update({ folder: folder || null }).in('id', ids);
+    if (error){ toast('Erreur : ' + esc(error.message)); return false; }
+    this.sets.forEach(s => { if (ids.includes(s.id)) s.folder = folder || null; });
+    return true;
+  },
+  openFolder(f){ const o = this.openFolders(); if (f && !o.includes(f)){ o.push(f); store.set('exos_dossiers_ouverts', JSON.stringify(o)); } },
+
+  moveSheet(s){
+    const items = this.folderNames().filter(f => f !== s.folder).map(f => ({ label: f, run: async () => { if (await this.setFolder([s.id], f)){ this.openFolder(f); this.renderSets(); toast('Rangée dans « ' + esc(f) + ' »'); } } }));
+    items.push({ label: 'Nouveau dossier…', run: () => this.folderSheet(null, [s.id]) });
+    if (s.folder) items.push({ label: 'Sortir du dossier', red: true, run: async () => { if (await this.setFolder([s.id], null)){ this.renderSets(); toast('Série sortie du dossier'); } } });
+    actionSheet(s.title, items);
+  },
+
+  folderSheet(folder, preselect){
+    const sel = new Set(preselect || this.sets.filter(s => folder && (s.folder || '').trim() === folder).map(s => s.id));
+    let name = folder || '';
+    const html = '<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Annuler</button><h2>' + (folder ? 'Modifier le dossier' : 'Nouveau dossier') + '</h2><button class="nav-btn bold" id="ok">OK</button></div><div id="fb"></div>';
+    openSheet(html, (el, close) => {
+      const draw = () => {
+        const y = el.querySelector('.sheet').scrollTop;
+        el.querySelector('#fb').innerHTML =
+          '<div class="group"><input class="field" id="fname" placeholder="Nom du dossier (ex. Identités et migrations)" value="' + esc(name) + '" style="font-weight:600"></div>' +
+          '<div class="section-h">Séries dans ce dossier (' + sel.size + ')</div>' +
+          this.folderGroups().map(([f, list]) => '<div class="section-h" style="margin-top:14px;text-transform:none;font-size:14px">' + (f ? esc(f) : 'Sans dossier') + '</div><div class="group">' +
+            list.map(x => '<button class="row" data-pick="' + x.id + '"><span class="check ' + (sel.has(x.id) ? 'on' : '') + '">' + (sel.has(x.id) ? I.check : '') + '</span><div class="main"><div class="t">' + esc(x.title) + '</div><div class="s">' + x.questions.length + ' questions</div></div></button>').join('') + '</div>').join('') +
+          (folder ? '<div class="group" style="margin-top:22px"><button class="row danger" id="fdel">Supprimer le dossier</button></div><p class="foot">Les séries ne sont pas supprimées : elles reviennent dans « Sans dossier ».</p>' : '');
+        el.querySelector('.sheet').scrollTop = y;
+        el.querySelector('#fname').oninput = e => { name = e.target.value; };
+        el.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => { const id = b.dataset.pick; if (sel.has(id)) sel.delete(id); else sel.add(id); draw(); });
+        const del = el.querySelector('#fdel');
+        if (del) del.onclick = async () => {
+          if (!await confirmDialog('Supprimer le dossier « ' + folder + ' » ?', 'Les séries restent dans l\u2019appli, hors dossier.', 'Supprimer', true)) return;
+          if (await this.setFolder(this.sets.filter(s => (s.folder || '').trim() === folder).map(s => s.id), null)){ close(); this.renderSets(); toast('Dossier supprimé'); }
+        };
+      };
+      draw();
+      el.querySelector('#ok').onclick = async () => {
+        const n = name.trim().replace(/\s+/g, ' ');
+        if (!n) return toast('Donne un nom au dossier');
+        if (!sel.size) return toast('Choisis au moins une série');
+        const before = this.sets.filter(s => folder && (s.folder || '').trim() === folder).map(s => s.id);
+        const out = before.filter(id => !sel.has(id));
+        if (!await this.setFolder([...sel], n) || !await this.setFolder(out, null)) return;
+        if (folder && folder !== n){ const o = this.openFolders().filter(f => f !== folder); store.set('exos_dossiers_ouverts', JSON.stringify(o)); }
+        this.openFolder(n); close(); this.renderSets(); toast(folder ? 'Dossier mis à jour' : 'Dossier créé');
+      };
+    });
+  },
+
   async duplicate(s){
-    const { error } = await sb.from('exercise_sets').insert({ teacher_id: this.user.id, title: s.title + ' (copie)', subject: s.subject, description: s.description, recap: s.recap, course_id: s.course_id, pass_score: s.pass_score, questions: s.questions });
+    const { error } = await sb.from('exercise_sets').insert({ teacher_id: this.user.id, title: s.title + ' (copie)', subject: s.subject, folder: s.folder || null, description: s.description, recap: s.recap, course_id: s.course_id, pass_score: s.pass_score, questions: s.questions });
     if (error) return toast('Erreur : ' + esc(error.message));
     await this.load(); this.renderSets(); toast('Série dupliquée');
   },
@@ -3033,13 +3121,14 @@ const Prof = {
               : '<label class="row center" style="min-height:42px;font-size:15px;cursor:pointer">Ajouter une image au document<input type="file" accept="image/*" data-docfile="' + i + '" hidden></label>') +
             '<input class="field" data-q="' + i + '" data-f="docsrc" value="' + esc(q.doc.source || '') + '" placeholder="Source (ex. Victor Hugo, Les Contemplations, 1856)" style="font-size:15px">' +
             '<button class="row danger" data-act="deldoc" data-q="' + i + '" style="min-height:40px;font-size:15px">Retirer le document</button>') +
-        '<input class="field" data-q="' + i + '" data-f="hint" value=""' + esc(q.hint || '') + '" placeholder="Indice pour l\u2019élève (facultatif)" style="font-size:15px">' +
+        '<input class="field" data-q="' + i + '" data-f="hint" value="' + esc(q.hint || '') + '" placeholder="Indice pour l\u2019élève (facultatif)" style="font-size:15px">' +
         '<textarea class="field" rows="1" data-q="' + i + '" data-f="explanation" placeholder="Explication montrée après la réponse (facultatif)" style="font-size:15px;min-height:46px">' + esc(q.explanation || '') + '</textarea></div>';
     };
     const html = nav(backBtn('#/prof/exercices', 'Exercices'), '<button class="nav-btn bold" id="save">Enregistrer</button>') +
       '<div class="wrap" id="ed"><h1 class="large">' + (id ? 'Modifier' : 'Nouvelle série') + '</h1>' +
       '<div class="group"><input class="field" data-f="title" value="' + esc(d.title) + '" placeholder="Titre (ex. La Révolution industrielle)" style="font-weight:600">' +
       '<div style="height:.5px;background:var(--sep);margin-left:16px"></div><input class="field" data-f="subject" value="' + esc(d.subject || '') + '" placeholder="Cours ou chapitre (facultatif)">' +
+      '<div style="height:.5px;background:var(--sep);margin-left:16px"></div><input class="field" data-f="folder" list="folderlist" value="' + esc(d.folder || '') + '" placeholder="Dossier (facultatif)"><datalist id="folderlist">' + this.folderNames().map(f => '<option value="' + esc(f) + '">').join('') + '</datalist>' +
       '<div style="height:.5px;background:var(--sep);margin-left:16px"></div><textarea class="field" rows="2" data-f="description" placeholder="Consigne pour les élèves (facultatif)">' + esc(d.description || '') + '</textarea></div>' +
       '<div class="section-h">Rappel de cours</div><div class="group"><textarea class="field" rows="4" data-f="recap" placeholder="Je retiens : l\u2019essentiel à revoir avant de commencer (facultatif)">' + esc(d.recap || '') + '</textarea>' +
       '<div class="row" style="border-top:.5px solid var(--sep)"><div class="main t">Cours lié</div><select class="field" data-f="course_id" style="width:auto;max-width:60%;padding:6px 0;text-align:right;color:var(--blue);background:transparent;-webkit-appearance:none;appearance:none">' +
@@ -3047,7 +3136,7 @@ const Prof = {
       '<p class="foot">L\u2019élève voit le rappel avant de commencer et peut le rouvrir pendant l\u2019exercice. Mets les mots importants entre **deux astérisques** pour les surligner.</p>' +
       '<div class="section-h">Score pour valider</div><div class="seg">' + [50, 60, 70, 80, 90, 100].map(p => '<button data-act="pass" data-v="' + p + '" class="' + (d.pass_score === p ? 'on' : '') + '">' + p + ' %</button>').join('') + '</div>' +
       '<div class="section-h">Test de contrôle</div><div class="group"><div class="row"><div class="main t">Questions tirées de</div><select class="field" data-f="control_set_id" id="ctlsel" style="width:auto;max-width:60%;padding:6px 0;text-align:right;color:var(--blue);background:transparent;-webkit-appearance:none;appearance:none;border:0">' +
-        '<option value="">Pas de test</option>' + this.sets.filter(x => x.id !== id).map(x => '<option value="' + x.id + '"' + (d.control_set_id === x.id ? ' selected' : '') + '>' + esc(x.title) + ' (' + x.questions.length + ' q.)</option>').join('') + '</select></div>' +
+        '<option value="">Pas de test</option>' + this.folderGroups(this.sets.filter(x => x.id !== id)).map(([f, list]) => '<optgroup label="' + esc(f || 'Sans dossier') + '">' + list.map(x => '<option value="' + x.id + '"' + (d.control_set_id === x.id ? ' selected' : '') + '>' + esc(x.title) + ' (' + x.questions.length + ' q.)</option>').join('') + '</optgroup>').join('') + '</select></div>' +
         (d.control_set_id ? '<div class="inner-pad" style="border-top:.5px solid var(--sep)"><div class="seg">' + [8, 10, 12, 15].map(k => '<button data-act="ccount" data-v="' + k + '" class="' + ((d.control_count || 10) === k ? 'on' : '') + '">' + k + ' questions</button>').join('') + '</div></div>' : '') + '</div>' +
       '<p class="foot">Quand l\u2019élève a validé la série, un test de contrôle se débloque : des questions tirées au hasard dans la série choisie, un seul essai, la correction à la fin. Tu vois ensuite ses progrès par rapport à l\u2019évaluation. Choisis une autre série que celle-ci, pour que l\u2019élève ne retrouve pas les mêmes questions.</p>' +
       '<div class="section-h">Questions (' + d.questions.length + ')</div>' +
@@ -3130,7 +3219,7 @@ const Prof = {
       const copy = JSON.parse(JSON.stringify(d)); const err = cleanAndValidate(copy);
       if (err) return toast(esc(err));
       const payload = { title: copy.title.trim(), subject: (copy.subject || '').trim() || null, description: (copy.description || '').trim() || null,
-        recap: (copy.recap || '').trim() || null, course_id: copy.course_id || null, pass_score: copy.pass_score, questions: copy.questions, control_set_id: copy.control_set_id || null, control_count: copy.control_set_id ? (copy.control_count || 10) : null, updated_at: new Date().toISOString() };
+        recap: (copy.recap || '').trim() || null, folder: (copy.folder || '').trim().replace(/\s+/g, ' ') || null, course_id: copy.course_id || null, pass_score: copy.pass_score, questions: copy.questions, control_set_id: copy.control_set_id || null, control_count: copy.control_set_id ? (copy.control_count || 10) : null, updated_at: new Date().toISOString() };
       const btn = document.getElementById('save'); btn.disabled = true;
       const res = id ? await sb.from('exercise_sets').update(payload).eq('id', id) : await sb.from('exercise_sets').insert({ ...payload, teacher_id: this.user.id });
       btn.disabled = false;
@@ -3306,7 +3395,7 @@ const Prof = {
         const set = this.sets.find(x => x.id === setId);
         el.querySelector('#nb').innerHTML =
           '<div class="group"><input class="field" id="evt" placeholder="Titre (ex. Interro : la Révolution industrielle)" value="' + esc(title || 'Interro : ' + set.title) + '"></div>' +
-          '<div class="section-h">Questions reprises de la série</div><div class="group">' + this.sets.map(x => '<button class="row" data-set="' + x.id + '"><span class="check ' + (x.id === setId ? 'on' : '') + '">' + (x.id === setId ? I.check : '') + '</span><div class="main"><div class="t">' + esc(x.title) + '</div><div class="s">' + x.questions.length + ' questions</div></div></button>').join('') + '</div>' +
+          '<div class="section-h">Questions reprises de la série</div>' + this.folderGroups().map(([f, list], k, all) => (all.length > 1 ? '<div class="section-h" style="margin-top:' + (k ? 14 : 4) + 'px;text-transform:none;font-size:14px">' + esc(f || 'Sans dossier') + '</div>' : '') + '<div class="group">' + list.map(x => '<button class="row" data-set="' + x.id + '"><span class="check ' + (x.id === setId ? 'on' : '') + '">' + (x.id === setId ? I.check : '') + '</span><div class="main"><div class="t">' + esc(x.title) + '</div><div class="s">' + x.questions.length + ' questions</div></div></button>').join('') + '</div>').join('') +
           '<div class="section-h">Classe</div><div class="seg">' + this.classes.map(c => '<button data-c="' + c.id + '" class="' + (c.id === cls ? 'on' : '') + '">' + esc(c.name) + '</button>').join('') + '</div>' +
           '<div class="section-h">Réglages</div><div class="group">' +
           '<label class="row" style="cursor:pointer"><div class="main"><div class="t">Bloquer si l’élève quitte l’appli</div><div class="s">Changement d’application, d’onglet, écran verrouillé</div></div><span class="switch"><input type="checkbox" id="anti" ' + (anti ? 'checked' : '') + '><span></span></span></label>' +
