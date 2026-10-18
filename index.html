@@ -417,6 +417,7 @@ a.cblock.row{display:flex;color:inherit;text-decoration:none}
 .chips{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px}
 .chip{border:0;border-radius:999px;padding:7px 14px;font-size:15px;font-weight:500;background:var(--fill);color:var(--label)}
 .chip.on{background:var(--blue);color:#fff}
+.ans-ic{flex:none;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;margin-top:1px}.ans-ic svg{width:14px;height:14px}.ans-ic.ok{background:var(--green)}.ans-ic.ko{background:var(--red)}
 .chips.exnum .chip{min-width:44px;font-weight:600}
 .tb{display:flex;gap:6px;padding:8px 12px;border-bottom:.5px solid var(--sep);flex-wrap:wrap}
 .tb button{border:0;background:var(--fill);border-radius:8px;padding:6px 11px;font-size:13px;font-weight:600}
@@ -2861,26 +2862,54 @@ const Prof = {
       (x.a.from_eval_id ? (() => { const e = this.evals.find(v => v.id === x.a.from_eval_id), b = this.beforePct(x.a); return '<div class="row"><div class="main"><div class="t">Suite à l\u2019évaluation</div><div class="s">' + esc(e ? e.title : '') + (b != null ? ' · ' + b + ' %' : '') + '</div></div></div>'; })() : '') +
       '<div class="row"><div class="main t">Temps total</div><span class="val">' + fmtDuration(x.st.time) + '</span></div></div>' +
       '<div class="section-h">Essais (' + atts.length + ')</div>' +
-      (atts.length ? '<div class="group">' + atts.map(at => '<div class="row"><div class="main"><div class="t">' + at.percent + ' % <span style="color:var(--label2);font-size:15px">(' + at.score + '/' + at.total + ')</span></div><div class="s">' + fmtDateTime(at.created_at) + ' · ' + fmtDuration(at.duration_seconds) + '</div></div>' + (at.passed ? '<span class="pill green">Validé</span>' : '') + '</div>').join('') + '</div>'
+      (atts.length ? '<div class="group">' + atts.map((at, k) => '<button class="row" data-att="' + k + '"><div class="main"><div class="t">' + at.percent + ' % <span style="color:var(--label2);font-size:15px">(' + at.score + '/' + at.total + ')</span></div><div class="s">' + fmtDateTime(at.created_at) + ' · ' + fmtDuration(at.duration_seconds) + ' · voir les réponses</div></div>' + (at.passed ? '<span class="pill green">Validé</span>' : '') + '<span class="chev">' + I.chevR + '</span></button>').join('') + '</div>'
         : '<div class="empty">Pas encore d\u2019essai.</div>') +
       (set.control_set_id ? (() => {
         const c = x.st.ctl, cs = this.sets.find(z => z.id === set.control_set_id) || { questions: [] };
         if (!c) return '<div class="section-h">Test de contrôle</div><div class="group"><div class="row"><div class="main t">' + (x.st.done ? 'Débloqué, pas encore fait' : 'Se débloque quand la série est validée') + '</div></div></div>';
         const ko = (c.answers || []).filter(a => !a.correct).map(a => cs.questions.find(q => q.id === a.qid)).filter(Boolean);
-        return '<div class="section-h">Test de contrôle</div><div class="group"><div class="row"><div class="main"><div class="t">' + c.percent + ' % <span style="color:var(--label2);font-size:15px">(' + c.score + '/' + c.total + ')</span></div><div class="s">' + fmtDateTime(c.created_at) + ' · ' + fmtDuration(c.duration_seconds || 0) + '</div></div>' +
-          (this.beforePct(x.a) != null ? '<span class="pill ' + (c.percent > this.beforePct(x.a) ? 'green' : 'orange') + '">' + (c.percent - this.beforePct(x.a) >= 0 ? '+' : '') + (c.percent - this.beforePct(x.a)) + ' pts</span>' : '') + '</div>' +
+        return '<div class="section-h">Test de contrôle</div><div class="group"><button class="row" data-ctl="1"><div class="main"><div class="t">' + c.percent + ' % <span style="color:var(--label2);font-size:15px">(' + c.score + '/' + c.total + ')</span></div><div class="s">' + fmtDateTime(c.created_at) + ' · ' + fmtDuration(c.duration_seconds || 0) + ' · voir les réponses</div></div>' +
+          (this.beforePct(x.a) != null ? '<span class="pill ' + (c.percent > this.beforePct(x.a) ? 'green' : 'orange') + '">' + (c.percent - this.beforePct(x.a) >= 0 ? '+' : '') + (c.percent - this.beforePct(x.a)) + ' pts</span>' : '') + '<span class="chev">' + I.chevR + '</span></button>' +
           ko.map(q => '<div class="row"><div class="main"><div class="t clamp2" style="font-size:15px">' + esc(qLabel(q)) + '</div><div class="s">Ratée · réponse : ' + esc(answerText(q)) + '</div></div></div>').join('') + '</div>';
       })() : '') +
       (x.hints ? '<p class="foot">Indices utilisés : ' + x.hints + '</p>' : '') +
       (fromStudent ? '' : '<div class="group mt2"><a class="row center" href="#/prof/eleve/' + x.stu.id + '" data-close>Voir la fiche de ' + esc(x.stu.first_name) + '</a></div>') +
       '<div class="group mt2"><button class="row danger" id="unassign">Retirer cette série à ' + esc(x.stu.first_name) + '</button></div>';
     openSheet(html, (el, close) => {
+      el.querySelectorAll('[data-att]').forEach(b => b.onclick = () => { const at = atts[+b.dataset.att]; close(); setTimeout(() => this.answersSheet(x, set, at, 'Essai du ' + fmtDateTime(at.created_at), set.questions, () => this.attemptSheet(x, set, fromStudent)), 280); });
+      const cb = el.querySelector('[data-ctl]'); if (cb) cb.onclick = () => { const cs = this.sets.find(z => z.id === set.control_set_id) || { questions: [] }; close(); setTimeout(() => this.answersSheet(x, set, x.st.ctl, 'Test de contrôle', cs.questions, () => this.attemptSheet(x, set, fromStudent)), 280); };
       el.querySelector('#unassign').onclick = async () => {
         if (!await confirmDialog('Retirer la série ?', 'Les essais de ' + x.stu.first_name + ' sur cette série seront aussi supprimés.', 'Retirer', true)) return;
         const { error } = await sb.from('assignments').delete().eq('id', x.a.id);
         if (error) return toast('Erreur : ' + esc(error.message));
         close(); await this.load(); route(); toast('Série retirée');
       };
+    });
+  },
+
+  answersSheet(x, set, at, sub, questions, back){
+    const ans = at.answers || [], ok = ans.filter(a => a.correct).length;
+    const byId = {}; (questions || []).forEach(q => { byId[q.id] = q; });
+    const giv = v => v == null || v === '' ? '<i style="color:var(--label3,var(--label2))">pas de réponse</i>' : esc(Array.isArray(v) ? v.join(' · ') : typeof v === 'object' ? JSON.stringify(v) : String(v));
+    const html = '<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" id="aback">' + I.chevL + '<span>Retour</span></button><h2>' + esc(x.stu.first_name) + '</h2><button class="nav-btn bold" data-close>OK</button></div>' +
+      '<p class="subtitle" style="text-align:center;margin-top:-4px">' + esc(set.title) + ' · ' + esc(sub) + '</p>' +
+      '<div class="seg" id="afil" style="margin:4px 0 12px"><button data-f="all" class="on">Toutes (' + ans.length + ')</button><button data-f="ko">Ratées (' + (ans.length - ok) + ')</button><button data-f="ok">Réussies (' + ok + ')</button></div>' +
+      '<div class="group" id="alist">' + ans.map((a, k) => {
+        const q = byId[a.qid];
+        return '<div class="row ans-row" data-ok="' + (a.correct ? 1 : 0) + '" style="align-items:flex-start"><span class="ans-ic ' + (a.correct ? 'ok' : 'ko') + '">' + (a.correct ? I.check : I.x) + '</span><div class="main">' +
+          '<div class="t" style="font-size:15px;white-space:normal">' + (k + 1) + '. ' + (q ? esc(qLabel(q)) : '<i>Question retirée de la série depuis</i>') + '</div>' +
+          (q && (q.doc && q.doc.image || q.type === 'image') ? '<img src="' + esc(q.type === 'image' ? q.image : q.doc.image) + '" alt="" style="width:110px;border-radius:6px;margin-top:6px;display:block;box-shadow:inset 0 0 0 1px var(--sep)">' : '') +
+          '<div class="s" style="white-space:normal;margin-top:4px">Réponse de ' + esc(x.stu.first_name) + ' : <span style="color:' + (a.correct ? 'var(--green)' : 'var(--red)') + ';font-weight:600">' + giv(a.given) + '</span></div>' +
+          (!a.correct && q ? '<div class="s" style="white-space:normal">Bonne réponse : <b style="color:var(--label)">' + esc(answerText(q)) + '</b></div>' : '') +
+          (a.hint ? '<div class="s"><span class="pill orange" style="margin-top:4px">Indice utilisé</span></div>' : '') + '</div></div>';
+      }).join('') + '</div>' +
+      (ans.length ? '' : '<div class="empty">Aucune réponse enregistrée pour cet essai.</div>');
+    openSheet(html, (el, close) => {
+      el.querySelector('#aback').onclick = () => { close(); setTimeout(back, 280); };
+      el.querySelectorAll('#afil button').forEach(b => b.onclick = () => {
+        el.querySelectorAll('#afil button').forEach(z => z.classList.toggle('on', z === b));
+        el.querySelectorAll('.ans-row').forEach(r => { r.hidden = b.dataset.f !== 'all' && (r.dataset.ok === '1') !== (b.dataset.f === 'ok'); });
+      });
     });
   },
 
