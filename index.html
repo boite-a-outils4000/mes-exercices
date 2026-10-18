@@ -2946,7 +2946,7 @@ const Prof = {
         list.length + ' série' + (list.length > 1 ? 's' : '') + (nA ? ' · ' + nA + ' assignée' + (nA > 1 ? 's' : '') : '') + '</div></div><span class="more" data-fmore="' + i + '">Modifier</span><span class="chev">' + I.chevR + '</span></button>' +
         (isOpen ? list.map(rowS).join('') : '') + '</div>';
     }).join('');
-    const html = nav('<button class="nav-btn" id="imp">Importer</button>', '<button class="nav-btn" id="new" aria-label="Nouvelle série">' + I.plus + '</button>') +
+    const html = nav('<button class="nav-btn" id="imp">Importer</button>', (this.sets.length ? '<button class="nav-btn" id="asgm">Assigner</button>' : '') + '<button class="nav-btn" id="new" aria-label="Nouvelle série">' + I.plus + '</button>') +
       '<div class="wrap"><h1 class="large">Exercices</h1>' +
       (this.sets.length ? body + '<div class="group" style="margin-top:14px"><button class="row center" id="newfold">Nouveau dossier</button></div>'
         : '<div class="empty"><b>Aucune série</b>Crée ta première série avec le bouton +, ou importe une série préparée par Claude.</div>') +
@@ -2956,6 +2956,7 @@ const Prof = {
     document.getElementById('new').onclick = () => { this.draft = null; go('#/prof/exercices/nouveau'); };
     document.getElementById('imp').onclick = () => this.importSheet();
     const nf = document.getElementById('newfold'); if (nf) nf.onclick = () => this.folderSheet(null);
+    const am = document.getElementById('asgm'); if (am) am.onclick = () => this.assignSheet(null);
     $app.querySelectorAll('[data-fold]').forEach(b => b.onclick = e => {
       const f = groups[+b.dataset.fold][0];
       if (e.target.closest('[data-fmore]')) return this.folderSheet(f);
@@ -3229,49 +3230,84 @@ const Prof = {
   },
 
   /* --- Assignation --- */
-  assignSheet(set){
+  assignSheet(set, opts){
+    opts = opts || {};
     if (!this.classes.length){ toast('Crée d\u2019abord une classe'); return go('#/prof/classes'); }
-    let cls = this.classFilter !== 'all' ? this.classFilter : this.classes[0].id;
-    const already = new Set(this.assignments.filter(a => a.set_id === set.id).map(a => a.student_id));
-    const sel = new Set(); let fev = '';
+    if (!this.sets.length){ toast('Crée d\u2019abord une série d\u2019exercices'); return go('#/prof/exercices'); }
+    const fixedStu = opts.student ? this.studentById[opts.student] : null;
+    let cls = fixedStu ? fixedStu.class_id : this.classFilter !== 'all' ? this.classFilter : this.classes[0].id;
+    const sel = new Set(fixedStu ? [fixedStu.id] : []), sets = new Set(set ? [set.id] : []);
+    const groups = this.folderGroups();
+    const openF = new Set(groups.filter(([f, list]) => !f || groups.length === 1 || list.some(x => sets.has(x.id))).map(g => g[0]));
+    let fev = '';
     const html = '<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Annuler</button><h2>Assigner</h2><button class="nav-btn bold" id="ok" disabled>Assigner</button></div>' +
-      '<p class="subtitle" style="text-align:center;margin-top:-4px">' + esc(set.title) + '</p><div id="abody"></div>' +
+      (fixedStu ? '<p class="subtitle" style="text-align:center;margin-top:-4px">à ' + esc(fixedStu.first_name) + '</p>' : '') + '<div id="abody"></div>' +
       '<div class="section-h">Détails</div><div class="group"><div class="row"><div class="main t">À faire pour le</div><input type="date" id="due" class="field" style="width:auto;padding:6px 0;text-align:right;color:var(--blue)" min="' + todayLocal() + '"></div>' +
       '<div style="height:.5px;background:var(--sep);margin-left:16px"></div><input class="field" id="why" placeholder="Motif (ex. remédiation éval chapitre 2)">' +
       '<div style="height:.5px;background:var(--sep);margin-left:16px"></div><textarea class="field" id="msg" rows="2" placeholder="Message quand l\u2019élève valide (ex. Bravo {prénom}, tu es prêt pour l\u2019interro !)"></textarea></div>' +
-      '<p class="foot">Les élèves verront la série dès qu\u2019ils ouvriront l\u2019appli avec leur code. {prénom} est remplacé par le prénom de l\u2019élève.</p>';
+      '<p class="foot">Les élèves verront les séries dès qu\u2019ils ouvriront l\u2019appli avec leur code. {prénom} est remplacé par le prénom de l\u2019élève. La date, le motif et le message s\u2019appliquent à toutes les séries choisies.</p>';
     openSheet(html, (el, close) => {
       const okBtn = el.querySelector('#ok');
       const draw = () => {
+        const sh = el.querySelector('.sheet'), y = sh.scrollTop;
         const c = this.classes.find(x => x.id === cls);
         const allSel = c.students.length && c.students.every(s => sel.has(s.id));
         const evs = this.evals.filter(e => e.class_id === cls && e.status !== 'draft');
         if (fev && !evs.some(e => e.id === fev)) fev = '';
         const evPct = sid => { if (!fev) return null; const ea = this.evalAtts.find(x => x.evaluation_id === fev && x.student_id === sid && x.status === 'done'); return ea && ea.total ? Math.round(finalScore(ea) / ea.total * 100) : null; };
+        const has = (sid, setId) => this.assignments.some(a => a.set_id === setId && a.student_id === sid);
+        const already = sid => [...sets].filter(k => has(sid, k)).length;
+        const setRow = x => {
+          const on = sets.has(x.id), n = fixedStu && has(fixedStu.id, x.id);
+          return '<button class="row" data-set="' + x.id + '"><span class="check ' + (on ? 'on' : '') + '">' + (on ? I.check : '') + '</span><div class="main"><div class="t">' + esc(x.title) + '</div><div class="s">' + x.questions.length + ' questions' + (n ? ' · déjà assignée' : '') + '</div></div></button>';
+        };
         el.querySelector('#abody').innerHTML =
-          (this.classes.length > 1 ? '<div class="seg" style="margin:6px 0 4px">' + this.classes.map(x => '<button data-c="' + x.id + '" class="' + (x.id === cls ? 'on' : '') + '">' + esc(x.name) + '</button>').join('') + '</div>' : '') +
+          '<div class="section-h">Séries' + (sets.size ? ' (' + sets.size + ' choisie' + (sets.size > 1 ? 's' : '') + ')' : '') + (sets.size ? '<button id="noset">Tout désélectionner</button>' : '') + '</div>' +
+          groups.map(([f, list], i) => {
+            if (!f) return (groups.length > 1 ? '<div class="section-h" style="margin-top:14px;text-transform:none;font-size:14px">Sans dossier</div>' : '') + '<div class="group">' + list.map(setRow).join('') + '</div>';
+            const isOpen = openF.has(f), nOn = list.filter(x => sets.has(x.id)).length, every = nOn === list.length;
+            return '<div class="group fold" style="margin-top:' + (i ? 10 : 0) + 'px"><button class="row fold-h' + (isOpen ? ' open' : '') + '" data-af="' + i + '"><span class="fic">' + I.folder + '</span><div class="main"><div class="t" style="font-weight:600">' + esc(f) + '</div><div class="s">' +
+              list.length + ' série' + (list.length > 1 ? 's' : '') + (nOn ? ' · ' + nOn + ' choisie' + (nOn > 1 ? 's' : '') : '') + '</div></div><span class="more" data-afall="' + i + '">' + (every ? 'Aucune' : 'Tout') + '</span><span class="chev">' + I.chevR + '</span></button>' +
+              (isOpen ? list.map(setRow).join('') : '') + '</div>';
+          }).join('') +
+          (fixedStu ? '' :
+          (this.classes.length > 1 ? '<div class="seg" style="margin:22px 0 4px">' + this.classes.map(x => '<button data-c="' + x.id + '" class="' + (x.id === cls ? 'on' : '') + '">' + esc(x.name) + '</button>').join('') + '</div>' : '') +
           (evs.length ? '<div class="section-h">Suite à une évaluation (facultatif)</div><div class="group"><div class="row"><div class="main t">Évaluation</div><select class="field" id="fev" style="width:auto;max-width:62%;padding:6px 0;text-align:right;color:var(--blue);background:transparent;-webkit-appearance:none;appearance:none;border:0"><option value="">Aucune</option>' +
             evs.map(e => '<option value="' + e.id + '"' + (fev === e.id ? ' selected' : '') + '>' + esc(e.title) + '</option>').join('') + '</select></div>' +
             (fev ? '<button class="row center" id="under">Sélectionner les élèves sous 50 %</button>' : '') + '</div>' : '') +
           '<div class="section-h">Élèves · ' + esc(c.name) + '<button id="all">' + (allSel ? 'Tout désélectionner' : 'Tout sélectionner') + '</button></div>' +
-          (c.students.length ? '<div class="group">' + c.students.map(s => '<button class="row" data-st="' + s.id + '"><span class="check ' + (sel.has(s.id) ? 'on' : '') + '">' + (sel.has(s.id) ? I.check : '') + '</span><div class="main t">' + esc(s.first_name) + '</div>' + (evPct(s.id) != null ? '<span class="pill ' + (evPct(s.id) < 50 ? 'red' : 'green') + '" style="margin-right:6px">' + evPct(s.id) + ' %</span>' : '') + (already.has(s.id) ? '<span class="pill">déjà assignée</span>' : '') + '</button>').join('') + '</div>'
-            : '<div class="empty">Cette classe n\u2019a pas encore d\u2019élèves.</div>');
+          (c.students.length ? '<div class="group">' + c.students.map(s => { const k = already(s.id);
+            return '<button class="row" data-st="' + s.id + '"><span class="check ' + (sel.has(s.id) ? 'on' : '') + '">' + (sel.has(s.id) ? I.check : '') + '</span><div class="main t">' + esc(s.first_name) + '</div>' + (evPct(s.id) != null ? '<span class="pill ' + (evPct(s.id) < 50 ? 'red' : 'green') + '" style="margin-right:6px">' + evPct(s.id) + ' %</span>' : '') +
+              (k ? '<span class="pill">' + (sets.size > 1 ? 'déjà ' + k + ' / ' + sets.size : 'déjà assignée') + '</span>' : '') + '</button>'; }).join('') + '</div>'
+            : '<div class="empty">Cette classe n\u2019a pas encore d\u2019élèves.</div>'));
+        sh.scrollTop = y;
+        el.querySelectorAll('[data-set]').forEach(b => b.onclick = () => { const k = b.dataset.set; sets.has(k) ? sets.delete(k) : sets.add(k); draw(); });
+        el.querySelectorAll('[data-af]').forEach(b => b.onclick = e => {
+          const [f, list] = groups[+b.dataset.af];
+          if (e.target.closest('[data-afall]')){ const every = list.every(x => sets.has(x.id)); list.forEach(x => every ? sets.delete(x.id) : sets.add(x.id)); openF.add(f); }
+          else openF.has(f) ? openF.delete(f) : openF.add(f);
+          draw();
+        });
+        const ns = el.querySelector('#noset'); if (ns) ns.onclick = () => { sets.clear(); draw(); };
         el.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { cls = b.dataset.c; draw(); });
         el.querySelectorAll('[data-st]').forEach(b => b.onclick = () => { const k = b.dataset.st; sel.has(k) ? sel.delete(k) : sel.add(k); draw(); });
         const all = el.querySelector('#all'); if (all) all.onclick = () => { c.students.forEach(s => allSel ? sel.delete(s.id) : sel.add(s.id)); draw(); };
         const fs = el.querySelector('#fev'); if (fs) fs.onchange = () => { fev = fs.value; const e = this.evals.find(x => x.id === fev), w = el.querySelector('#why'); if (e && w && !w.value.trim()) w.value = 'Remédiation : ' + e.title; draw(); };
         const un = el.querySelector('#under'); if (un) un.onclick = () => { sel.clear(); c.students.forEach(s => { const v = evPct(s.id); if (v != null && v < 50) sel.add(s.id); }); if (!sel.size) toast('Aucun élève sous 50 % à cette évaluation'); draw(); };
-        okBtn.disabled = !sel.size; okBtn.textContent = sel.size ? 'Assigner (' + sel.size + ')' : 'Assigner';
+        okBtn.disabled = !sel.size || !sets.size;
+        okBtn.textContent = sets.size > 1 ? 'Assigner (' + sets.size + ')' : sel.size > 1 ? 'Assigner (' + sel.size + ')' : 'Assigner';
       };
       draw();
       okBtn.onclick = async () => {
         okBtn.disabled = true;
         const due = el.querySelector('#due').value || null, why = el.querySelector('#why').value.trim() || null, msg = el.querySelector('#msg').value.trim() || null;
-        const rows = [...sel].map(sid => ({ teacher_id: this.user.id, set_id: set.id, student_id: sid, due_date: due, reason: why, success_message: msg, from_eval_id: fev || null }));
+        const rows = [];
+        [...sets].forEach(setId => [...sel].forEach(sid => rows.push({ teacher_id: this.user.id, set_id: setId, student_id: sid, due_date: due, reason: why, success_message: msg, from_eval_id: fev || null })));
         const { error } = await sb.from('assignments').upsert(rows, { onConflict: 'set_id,student_id' });
         if (error){ okBtn.disabled = false; return toast('Erreur : ' + esc(error.message)); }
-        close(); await this.load(); toast('Assignée à ' + rows.length + ' élève' + (rows.length > 1 ? 's' : ''));
-        go('#/prof/suivi/' + set.id);
+        close();
+        const y = window.scrollY; await this.load(); await route(); window.scrollTo(0, y);
+        toast((sets.size > 1 ? sets.size + ' séries assignées' : 'Assignée') + (fixedStu ? ' à ' + esc(fixedStu.first_name) : ' à ' + sel.size + ' élève' + (sel.size > 1 ? 's' : '')));
       };
     });
   },
@@ -3788,7 +3824,7 @@ const Prof = {
       '<div class="row"><div class="main t">« Je n’ai pas compris »</div><span class="val">' + (this.flags || []).filter(f => f.student_id === sid).length + '</span></div></div>' +
       '<p class="foot">Le score moyen se calcule sur le meilleur essai de chaque série commencée.</p>' +
       this.copySection(sid, stu) +
-      '<div class="section-h">Séries (' + list.length + ')</div>' +
+      '<div class="section-h">Séries (' + list.length + ')<button id="asgstu">Assigner des séries</button></div>' +
       (list.length ? '<div class="group">' + list.map(x => {
         const [lab, col] = ST[x.st.status];
         const meta = x.st.count ? 'Meilleur ' + x.st.best + ' % · ' + x.st.count + ' essai' + (x.st.count > 1 ? 's' : '') + ' · ' + fmtDuration(x.st.time) : (x.a.due_date ? 'Pour le ' + fmtDate(x.a.due_date) : 'Aucun essai');
@@ -3797,6 +3833,7 @@ const Prof = {
       '</div>';
     this.shell('classes', html);
     document.getElementById('code').onclick = () => this.studentSheet(c, c.students.find(s => s.id === sid));
+    document.getElementById('asgstu').onclick = () => this.assignSheet(null, { student: sid });
     $app.querySelectorAll('[data-a]').forEach(b => b.onclick = () => { const x = list.find(y => y.a.id === b.dataset.a); this.attemptSheet(x, x.set, true); });
   },
 
