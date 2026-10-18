@@ -2155,12 +2155,12 @@ const Student = {
   saveRun(){
     if (this.preview || this.practice || !this.set.assignment_id) return;
     const s = this.sess;
-    store.set(this.runKey(), JSON.stringify({ sig: this.set.questions.map(q => q.id).join(','), queue: s.queue.map(x => [x.q.id, x.repeat]), first: s.first, given: s.given, hintUsed: s.hintUsed, idx: s.idx, elapsed: Date.now() - s.start, total: s.total }));
+    store.set(this.runKey(), JSON.stringify({ sig: this.set.questions.map(q => q.id).join(','), queue: s.queue.map(x => [x.q.id, x.repeat]), first: s.first, given: s.given, hintUsed: s.hintUsed, idx: s.idx, elapsed: Date.now() - s.start, total: s.total, qs: s.qs ? s.qs.map(q => q.id) : null }));
   },
   clearRun(){ if (this.set && this.set.assignment_id) store.del(this.runKey()); },
   resumeSession(r){
     const byId = {}; this.set.questions.forEach(q => { byId[q.id] = q; });
-    this.sess = { queue: r.queue.map(([id, rep]) => ({ q: byId[id], repeat: rep })), first: r.first || {}, given: r.given || {}, hintUsed: r.hintUsed || {}, idx: r.idx, start: Date.now() - (r.elapsed || 0), total: r.total, locked: false };
+    this.sess = { queue: r.queue.map(([id, rep]) => ({ q: byId[id], repeat: rep })), first: r.first || {}, given: r.given || {}, hintUsed: r.hintUsed || {}, idx: r.idx, start: Date.now() - (r.elapsed || 0), total: r.total, locked: false, qs: r.qs ? r.qs.map(id => byId[id]).filter(Boolean) : null };
     this.renderQuestion();
   },
 
@@ -2189,7 +2189,7 @@ const Student = {
       (s.recap ? '<div class="recap mt"><div class="recap-h">Je retiens</div><div class="course-text">' + mdLite(s.recap) + '</div></div>' : '') +
       (s.course_id ? '<div class="group mt"><button class="row" id="course"><span style="color:var(--blue);display:flex">' + I.book + '</span><div class="main"><div class="t">Revoir le cours</div><div class="s">' + esc(s.course_title || '') + '</div></div><span class="chev">' + I.chevR + '</span></button></div>' : '') +
       '<div class="group mt">' +
-      '<div class="row"><div class="main t">Questions</div><span class="val">' + s.questions.length + '</span></div>' +
+      '<div class="row"><div class="main t">Questions</div><span class="val">' + (s.draw_count && s.draw_count < s.questions.length ? s.draw_count + ', nouvelles à chaque essai' : s.questions.length) + '</span></div>' +
       '<div class="row"><div class="main t">Pour valider</div><span class="val">' + s.pass_score + ' %</span></div>' +
       (C && !C.available && !C.done ? '<div class="row"><div class="main t">Ensuite</div><span class="val">Test de contrôle (' + C.count + ' questions)</span></div>' : '') +
       (info.due_date ? '<div class="row"><div class="main t">À faire pour le</div><span class="val">' + fmtDate(info.due_date) + '</span></div>' : '') +
@@ -2206,11 +2206,20 @@ const Student = {
     const cb = document.getElementById('course'); if (cb) cb.onclick = () => this.courseSheet(s.course_id);
   },
 
+  drawQuestions(){
+    const all = this.set.questions || [], n = this.set.draw_count;
+    if (!n || n >= all.length) return null;
+    const missed = new Set(this.set.previously_missed || []), seen = new Set(this.set.last_seen || []);
+    const a = shuffle(all.filter(q => missed.has(q.id))).slice(0, Math.ceil(n / 2));
+    const b = shuffle(all.filter(q => !missed.has(q.id) && !seen.has(q.id)));
+    const c = shuffle(all.filter(q => !missed.has(q.id) && seen.has(q.id)));
+    return [...a, ...b, ...c].slice(0, n);
+  },
   startSession(){
-    const qs = this.set.questions || [];
+    const drawn = this.drawQuestions(), qs = drawn || this.set.questions || [];
     const missed = new Set(this.set.previously_missed || []);
     const ordered = [...shuffle(qs.filter(q => missed.has(q.id))), ...shuffle(qs.filter(q => !missed.has(q.id)))];
-    this.sess = { queue: ordered.map(q => ({ q, repeat: 0 })), first: {}, given: {}, hintUsed: {}, idx: 0, start: Date.now(), total: qs.length, locked: false };
+    this.sess = { queue: ordered.map(q => ({ q, repeat: 0 })), first: {}, given: {}, hintUsed: {}, idx: 0, start: Date.now(), total: qs.length, locked: false, qs: drawn };
     this.renderQuestion();
   },
 
@@ -2446,7 +2455,7 @@ const Student = {
     this.renderQuestion();
   },
   async ctlFinish(){
-    const s = this.sess, qs = this.set.questions;
+    const s = this.sess, qs = s.qs || this.set.questions;
     const score = qs.filter(q => s.first[q.id]).length;
     const answers = qs.map(q => ({ qid: q.id, correct: !!s.first[q.id], given: s.given[q.id] ?? null }));
     const duration = Math.round((Date.now() - s.start) / 1000);
@@ -2486,7 +2495,7 @@ const Student = {
   async finish(){
     if (this.ctl) return this.ctlFinish();
     if (this.exam) return this.examFinish();
-    const s = this.sess, qs = this.set.questions;
+    const s = this.sess, qs = s.qs || this.set.questions;
     const score = qs.filter(q => s.first[q.id]).length;
     const answers = qs.map(q => ({ qid: q.id, correct: !!s.first[q.id], given: s.given[q.id] ?? null, hint: !!s.hintUsed[q.id] }));
     const duration = Math.round((Date.now() - s.start) / 1000);
@@ -3009,7 +3018,7 @@ const Prof = {
     const rowS = s => {
       const n = countFor(s.id);
       return '<button class="row" data-s="' + s.id + '"><div class="main"><div class="t">' + esc(s.title) + '</div><div class="s">' +
-        [s.subject ? esc(s.subject) : null, s.questions.length + ' question' + (s.questions.length > 1 ? 's' : ''), n ? n + ' élève' + (n > 1 ? 's' : '') : 'non assignée'].filter(Boolean).join(' · ') +
+        [s.subject ? esc(s.subject) : null, s.questions.length + ' question' + (s.questions.length > 1 ? 's' : '') + (s.draw_count && s.draw_count < s.questions.length ? ' (' + s.draw_count + ' par essai)' : ''), n ? n + ' élève' + (n > 1 ? 's' : '') : 'non assignée'].filter(Boolean).join(' · ') +
         '</div></div><span class="chev">' + I.chevR + '</span></button>';
     };
     const groups = this.folderGroups(), open = this.openFolders(), hasF = groups.some(g => g[0]);
@@ -3106,7 +3115,7 @@ const Prof = {
   },
 
   async duplicate(s){
-    const { error } = await sb.from('exercise_sets').insert({ teacher_id: this.user.id, title: s.title + ' (copie)', subject: s.subject, folder: s.folder || null, description: s.description, recap: s.recap, course_id: s.course_id, pass_score: s.pass_score, questions: s.questions });
+    const { error } = await sb.from('exercise_sets').insert({ teacher_id: this.user.id, title: s.title + ' (copie)', subject: s.subject, folder: s.folder || null, description: s.description, recap: s.recap, course_id: s.course_id, pass_score: s.pass_score, questions: s.questions, draw_count: s.draw_count || null });
     if (error) return toast('Erreur : ' + esc(error.message));
     await this.load(); this.renderSets(); toast('Série dupliquée');
   },
@@ -3210,6 +3219,8 @@ const Prof = {
         '<option value="">Aucun</option>' + (this.courses || []).map(c => '<option value="' + c.id + '"' + (d.course_id === c.id ? ' selected' : '') + '>' + esc(c.title) + '</option>').join('') + '</select></div></div>' +
       '<p class="foot">L\u2019élève voit le rappel avant de commencer et peut le rouvrir pendant l\u2019exercice. Mets les mots importants entre **deux astérisques** pour les surligner.</p>' +
       '<div class="section-h">Score pour valider</div><div class="seg">' + [50, 60, 70, 80, 90, 100].map(p => '<button data-act="pass" data-v="' + p + '" class="' + (d.pass_score === p ? 'on' : '') + '">' + p + ' %</button>').join('') + '</div>' +
+      (d.questions.length >= 10 ? '<div class="section-h">Questions par essai</div><div class="seg">' + [0, 6, 8, 10, 12, 15].filter(k => k < d.questions.length).map(k => '<button data-act="draw" data-v="' + k + '" class="' + ((d.draw_count || 0) === k ? 'on' : '') + '">' + (k ? k : 'Toutes') + '</button>').join('') + '</div>' +
+        '<p class="foot">' + (d.draw_count ? 'À chaque essai, l\u2019élève reçoit ' + d.draw_count + ' questions tirées parmi les ' + d.questions.length + ' : d\u2019abord une partie de celles qu\u2019il a ratées, puis celles qu\u2019il n\u2019a pas vues la dernière fois. Il ne refait donc pas toujours la même série.' : 'L\u2019élève reçoit toutes les questions à chaque essai. Avec un nombre plus petit, chaque essai tire d\u2019autres questions de la série.') + '</p>' : '') +
       '<div class="section-h">Test de contrôle</div><div class="group"><div class="row"><div class="main t">Questions tirées de</div><select class="field" data-f="control_set_id" id="ctlsel" style="width:auto;max-width:60%;padding:6px 0;text-align:right;color:var(--blue);background:transparent;-webkit-appearance:none;appearance:none;border:0">' +
         '<option value="">Pas de test</option>' + this.folderGroups(this.sets.filter(x => x.id !== id)).map(([f, list]) => '<optgroup label="' + esc(f || 'Sans dossier') + '">' + list.map(x => '<option value="' + x.id + '"' + (d.control_set_id === x.id ? ' selected' : '') + '>' + esc(x.title) + ' (' + x.questions.length + ' q.)</option>').join('') + '</optgroup>').join('') + '</select></div>' +
         (d.control_set_id ? '<div class="inner-pad" style="border-top:.5px solid var(--sep)"><div class="seg">' + [8, 10, 12, 15].map(k => '<button data-act="ccount" data-v="' + k + '" class="' + ((d.control_count || 10) === k ? 'on' : '') + '">' + k + ' questions</button>').join('') + '</div></div>' : '') + '</div>' +
@@ -3257,6 +3268,7 @@ const Prof = {
       const rerender = () => { const y = window.scrollY; this.renderEditor(id); window.scrollTo(0, y); };
       if (act === 'pass'){ d.pass_score = +b.dataset.v; return rerender(); }
       if (act === 'ccount'){ d.control_count = +b.dataset.v; return rerender(); }
+      if (act === 'draw'){ d.draw_count = +b.dataset.v || null; return rerender(); }
       if (act === 'radio'){ q.answer = +b.dataset.o; return rerender(); }
       if (act === 'addopt'){ q.options.push(''); rerender(); const inp = document.querySelector('[data-q="' + i + '"][data-o="' + (q.options.length - 1) + '"].field'); if (inp) inp.focus(); return; }
       if (act === 'delopt'){ const k = +b.dataset.o; q.options.splice(k, 1); if (q.answer === k) q.answer = 0; else if (q.answer > k) q.answer--; return rerender(); }
@@ -3294,7 +3306,7 @@ const Prof = {
       const copy = JSON.parse(JSON.stringify(d)); const err = cleanAndValidate(copy);
       if (err) return toast(esc(err));
       const payload = { title: copy.title.trim(), subject: (copy.subject || '').trim() || null, description: (copy.description || '').trim() || null,
-        recap: (copy.recap || '').trim() || null, folder: (copy.folder || '').trim().replace(/\s+/g, ' ') || null, course_id: copy.course_id || null, pass_score: copy.pass_score, questions: copy.questions, control_set_id: copy.control_set_id || null, control_count: copy.control_set_id ? (copy.control_count || 10) : null, updated_at: new Date().toISOString() };
+        recap: (copy.recap || '').trim() || null, folder: (copy.folder || '').trim().replace(/\s+/g, ' ') || null, course_id: copy.course_id || null, pass_score: copy.pass_score, questions: copy.questions, control_set_id: copy.control_set_id || null, control_count: copy.control_set_id ? (copy.control_count || 10) : null, draw_count: copy.draw_count && copy.draw_count < copy.questions.length ? copy.draw_count : null, updated_at: new Date().toISOString() };
       const btn = document.getElementById('save'); btn.disabled = true;
       const res = id ? await sb.from('exercise_sets').update(payload).eq('id', id) : await sb.from('exercise_sets').insert({ ...payload, teacher_id: this.user.id });
       btn.disabled = false;
