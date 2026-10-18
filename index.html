@@ -342,6 +342,12 @@ select.leg:disabled{opacity:1;color:var(--label)}
 .leg-row.leg-ko{background:color-mix(in srgb,var(--red) 10%,var(--card))}
 .leg-row{flex-wrap:wrap;row-gap:0}
 .leg-row select.leg{flex:1;min-width:0}
+.as-row .as-a{flex:1 1 100%;font-size:16px;font-weight:600;padding:4px 0 2px}
+.cl-row{flex-wrap:wrap;row-gap:8px;padding-top:12px;padding-bottom:12px}.cl-row .cl-t{flex:1 1 100%;font-size:16px}.cl-row .cl-seg{flex:1 1 100%}.cl-seg button{white-space:normal;line-height:1.2;padding:8px 6px}
+.cl-seg button:disabled{color:inherit}
+.clic-wrap{cursor:crosshair}.pin.mine{background:var(--orange)}.pin.mine.ok{background:var(--green)}.pin.mine.ko{background:var(--red)}
+.qedit .seg button{white-space:normal;line-height:1.2}
+.clic-zone{position:absolute;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;border:2px dashed var(--green);pointer-events:none}
 .leg-fix{flex-basis:100%;padding:0 0 8px 40px;font-size:14px;color:var(--red);line-height:1.35}
 .leg-fix::before{content:'Bonne réponse : ';color:var(--label2)}
 
@@ -636,9 +642,12 @@ const I = {
   vf:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l3 3 5-6M15 9l6 6M21 9l-6 6"/></svg>',
   trous:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h5M16 8h5M3 16h8"/><path d="M10 8h4" stroke-dasharray="1.5 2"/><path d="M13 16h8" stroke-dasharray="1.5 2"/></svg>'
 };
-const TYPE_LABEL = { qcm:'Choix multiple', vf:'Vrai ou faux', trous:'Texte à trous', chrono:'Ligne du temps', image:'Image à légender' };
+const TYPE_LABEL = { qcm:'Choix multiple', vf:'Vrai ou faux', trous:'Texte à trous', chrono:'Ligne du temps', image:'Image à légender', assoc:'Associer', classer:'Classer', clic:'Toucher sur la carte' };
 I.speaker = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h4l5 4v-13l-5 4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12"/></svg>';
 I.bulb = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0012 3z"/></svg>';
+I.assoc = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="6" r="2" fill="currentColor"/><circle cx="5" cy="18" r="2" fill="currentColor"/><circle cx="19" cy="6" r="2" fill="currentColor"/><circle cx="19" cy="18" r="2" fill="currentColor"/><path d="M7 6.5l10 11M7 17.5l10-11"/></svg>';
+I.classer = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 10h7v10H3zM14 10h7v10h-7z"/><path d="M6.5 3v4M17.5 3v4M5 5.5l1.5 1.5L8 5.5M16 5.5l1.5 1.5L19 5.5"/></svg>';
+I.clic = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3" fill="currentColor"/></svg>';
 I.chrono = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h18"/><circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="18" cy="12" r="2" fill="currentColor"/><path d="M6 7V5M12 19v-2M18 7V5"/></svg>';
 I.image = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.6" fill="currentColor"/></svg>';
 I.book = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 016.5 3H20v15H6.5A2.5 2.5 0 004 20.5v-15z"/><path d="M4 20.5A2.5 2.5 0 016.5 18H20v3H6.5"/></svg>';
@@ -672,6 +681,9 @@ function answerText(q){
   if (q.type === 'trous') return parseTrous(q.text).filter(p => p.blank).map(p => p.answers[0]).join(' · ');
   if (q.type === 'chrono') return (q.items || []).join(' → ');
   if (q.type === 'image') return (q.points || []).map((p, k) => (k + 1) + ' : ' + p.label).join(' · ');
+  if (q.type === 'assoc') return (q.pairs || []).map(p => p.a + ' → ' + p.b).join(' · ');
+  if (q.type === 'classer') return (q.categories || []).map((c, j) => c + ' : ' + (q.items || []).filter(x => x.cat === j).map(x => x.text).join(', ')).join(' · ');
+  if (q.type === 'clic') return q.label || 'l\u2019endroit indiqué';
   return '';
 }
 const qPrint = q => q.type === 'trous' ? String(q.text || '').replace(/\{[^}]*\}/g, '……') : (q.prompt || '');
@@ -823,10 +835,12 @@ function claudePrompt(c){
     { type: 'qcm', prompt: '…', options: ['…', '…', '…'], answer: 0, explanation: '…', hint: '…' },
     { type: 'vf', prompt: '…', answer: true, explanation: '…' },
     { type: 'trous', text: 'Une phrase avec un {mot} à trouver.', explanation: '…' },
-    { type: 'chrono', prompt: 'Remets dans l’ordre chronologique.', items: ['le plus ancien', '…', 'le plus récent'], explanation: 'les dates' }
+    { type: 'chrono', prompt: 'Remets dans l’ordre chronologique.', items: ['le plus ancien', '…', 'le plus récent'], explanation: 'les dates' },
+    { type: 'assoc', prompt: 'Associe chaque élément à sa paire.', pairs: [{ a: '…', b: '…' }, { a: '…', b: '…' }, { a: '…', b: '…' }], explanation: '…' },
+    { type: 'classer', prompt: 'Classe chaque élément.', categories: ['Catégorie A', 'Catégorie B'], items: [{ text: '…', cat: 0 }, { text: '…', cat: 1 }, { text: '…', cat: 0 }], explanation: '…' }
   ] };
   return 'Crée une série d’exercices pour mes élèves de l’enseignement secondaire professionnel en Belgique (' + (c.subject || 'histoire-géographie') + '), à partir du cours ci-dessous.\n\n' +
-    'Consignes :\n- 8 à 10 questions, avec un vocabulaire simple et des phrases courtes.\n- Varie les types : qcm, vf, trous et chrono.\n- Reste fidèle au contenu du cours.\n- Ajoute une explication courte à chaque question, et un indice quand c’est utile.\n- Réponds uniquement avec le JSON, sans texte autour.\n\n' +
+    'Consignes :\n- 8 à 10 questions, avec un vocabulaire simple et des phrases courtes.\n- Varie les types : qcm, vf, trous, chrono, assoc (associer des paires) et classer (ranger dans 2 ou 3 catégories ; « cat » est le numéro de la catégorie en partant de 0).\n- Reste fidèle au contenu du cours.\n- Ajoute une explication courte à chaque question, et un indice quand c’est utile.\n- Réponds uniquement avec le JSON, sans texte autour.\n\n' +
     'Format attendu :\n' + JSON.stringify(fmt, null, 2) + '\n\nPour « qcm », « answer » est le numéro de la bonne réponse en partant de 0.\n\nCOURS : ' + (c.title || '') + '\n\n' + txt;
 }
 let deferredInstall = null;
@@ -928,12 +942,21 @@ function normalizeQuestions(arr){
     else if (['trous','texteatrous','texteatrou','cloze','fill','lacunes'].includes(t)) t = 'trous';
     else if (['chrono','chronologie','ordre','order','timeline','lignedutemps','classement'].includes(t)) t = 'chrono';
     else if (['image','carte','legende','map','hotspot','imagealegender'].includes(t)) t = 'image';
+    else if (['assoc','associer','association','relier','match','matching','paires'].includes(t)) t = 'assoc';
+    else if (['classer','tri','trier','categories','categoriser','sort'].includes(t)) t = 'classer';
+    else if (['clic','cliquer','toucher','pointer','localiser'].includes(t)) t = 'clic';
     else t = 'qcm';
     const dd = q.doc ?? q.document;
     const base = { id: q.id ? String(q.id) : uid(), type: t, explanation: String(q.explanation ?? q.explication ?? ''), hint: String(q.hint ?? q.indice ?? '') };
     if (dd) base.doc = typeof dd === 'string' ? { text: dd, image: '', source: '' } : { text: String(dd.text ?? dd.texte ?? ''), image: String(dd.image ?? ''), source: String(dd.source ?? '') };
     if (t === 'chrono') return { ...base, top: q.top ? String(q.top) : undefined, bottom: q.bottom ? String(q.bottom) : undefined, prompt: String(q.prompt ?? q.question ?? 'Remets dans l\u2019ordre chronologique.'), items: (q.items || q.elements || []).map(x => typeof x === 'string' ? x : String(x.text ?? x.label ?? '')) };
     if (t === 'image') return { ...base, prompt: String(q.prompt ?? q.question ?? 'Légende l\u2019image.'), image: String(q.image ?? q.url ?? ''), points: (q.points || []).map(p => ({ x: Number(p.x) || 0, y: Number(p.y) || 0, label: String(p.label ?? p.legende ?? '') })) };
+    if (t === 'assoc') return { ...base, prompt: String(q.prompt ?? q.question ?? 'Associe chaque élément à sa paire.'), pairs: (q.pairs || q.paires || []).map(p => Array.isArray(p) ? { a: String(p[0] ?? ''), b: String(p[1] ?? '') } : { a: String(p.a ?? p.left ?? p.gauche ?? ''), b: String(p.b ?? p.right ?? p.droite ?? '') }) };
+    if (t === 'classer'){
+      const cats = (q.categories || q.categorie || []).map(String);
+      return { ...base, prompt: String(q.prompt ?? q.question ?? 'Classe chaque élément dans la bonne catégorie.'), categories: cats, items: (q.items || q.elements || []).map(x => ({ text: String(x.text ?? x.label ?? x[0] ?? ''), cat: typeof (x.cat ?? x.categorie) === 'string' ? Math.max(0, cats.indexOf(x.cat ?? x.categorie)) : Number(x.cat ?? x.categorie ?? x[1]) || 0 })) };
+    }
+    if (t === 'clic') return { ...base, prompt: String(q.prompt ?? q.question ?? 'Touche le bon endroit sur la carte.'), image: String(q.image ?? q.url ?? ''), label: String(q.label ?? ''), target: q.target ? { x: Number(q.target.x) || 0, y: Number(q.target.y) || 0 } : null, r: Number(q.r) || 8 };
     if (t === 'qcm'){
       const opts = (q.options || q.choices || q.choix || []).map(String);
       let a = q.answer ?? q.reponse;
@@ -956,7 +979,7 @@ function cleanAndValidate(d){
     const q = d.questions[i], n = 'Question ' + (i + 1) + ' : ';
     if (q.doc){
       const dt = String(q.doc.text || '').trim(), ds = String(q.doc.source || '').trim();
-      if (!dt && !q.doc.image || q.type === 'image') delete q.doc; else q.doc = { text: dt, image: q.doc.image || '', source: ds };
+      if (!dt && !q.doc.image || q.type === 'image' || q.type === 'clic') delete q.doc; else q.doc = { text: dt, image: q.doc.image || '', source: ds };
     }
     if (q.type === 'qcm'){
       if (!q.prompt.trim()) return n + 'écris la question.';
@@ -977,6 +1000,22 @@ function cleanAndValidate(d){
       q.points = q.points.filter(p => String(p.label).trim()).map(p => ({ ...p, label: String(p.label).trim() }));
       if (q.points.length < 2) return n + 'place au moins deux repères avec leur légende.';
       if (new Set(q.points.map(p => norm(p.label))).size !== q.points.length) return n + 'deux repères ont la même légende.';
+    } else if (q.type === 'assoc'){
+      q.pairs = (q.pairs || []).map(p => ({ a: String(p.a || '').trim(), b: String(p.b || '').trim() })).filter(p => p.a || p.b);
+      if (q.pairs.some(p => !p.a || !p.b)) return n + 'chaque paire doit avoir ses deux côtés.';
+      if (q.pairs.length < 2) return n + 'il faut au moins deux paires.';
+      if (new Set(q.pairs.map(p => norm(p.b))).size !== q.pairs.length) return n + 'deux paires ont la même réponse à droite.';
+    } else if (q.type === 'classer'){
+      const cats = (q.categories || []).map(c => String(c).trim());
+      if (cats.length < 2 || cats.some(c => !c)) return n + 'donne un nom à chaque catégorie (au moins deux).';
+      q.categories = cats;
+      q.items = (q.items || []).map(x => ({ text: String(x.text || '').trim(), cat: Math.min(cats.length - 1, Math.max(0, +x.cat || 0)) })).filter(x => x.text);
+      if (q.items.length < 3) return n + 'il faut au moins trois éléments à classer.';
+    } else if (q.type === 'clic'){
+      if (!q.image) return n + 'ajoute une image.';
+      if (!q.target) return n + 'touche l\u2019image pour placer le bon endroit.';
+      q.label = String(q.label || '').trim(); q.r = +q.r || 8;
+      if (!String(q.prompt || '').trim()) q.prompt = 'Touche ' + (q.label || 'le bon endroit') + ' sur la carte.';
     }
   }
   return null;
@@ -2262,6 +2301,20 @@ const Student = {
       body = '<div class="qprompt">' + nb(esc(q.prompt || 'Remets dans l’ordre chronologique.')) + '</div>' + hint +
         '<p class="foot" style="margin:-14px 0 2px">En haut : ' + esc(q.top || 'le plus ancien') + '. En bas : ' + esc(q.bottom || 'le plus récent') + '. Utilise les flèches.</p><div id="chl"></div>' + check;
       speech = (q.prompt || 'Remets dans l’ordre chronologique.') + '. ' + order.map((i, k) => (k + 1) + ' : ' + q.items[i]).join('. ');
+    } else if (q.type === 'assoc'){
+      const rights = shuffle(q.pairs.map(p => p.b));
+      body = '<div class="qprompt">' + nb(esc(q.prompt || 'Associe chaque élément à sa paire.')) + '</div>' + hint +
+        '<div class="group">' + q.pairs.map((p, k) => '<div class="row leg-row as-row"><div class="as-a">' + esc(p.a) + '</div><select class="field leg" data-l="' + k + '" aria-label="Associer à ' + esc(p.a) + '"><option value="">Choisir…</option>' + rights.map(r => '<option>' + esc(r) + '</option>').join('') + '</select></div>').join('') + '</div>' + check;
+      speech = (q.prompt || 'Associe chaque élément à sa paire.') + '. ' + q.pairs.map(p => p.a).join(', ') + '. Les réponses possibles sont : ' + rights.join(', ') + '.';
+    } else if (q.type === 'classer'){
+      order = shuffle(q.items.map((t, i) => i));
+      body = '<div class="qprompt">' + nb(esc(q.prompt || 'Classe chaque élément dans la bonne catégorie.')) + '</div>' + hint +
+        '<div class="group">' + order.map(i => '<div class="row cl-row" data-ci="' + i + '"><div class="cl-t">' + esc(q.items[i].text) + '</div><div class="seg cl-seg">' + q.categories.map((c, j) => '<button data-ci="' + i + '" data-cj="' + j + '">' + esc(c) + '</button>').join('') + '</div></div>').join('') + '</div>' + check;
+      speech = (q.prompt || 'Classe chaque élément.') + ' Catégories : ' + q.categories.join(', ') + '. Éléments : ' + order.map(i => q.items[i].text).join(', ') + '.';
+    } else if (q.type === 'clic'){
+      body = '<div class="qprompt">' + nb(esc(q.prompt || ('Touche ' + (q.label || 'le bon endroit') + ' sur la carte.'))) + '</div>' + hint +
+        '<div class="img-wrap clic-wrap" id="clk"><img src="' + esc(q.image) + '" alt="Carte"></div><p class="foot" id="clkh" style="margin:6px 0 0">Touche la carte pour placer ton repère. Tu peux le déplacer avant de valider.</p>' + check;
+      speech = (q.prompt || ('Touche ' + (q.label || 'le bon endroit') + ' sur la carte.'));
     } else {
       const labels = shuffle(q.points.map(p => p.label));
       body = '<div class="qprompt">' + nb(esc(q.prompt || 'Légende l’image.')) + '</div>' + hint +
@@ -2275,11 +2328,11 @@ const Student = {
       '<div class="quiz-body">' + (it.repeat ? '<span class="pill orange" style="margin-bottom:12px">On revient sur cette question</span>' : '') +
       (q._from ? '<p class="foot" style="margin:0 0 8px">Série : ' + esc(q._from) + '</p>' : '') +
       '<div class="qhead"><div class="qtype">' + TYPE_LABEL[q.type] + '</div>' + (TTS.ok ? '<button class="speak" id="speak" aria-label="Écouter la question">' + I.speaker + ' Écouter</button>' : '') + '</div>' +
-      (q.doc && q.type !== 'image' ? '<div class="docbox"><div class="doc-label">' + (q.doc.pin ? 'Carte' : 'Document') + '</div>' + (q.doc.image ? (q.doc.pin ? '<div class="img-wrap" style="margin-bottom:4px"><img src="' + esc(q.doc.image) + '" alt="Carte muette"><span class="pin target" style="left:' + q.doc.pin.x + '%;top:' + q.doc.pin.y + '%">?</span></div>' : '<img src="' + esc(q.doc.image) + '" alt="Document">') : '') +
+      (q.doc && q.type !== 'image' && q.type !== 'clic' ? '<div class="docbox"><div class="doc-label">' + (q.doc.pin ? 'Carte' : 'Document') + '</div>' + (q.doc.image ? (q.doc.pin ? '<div class="img-wrap" style="margin-bottom:4px"><img src="' + esc(q.doc.image) + '" alt="Carte muette"><span class="pin target" style="left:' + q.doc.pin.x + '%;top:' + q.doc.pin.y + '%">?</span></div>' : '<img src="' + esc(q.doc.image) + '" alt="Document">') : '') +
         (q.doc.text ? '<div class="doc-text">' + nb(esc(q.doc.text)).replace(/\n/g, '<br>') + '</div>' : '') + (q.doc.source ? '<div class="doc-src">' + esc(q.doc.source) + '</div>' : '') + '</div>' : '') +
       body + '</div><div class="feedback" id="fb"></div></div>';
     window.scrollTo(0, 0);
-    if (q.doc && q.type !== 'image' && q.doc.text) speech = 'Document. ' + q.doc.text + '. ' + (q.doc.source ? 'Source : ' + q.doc.source + '. ' : '') + 'Question. ' + speech;
+    if (q.doc && q.type !== 'image' && q.type !== 'clic' && q.doc.text) speech = 'Document. ' + q.doc.text + '. ' + (q.doc.source ? 'Source : ' + q.doc.source + '. ' : '') + 'Question. ' + speech;
     const qbtn = document.getElementById('quit');
     if (qbtn) qbtn.onclick = async () => {
       if (await confirmDialog('Quitter l\u2019exercice ?', this.preview ? 'Tu reviendras à l’éditeur.' : 'Ce que tu as fait ne sera pas enregistré.', 'Quitter', true)) this.exit();
@@ -2334,6 +2387,68 @@ const Student = {
         if (s.locked) return; s.locked = true;
         const marks = order.map((v, i) => v === i); if (!T && !this.conf) draw(marks); document.getElementById('cw').remove();
         this.answer(marks.every(Boolean), order.map(i => q.items[i]).join(' → '), q.items.join(' → '), q.explanation);
+      };
+    } else if (q.type === 'assoc'){
+      document.getElementById('verif').onclick = () => {
+        if (s.locked) return;
+        const sels = [...$app.querySelectorAll('select.leg')];
+        const empty = sels.find(x => !x.value); if (empty){ empty.focus(); return toast('Fais une association pour chaque ligne'); }
+        s.locked = true; let all = true;
+        sels.forEach((sel, k) => {
+          const ok = norm(sel.value) === norm(q.pairs[k].b); if (!ok) all = false;
+          sel.disabled = true; if (T || this.conf) return; sel.closest('.row').classList.add(ok ? 'leg-ok' : 'leg-ko');
+          if (!ok) sel.insertAdjacentHTML('afterend', '<span class="leg-fix">' + esc(q.pairs[k].b) + '</span>');
+        });
+        document.getElementById('cw').remove();
+        this.answer(all, sels.map((x, k) => q.pairs[k].a + ' → ' + x.value).join(' · '), q.pairs.map(p => p.a + ' → ' + p.b).join(' · '), q.explanation);
+      };
+    } else if (q.type === 'classer'){
+      const pick = {};
+      $app.querySelectorAll('.cl-seg button').forEach(b => b.onclick = () => {
+        if (s.locked) return;
+        const i = +b.dataset.ci; pick[i] = +b.dataset.cj;
+        $app.querySelectorAll('.cl-seg button[data-ci="' + i + '"]').forEach(x => x.classList.toggle('on', +x.dataset.cj === pick[i]));
+      });
+      document.getElementById('verif').onclick = () => {
+        if (s.locked) return;
+        const miss = order.find(i => !(i in pick));
+        if (miss !== undefined){ toast('Classe tous les éléments'); const r = $app.querySelector('.cl-row[data-ci="' + miss + '"]'); if (r) r.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
+        s.locked = true; let all = true;
+        order.forEach(i => {
+          const ok = pick[i] === q.items[i].cat; if (!ok) all = false;
+          const row = $app.querySelector('.cl-row[data-ci="' + i + '"]');
+          row.querySelectorAll('button').forEach(x => x.disabled = true);
+          if (T || this.conf) return;
+          row.classList.add(ok ? 'leg-ok' : 'leg-ko');
+          if (!ok) row.insertAdjacentHTML('beforeend', '<span class="leg-fix">' + esc(q.categories[q.items[i].cat]) + '</span>');
+        });
+        document.getElementById('cw').remove();
+        this.answer(all, order.map(i => q.items[i].text + ' : ' + q.categories[pick[i]]).join(' · '), answerText(q), q.explanation);
+      };
+    } else if (q.type === 'clic'){
+      const wrap = document.getElementById('clk'); let pos = null;
+      wrap.onclick = e => {
+        if (s.locked) return;
+        const r = wrap.getBoundingClientRect();
+        pos = { x: (e.clientX - r.left) / r.width * 100, y: (e.clientY - r.top) / r.height * 100 };
+        let m = wrap.querySelector('.pin.mine'); if (!m){ m = document.createElement('span'); m.className = 'pin mine'; m.textContent = '?'; wrap.appendChild(m); }
+        m.style.left = pos.x + '%'; m.style.top = pos.y + '%';
+      };
+      document.getElementById('verif').onclick = () => {
+        if (s.locked) return;
+        if (!pos) return toast('Touche la carte pour placer ton repère');
+        s.locked = true;
+        const r = wrap.getBoundingClientRect(), t = q.target || { x: 0, y: 0 };
+        const dist = Math.hypot((pos.x - t.x) / 100 * r.width, (pos.y - t.y) / 100 * r.height) / r.width * 100;
+        const ok = dist <= (q.r || 8);
+        if (!T && !this.conf){
+          const m = wrap.querySelector('.pin.mine'); m.classList.add(ok ? 'ok' : 'ko'); m.textContent = ok ? '✓' : '✗';
+          if (!ok) wrap.insertAdjacentHTML('beforeend', '<span class="pin ok" style="left:' + t.x + '%;top:' + t.y + '%">✓</span>');
+          wrap.insertAdjacentHTML('beforeend', '<span class="clic-zone" style="left:' + t.x + '%;top:' + t.y + '%;width:' + (2 * (q.r || 8)) + '%"></span>');
+        }
+        const h = document.getElementById('clkh'); if (h) h.remove();
+        document.getElementById('cw').remove();
+        this.answer(ok, ok ? 'au bon endroit' : 'trop loin (' + Math.round(dist) + ' % de la largeur)', q.label || 'l\u2019endroit indiqué', q.explanation);
       };
     } else {
       document.getElementById('verif').onclick = () => {
@@ -2986,7 +3101,7 @@ const Prof = {
         const q = byId[a.qid];
         return '<div class="row ans-row" data-ok="' + (a.correct ? 1 : 0) + '" style="align-items:flex-start"><span class="ans-ic ' + (a.correct ? 'ok' : 'ko') + '">' + (a.correct ? I.check : I.x) + '</span><div class="main">' +
           '<div class="t" style="font-size:15px;white-space:normal">' + (k + 1) + '. ' + (q ? esc(qLabel(q)) : '<i>Question retirée de la série depuis</i>') + '</div>' +
-          (q && (q.doc && q.doc.image || q.type === 'image') ? '<img src="' + esc(q.type === 'image' ? q.image : q.doc.image) + '" alt="" style="width:110px;border-radius:6px;margin-top:6px;display:block;box-shadow:inset 0 0 0 1px var(--sep)">' : '') +
+          (q && (q.doc && q.doc.image || q.type === 'image' || q.type === 'clic') ? '<img src="' + esc(q.type === 'image' || q.type === 'clic' ? q.image : q.doc.image) + '" alt="" style="width:110px;border-radius:6px;margin-top:6px;display:block;box-shadow:inset 0 0 0 1px var(--sep)">' : '') +
           '<div class="s" style="white-space:normal;margin-top:4px">Réponse de ' + esc(x.stu.first_name) + ' : <span style="color:' + (a.correct ? 'var(--green)' : 'var(--red)') + ';font-weight:600">' + giv(a.given) + '</span></div>' +
           (!a.correct && q ? '<div class="s" style="white-space:normal">Bonne réponse : <b style="color:var(--label)">' + esc(answerText(q)) + '</b></div>' : '') +
           (a.hint ? '<div class="s"><span class="pill orange" style="margin-top:4px">Indice utilisé</span></div>' : '') + '</div></div>';
@@ -3183,6 +3298,34 @@ const Prof = {
             (q.items.length > 3 ? '<button class="icon-btn mute" data-act="delitem" data-q="' + i + '" data-o="' + k + '" aria-label="Retirer">' + I.x + '</button>' : '') + '</div>').join('') +
           (q.items.length < 8 ? '<button class="row center" data-act="additem" data-q="' + i + '" style="min-height:40px;font-size:15px">Ajouter un élément</button>' : '') +
           '<div class="hint">L\u2019appli mélange les éléments pour l\u2019élève. N\u2019écris pas les dates dans les éléments : mets-les plutôt dans l\u2019explication.</div>';
+      } else if (q.type === 'assoc'){
+        inner = '<input class="field" data-q="' + i + '" data-f="prompt" value="' + esc(q.prompt) + '" placeholder="Consigne (ex. Associe chaque nom à son pays d\u2019origine.)">' +
+          '<div class="lbl">Paires · à gauche ce que l\u2019élève voit, à droite ce qu\u2019il doit choisir</div>' +
+          q.pairs.map((p, k) => '<div class="opt-row"><input class="field" data-q="' + i + '" data-f="pa" data-o="' + k + '" value="' + esc(p.a) + '" placeholder="Élément ' + (k + 1) + '"><span style="color:var(--label3);flex:none">→</span><input class="field" data-q="' + i + '" data-f="pb" data-o="' + k + '" value="' + esc(p.b) + '" placeholder="Sa paire">' +
+            (q.pairs.length > 2 ? '<button class="icon-btn mute" data-act="delpair" data-q="' + i + '" data-o="' + k + '" aria-label="Retirer">' + I.x + '</button>' : '') + '</div>').join('') +
+          (q.pairs.length < 8 ? '<button class="row center" data-act="addpair" data-q="' + i + '" style="min-height:40px;font-size:15px">Ajouter une paire</button>' : '') +
+          '<div class="hint">L\u2019appli mélange les éléments de droite pour l\u2019élève.</div>';
+      } else if (q.type === 'classer'){
+        inner = '<input class="field" data-q="' + i + '" data-f="prompt" value="' + esc(q.prompt) + '" placeholder="Consigne (ex. Classe ces repères.)">' +
+          '<div class="lbl">Catégories (2 ou 3)</div>' +
+          q.categories.map((c, j) => '<div class="opt-row"><input class="field" data-q="' + i + '" data-f="cat" data-o="' + j + '" value="' + esc(c) + '" placeholder="Catégorie ' + (j + 1) + '">' +
+            (q.categories.length > 2 ? '<button class="icon-btn mute" data-act="delcat" data-q="' + i + '" data-o="' + j + '" aria-label="Retirer">' + I.x + '</button>' : '') + '</div>').join('') +
+          (q.categories.length < 3 ? '<button class="row center" data-act="addcat" data-q="' + i + '" style="min-height:40px;font-size:15px">Ajouter une catégorie</button>' : '') +
+          '<div class="lbl">Éléments à classer · choisis la bonne catégorie de chacun</div>' +
+          q.items.map((x, k) => '<div class="opt-row" style="flex-wrap:wrap"><input class="field" data-q="' + i + '" data-f="citem" data-o="' + k + '" value="' + esc(x.text) + '" placeholder="Élément ' + (k + 1) + '" style="flex:1 1 60%">' +
+            (q.items.length > 3 ? '<button class="icon-btn mute" data-act="delcitem" data-q="' + i + '" data-o="' + k + '" aria-label="Retirer">' + I.x + '</button>' : '') +
+            '<div class="seg" style="flex:1 1 100%;margin:2px 0 6px">' + q.categories.map((c, j) => '<button data-act="icat" data-q="' + i + '" data-o="' + k + '" data-v="' + j + '" class="' + (x.cat === j ? 'on' : '') + '">' + esc(c || 'Catégorie ' + (j + 1)) + '</button>').join('') + '</div></div>').join('') +
+          (q.items.length < 12 ? '<button class="row center" data-act="addcitem" data-q="' + i + '" style="min-height:40px;font-size:15px">Ajouter un élément</button>' : '');
+      } else if (q.type === 'clic'){
+        inner = '<input class="field" data-q="' + i + '" data-f="label" value="' + esc(q.label || '') + '" placeholder="Lieu à trouver (ex. Liège)">' +
+          '<input class="field" data-q="' + i + '" data-f="prompt" value="' + esc(q.prompt) + '" placeholder="Consigne (ex. Touche Liège sur la carte.)">' +
+          (q.image
+            ? '<div class="inner-pad"><div class="img-wrap edit"><img src="' + esc(q.image) + '" alt="Carte" data-clicq="' + i + '">' +
+                (q.target ? '<span class="pin ok" style="left:' + q.target.x + '%;top:' + q.target.y + '%">✓</span><span class="clic-zone" style="left:' + q.target.x + '%;top:' + q.target.y + '%;width:' + (2 * (q.r || 8)) + '%"></span>' : '') + '</div></div>' +
+              '<div class="hint" style="padding-top:0">Touche l\u2019image à l\u2019endroit juste. Le cercle montre la zone acceptée.</div>' +
+              '<div class="inner-pad"><div class="seg">' + [[5, 'Zone petite'], [8, 'Moyenne'], [12, 'Grande']].map(([v, l]) => '<button data-act="clicr" data-q="' + i + '" data-v="' + v + '" class="' + ((q.r || 8) === v ? 'on' : '') + '">' + l + '</button>').join('') + '</div></div>' +
+              '<label class="row center" style="min-height:40px;font-size:15px;cursor:pointer">Changer d\u2019image<input type="file" accept="image/*" data-imgfile="' + i + '" hidden></label>'
+            : '<label class="row center" style="min-height:72px;cursor:pointer;flex-direction:column;gap:4px">' + I.image + '<span style="font-size:15px">Choisir une image (carte, plan, photo)</span><input type="file" accept="image/*" data-imgfile="' + i + '" hidden></label>');
       } else {
         inner = '<input class="field" data-q="' + i + '" data-f="prompt" value="' + esc(q.prompt) + '" placeholder="Consigne (ex. Légende la carte.)">' +
           (q.image
@@ -3196,7 +3339,7 @@ const Prof = {
         '<button class="icon-btn" data-act="up" data-q="' + i + '" ' + (i === 0 ? 'disabled' : '') + ' aria-label="Monter">' + I.up + '</button>' +
         '<button class="icon-btn" data-act="down" data-q="' + i + '" ' + (i === n - 1 ? 'disabled' : '') + ' aria-label="Descendre">' + I.down + '</button>' +
         '<button class="icon-btn red" data-act="delq" data-q="' + i + '" aria-label="Supprimer">' + I.trash + '</button></div></div>' + inner +
-        (q.type === 'image' ? '' : !q.doc
+        (q.type === 'image' || q.type === 'clic' ? '' : !q.doc
           ? '<button class="row center" data-act="adddoc" data-q="' + i + '" style="min-height:42px;font-size:15px">Ajouter un document (texte, photo, affiche…)</button>' +
             (i > 0 && d.questions[i - 1].doc ? '<button class="row center" data-act="reusedoc" data-q="' + i + '" style="min-height:42px;font-size:15px">Reprendre le document de la question ' + i + '</button>' : '')
           : '<div class="lbl">Document affiché au-dessus de la question</div>' +
@@ -3227,7 +3370,7 @@ const Prof = {
       '<p class="foot">Quand l\u2019élève a validé la série, un test de contrôle se débloque : des questions tirées au hasard dans la série choisie, un seul essai, la correction à la fin. Tu vois ensuite ses progrès par rapport à l\u2019évaluation. Choisis une autre série que celle-ci, pour que l\u2019élève ne retrouve pas les mêmes questions.</p>' +
       '<div class="section-h">Questions (' + d.questions.length + ')</div>' +
       (d.questions.length ? d.questions.map(qHtml).join('') : '<div class="empty">Ajoute une première question avec les boutons ci-dessous.</div>') +
-      '<div class="add-row"><button data-act="addq" data-t="qcm">' + I.qcm + 'Choix multiple</button><button data-act="addq" data-t="vf">' + I.vf + 'Vrai ou faux</button><button data-act="addq" data-t="trous">' + I.trous + 'Texte à trous</button><button data-act="addq" data-t="chrono">' + I.chrono + 'Ligne du temps</button><button data-act="addq" data-t="image">' + I.image + 'Image à légender</button></div>' +
+      '<div class="add-row"><button data-act="addq" data-t="qcm">' + I.qcm + 'Choix multiple</button><button data-act="addq" data-t="vf">' + I.vf + 'Vrai ou faux</button><button data-act="addq" data-t="trous">' + I.trous + 'Texte à trous</button><button data-act="addq" data-t="chrono">' + I.chrono + 'Ligne du temps</button><button data-act="addq" data-t="image">' + I.image + 'Image à légender</button><button data-act="addq" data-t="assoc">' + I.assoc + 'Associer</button><button data-act="addq" data-t="classer">' + I.classer + 'Classer</button><button data-act="addq" data-t="clic">' + I.clic + 'Toucher sur la carte</button></div>' +
       '<div class="group mt2"><button class="row center" data-act="preview">Essayer comme un élève</button>' + (id ? '<button class="row danger" data-act="delset">Supprimer la série</button>' : '') + '</div></div>';
     this.shell('exercices', html);
     const ed = document.getElementById('ed');
@@ -3240,6 +3383,10 @@ const Prof = {
       else if (f === 'plabel') q.points[+t.dataset.o].label = t.value;
       else if (f === 'doctext') q.doc.text = t.value;
       else if (f === 'docsrc') q.doc.source = t.value;
+      else if (f === 'pa') q.pairs[+t.dataset.o].a = t.value;
+      else if (f === 'pb') q.pairs[+t.dataset.o].b = t.value;
+      else if (f === 'cat'){ q.categories[+t.dataset.o] = t.value; document.querySelectorAll('[data-act="icat"][data-q="' + t.dataset.q + '"][data-v="' + t.dataset.o + '"]').forEach(x => { x.textContent = t.value || 'Catégorie ' + (+t.dataset.o + 1); }); }
+      else if (f === 'citem') q.items[+t.dataset.o].text = t.value;
       else q[f] = t.value;
     });
     const csel = document.getElementById('ctlsel'); if (csel) csel.addEventListener('change', () => { d.control_set_id = csel.value || null; if (d.control_set_id && !d.control_count) d.control_count = 10; const y = window.scrollY; this.renderEditor(id); window.scrollTo(0, y); });
@@ -3248,7 +3395,7 @@ const Prof = {
       try {
         const url = await loadImage(t.files[0]);
         if (t.dataset.docfile !== undefined) d.questions[+t.dataset.docfile].doc.image = url;
-        else { const qi = +t.dataset.imgfile; d.questions[qi].image = url; d.questions[qi].points = []; }
+        else { const qi = +t.dataset.imgfile; d.questions[qi].image = url; if (d.questions[qi].type === 'clic') d.questions[qi].target = null; else d.questions[qi].points = []; }
         const y = window.scrollY; this.renderEditor(id); window.scrollTo(0, y);
       }
       catch(err){ toast('Cette image ne peut pas être lue'); }
@@ -3263,6 +3410,12 @@ const Prof = {
         const inp = document.querySelector('[data-q="' + qi + '"][data-f="plabel"][data-o="' + (d.questions[qi].points.length - 1) + '"]'); if (inp) inp.focus({ preventScroll: true });
         return;
       }
+      const cimg = e.target.closest('img[data-clicq]');
+      if (cimg){
+        const qi = +cimg.dataset.clicq, r = cimg.getBoundingClientRect();
+        d.questions[qi].target = { x: Math.round((e.clientX - r.left) / r.width * 1000) / 10, y: Math.round((e.clientY - r.top) / r.height * 1000) / 10 };
+        const yy = window.scrollY; this.renderEditor(id); window.scrollTo(0, yy); return;
+      }
       const b = e.target.closest('[data-act]'); if (!b) return;
       const act = b.dataset.act, i = +b.dataset.q, q = d.questions[i];
       const rerender = () => { const y = window.scrollY; this.renderEditor(id); window.scrollTo(0, y); };
@@ -3276,6 +3429,14 @@ const Prof = {
       if (act === 'additem'){ q.items.push(''); rerender(); const inp = document.querySelector('[data-q="' + i + '"][data-f="item"][data-o="' + (q.items.length - 1) + '"]'); if (inp) inp.focus(); return; }
       if (act === 'delitem'){ q.items.splice(+b.dataset.o, 1); return rerender(); }
       if (act === 'delpt'){ q.points.splice(+b.dataset.o, 1); return rerender(); }
+      if (act === 'addpair'){ q.pairs.push({ a: '', b: '' }); rerender(); const inp = document.querySelector('[data-q="' + i + '"][data-f="pa"][data-o="' + (q.pairs.length - 1) + '"]'); if (inp) inp.focus(); return; }
+      if (act === 'delpair'){ q.pairs.splice(+b.dataset.o, 1); return rerender(); }
+      if (act === 'addcat'){ q.categories.push(''); return rerender(); }
+      if (act === 'delcat'){ const j = +b.dataset.o; q.categories.splice(j, 1); q.items.forEach(x => { if (x.cat === j) x.cat = 0; else if (x.cat > j) x.cat--; }); return rerender(); }
+      if (act === 'addcitem'){ q.items.push({ text: '', cat: 0 }); rerender(); const inp = document.querySelector('[data-q="' + i + '"][data-f="citem"][data-o="' + (q.items.length - 1) + '"]'); if (inp) inp.focus(); return; }
+      if (act === 'delcitem'){ q.items.splice(+b.dataset.o, 1); return rerender(); }
+      if (act === 'icat'){ q.items[+b.dataset.o].cat = +b.dataset.v; return rerender(); }
+      if (act === 'clicr'){ q.r = +b.dataset.v; return rerender(); }
       if (act === 'adddoc'){ q.doc = { text: '', image: '', source: '' }; rerender(); const ta = document.querySelector('[data-q="' + i + '"][data-f="doctext"]'); if (ta) ta.focus({ preventScroll: true }); return; }
       if (act === 'reusedoc'){ q.doc = JSON.parse(JSON.stringify(d.questions[i - 1].doc)); return rerender(); }
       if (act === 'deldoc'){ delete q.doc; return rerender(); }
@@ -3289,6 +3450,9 @@ const Prof = {
           : t === 'vf' ? { id: uid(), type: 'vf', prompt: '', answer: true, explanation: '' }
           : t === 'chrono' ? { id: uid(), type: 'chrono', prompt: 'Remets dans l\u2019ordre chronologique.', items: ['', '', ''], explanation: '' }
           : t === 'image' ? { id: uid(), type: 'image', prompt: 'Légende l\u2019image.', image: '', points: [], explanation: '' }
+          : t === 'assoc' ? { id: uid(), type: 'assoc', prompt: 'Associe chaque élément à sa paire.', pairs: [{ a: '', b: '' }, { a: '', b: '' }, { a: '', b: '' }], explanation: '' }
+          : t === 'classer' ? { id: uid(), type: 'classer', prompt: 'Classe chaque élément dans la bonne catégorie.', categories: ['', ''], items: [{ text: '', cat: 0 }, { text: '', cat: 0 }, { text: '', cat: 1 }], explanation: '' }
+          : t === 'clic' ? { id: uid(), type: 'clic', prompt: '', label: '', image: '', target: null, r: 8, explanation: '' }
           : { id: uid(), type: 'trous', prompt: 'Complète le texte.', text: '', explanation: '' });
         this.renderEditor(id);
         const cards = document.querySelectorAll('.qedit'); const last = cards[cards.length - 1];
