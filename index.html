@@ -398,6 +398,21 @@ a.cblock.row{display:flex;color:inherit;text-decoration:none}
 .flag-btn{border:0;background:none;color:var(--label2);font-size:15px;font-weight:500;display:inline-flex;align-items:center;gap:6px;padding:8px 0 0}
 .flag-btn.done{color:var(--green)}
 .msg-card{background:color-mix(in srgb,var(--green) 13%,var(--card));border-radius:14px;padding:14px 16px;margin:16px 0 4px;text-align:left;line-height:1.45}
+.add-row label{border:0;background:var(--card);border-radius:12px;padding:12px 6px;font-size:14px;font-weight:600;color:var(--blue);display:flex;flex-direction:column;align-items:center;gap:4px;box-shadow:var(--shadow);cursor:pointer}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;padding:12px}
+.pthumb img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top;border-radius:8px;display:block;box-shadow:inset 0 0 0 1px var(--sep);background:#fff}
+.pthumb .pbar{display:flex;align-items:center;gap:2px;margin-top:4px;font-size:13px;color:var(--label2)}.pthumb .pbar span{flex:1}
+.copy-score{display:inline-flex;align-items:baseline;background:var(--card);border-radius:14px;padding:10px 18px;box-shadow:var(--shadow);margin:2px 0 6px}
+.copy-score .n{font-size:34px;font-weight:700}.copy-score .t{font-size:20px;color:var(--label2);font-weight:600;margin-left:6px}
+.page-coms{margin:-4px 0 22px}
+.ccom{padding:12px 16px;border-bottom:.5px solid var(--sep);line-height:1.45}.ccom:last-child{border-bottom:0}
+.ccom .lab{font-weight:700;color:var(--blue);font-size:15px;margin-bottom:2px}.ccom .txt{font-size:16px}
+.copy-page{display:block;width:100%;border:0;padding:0;background:none;margin:0 0 16px;text-align:center;cursor:zoom-in}
+.copy-page img{width:100%;display:block;border-radius:12px;box-shadow:var(--shadow);background:#fff}
+.copy-page span{display:block;font-size:13px;color:var(--label2);margin-top:6px}
+.zoom-wrap{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.92);display:flex;flex-direction:column}
+.zoom-x{align-self:flex-end;color:#fff;margin:calc(8px + env(safe-area-inset-top)) 12px 4px}
+.zoom-sc{flex:1;overflow:auto;-webkit-overflow-scrolling:touch}.zoom-sc img{width:100%;display:block;background:#fff}
 .msg-card .from{font-size:13px;color:var(--label2);margin-bottom:4px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px}
 .chip{border:0;border-radius:999px;padding:7px 14px;font-size:15px;font-weight:500;background:var(--fill);color:var(--label)}
@@ -552,6 +567,39 @@ const norm = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '
 const go = h => { if (location.hash === h) route(); else location.hash = h; };
 function todayLocal(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 function fmtDate(d){ if (!d) return ''; return new Date(d + 'T12:00:00').toLocaleDateString('fr-BE', { weekday:'short', day:'numeric', month:'long' }); }
+const fmtNum = n => String(n).replace('.', ',');
+function parseNum(v){ if (v == null || String(v).trim() === '') return null; const n = Number(String(v).trim().replace(',', '.')); return isFinite(n) && n >= 0 ? n : false; }
+function loadPage(file, max){
+  max = max || 1600;
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => { const im = new Image(); im.onload = () => {
+      const k = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight)), w = Math.round(im.naturalWidth * k), h = Math.round(im.naturalHeight * k);
+      const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(im, 0, 0, w, h);
+      res(c.toDataURL('image/jpeg', 0.72)); }; im.onerror = rej; im.src = fr.result; };
+    fr.onerror = rej; fr.readAsDataURL(file);
+  });
+}
+let _pdfjs = null;
+function pdfLib(){
+  if (_pdfjs) return _pdfjs;
+  _pdfjs = new Promise((res, rej) => {
+    const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    sc.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; res(window.pdfjsLib); };
+    sc.onerror = () => { _pdfjs = null; rej(new Error('pdf')); }; document.head.appendChild(sc);
+  });
+  return _pdfjs;
+}
+async function pdfToPages(file){
+  const lib = await pdfLib(), pdf = await lib.getDocument({ data: await file.arrayBuffer() }).promise, out = [];
+  for (let i = 1; i <= Math.min(pdf.numPages, 12); i++){
+    const pg = await pdf.getPage(i), v0 = pg.getViewport({ scale: 1 }), k = 1600 / Math.max(v0.width, v0.height), v = pg.getViewport({ scale: k });
+    const c = document.createElement('canvas'); c.width = Math.round(v.width); c.height = Math.round(v.height);
+    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+    await pg.render({ canvasContext: x, viewport: v }).promise; out.push(c.toDataURL('image/jpeg', 0.72));
+  }
+  return out;
+}
 function fmtDateTime(d){ return new Date(d).toLocaleString('fr-BE', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }); }
 function fmtDuration(s){ s = s || 0; if (s < 60) return s + ' s'; const m = Math.round(s / 60); if (m < 60) return m + ' min'; return Math.floor(m/60) + ' h ' + String(m%60).padStart(2,'0'); }
 const nb = h => String(h).replace(/ ([?!;:»])/g, '\u00a0$1').replace(/« /g, '«\u00a0');
@@ -965,8 +1013,9 @@ const Student = {
       if (!data){ store.del('exos_code'); return this.renderLogin('Ce code n\u2019est plus valide.'); }
       this.me = data;
     }
-    const { data, error } = await sb.rpc('student_home', { p_code: this.code });
+    const [{ data, error }, cp] = await Promise.all([sb.rpc('student_home', { p_code: this.code }), sb.rpc('student_copies', { p_code: this.code })]);
     if (error || !data) return this.offline();
+    this.copies = cp.error ? (this.copies || []) : (cp.data || []);
     this.home = data; this.list = data.assignments || []; this.practice = false;
     this.renderList();
     if (!silent && !store.get('exos_tour_' + this.code)) setTimeout(() => this.showTour(), 350);
@@ -1132,12 +1181,14 @@ const Student = {
               : '<button class="btn mt" data-ev="' + e.id + '">' + (st === 'in_progress' ? 'Reprendre l’évaluation' : 'Commencer') + '</button>') + '</div>';
         }).join('') : '<div class="empty mt"><b>Aucune évaluation en cours</b>Quand ton professeur lance une évaluation en classe, elle apparaît ici.</div>') +
         (results.length ? '<div class="section-h">Mes résultats</div><div class="group">' + results.map(e => '<div class="row"><div class="main"><div class="t">' + esc(e.title) + '</div><div class="s">' + (e.status === 'open' ? 'Terminée' : 'Corrigée') + '</div></div>' +
-          (e.my_score != null ? '<span class="score">' + e.my_score + ' / ' + e.my_total + (e.my_penalty ? '<span class="pen">−' + e.my_penalty + '</span>' : '') + '</span>' : '<span class="val" style="font-size:14px">Note donnée par ton professeur</span>') + '</div>').join('') + '</div>' : '');
+          (e.my_score != null ? '<span class="score">' + e.my_score + ' / ' + e.my_total + (e.my_penalty ? '<span class="pen">−' + e.my_penalty + '</span>' : '') + '</span>' : '<span class="val" style="font-size:14px">Note donnée par ton professeur</span>') + '</div>').join('') + '</div>' : '') +
+        this.copiesSection();
     }
     const tb = (k, label, icon, badge) => '<a href="#" data-stab="' + k + '" class="' + (tab === k ? 'on' : '') + '">' + icon + '<span>' + label + '</span>' + (badge ? '<b class="tdot"></b>' : '') + '</a>';
     $app.innerHTML = nav('<button class="nav-btn" id="opts">Réglages</button>', '<button class="nav-btn" id="refresh">Actualiser</button>') +
       '<div class="wrap">' + body + '</div>' +
-      '<nav class="tabbar">' + tb('ex', 'Exercices', I.tabDoc) + tb('cours', 'Cours', I.tabBook) + tb('study', 'J\u2019étudie', I.tabStudy) + tb('eval', 'Évaluation', I.tabEval, evOpen.length) + '</nav>';
+      '<nav class="tabbar">' + tb('ex', 'Exercices', I.tabDoc) + tb('cours', 'Cours', I.tabBook) + tb('study', 'J\u2019étudie', I.tabStudy) + tb('eval', 'Évaluation', I.tabEval, evOpen.length || (this.copies || []).some(c => !c.seen_at)) + '</nav>';
+    $app.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => this.openCopy(b.dataset.copy));
     $app.querySelectorAll('[data-stab]').forEach(a => a.onclick = e => { e.preventDefault(); this.stab = a.dataset.stab; this.renderList(); window.scrollTo(0, 0); });
     $app.querySelectorAll('[data-id]').forEach(b => b.onclick = () => this.open(b.dataset.id));
     $app.querySelectorAll('[data-course]').forEach(b => b.onclick = () => this.openCourse(b.dataset.course));
@@ -1170,6 +1221,53 @@ const Student = {
     });
     if (tab === 'study' && !this.study) this.loadStudy().then(ok => { if (this.stab === 'study' && !document.querySelector('.quiz')) ok ? this.renderList() : toast('Connexion impossible'); });
     if (tab === 'eval') this._hp = setTimeout(() => { if (this.stab === 'eval' && document.getElementById('stab-eval-view')) this.loadList(true); }, 8000);
+  },
+
+  /* ---------- Copies corrigées (élève) ---------- */
+  copiesSection(){
+    const list = this.copies || [];
+    if (!list.length) return '';
+    return '<div class="section-h">Mes copies corrigées</div><div class="group">' + list.map(c =>
+      '<button class="row" data-copy="' + c.id + '"><span style="color:var(--blue);display:flex">' + I.doc + '</span><div class="main"><div class="t">' + esc(c.title) + '</div><div class="s">' +
+        esc([c.copy_date ? fmtDate(c.copy_date) : null, c.n_comments ? c.n_comments + ' commentaire' + (c.n_comments > 1 ? 's' : '') + ' de ton professeur' : null].filter(Boolean).join(' · ') || 'Ta copie corrigée') + '</div></div>' +
+        (c.seen_at ? (c.score != null && c.total ? '<span class="score">' + fmtNum(c.score) + ' / ' + fmtNum(c.total) + '</span>' : '') : '<span class="pill blue">Nouveau</span>') +
+        '<span class="chev">' + I.chevR + '</span></button>').join('') + '</div>';
+  },
+  async openCopy(id){
+    loading();
+    const { data, error } = await sb.rpc('student_get_copy', { p_code: this.code, p_id: id });
+    if (error || !data){ toast('Cette copie n’est pas disponible'); return this.renderList(); }
+    const c = (this.copies || []).find(x => x.id === id); if (c && !c.seen_at) c.seen_at = new Date().toISOString();
+    this.showCopy(data, () => { this.renderList(); window.scrollTo(0, 0); }, 'Évaluation', false);
+  },
+  showCopy(c, onBack, backLabel, previewTag){
+    const all = (c.comments || []).filter(x => String(x.text || '').trim()), nPg = (c.pages || []).length;
+    const onPage = k => all.filter(x => +x.page === k + 1);
+    const coms = all.filter(x => !(+x.page >= 1 && +x.page <= nPg));
+    const hasAi = all.some(x => x.ai);
+    const box = list => '<div class="group">' + list.map(x => '<div class="ccom">' + (x.label ? '<div class="lab">' + esc(x.label) + '</div>' : '') + '<div class="txt">' + nb(esc(x.text)).replace(/\n/g, '<br>') + '</div></div>').join('') + '</div>';
+    $app.innerHTML = nav('<button class="nav-btn" id="back">' + I.chevL + '<span>' + esc(backLabel) + '</span></button>') +
+      '<div class="wrap notab">' + (previewTag ? '<span class="pill blue">Aperçu élève</span>' : '') +
+      '<h1 class="large"' + (previewTag ? ' style="margin-top:8px"' : '') + '>' + esc(c.title || 'Copie corrigée') + '</h1>' + (c.copy_date ? '<p class="subtitle">' + esc(fmtDate(c.copy_date)) + '</p>' : '') +
+      (c.score != null && c.total ? '<div class="copy-score"><span class="n">' + fmtNum(c.score) + '</span><span class="t">/ ' + fmtNum(c.total) + '</span></div>' : '') +
+      (c.general ? '<div class="msg-card" style="background:color-mix(in srgb,var(--blue) 11%,var(--card))"><div class="from">Le mot de ton professeur</div>' + nb(esc(c.general)).replace(/\n/g, '<br>') + '</div>' : '') +
+      (coms.length ? '<div class="section-h">Pour comprendre tes erreurs</div>' + box(coms) : '') +
+      (nPg ? '<div class="section-h">Ma copie</div>' + c.pages.map((p, i) => '<button class="copy-page" data-pg="' + i + '" aria-label="Agrandir la page ' + (i + 1) + '"><img src="' + esc(p.src) + '" alt="Page ' + (i + 1) + ' de ta copie"><span>Page ' + (i + 1) + ' · touche pour agrandir</span></button>' +
+        (onPage(i).length ? '<div class="page-coms"><div class="section-h" style="margin-top:0">Commentaires sur la page ' + (i + 1) + '</div>' + box(onPage(i)) + '</div>' : '')).join('') : '') +
+      (hasAi ? '<p class="foot">Certains commentaires ont été préparés avec l’aide d’une intelligence artificielle, puis relus par ton professeur.</p>' : '') +
+      (!all.length && !nPg && !c.general ? '<div class="empty mt">Ton professeur n’a pas encore ajouté de commentaire.</div>' : '') +
+      '</div>';
+    window.scrollTo(0, 0);
+    document.getElementById('back').onclick = onBack;
+    $app.querySelectorAll('[data-pg]').forEach(b => b.onclick = () => {
+      const src = c.pages[+b.dataset.pg].src;
+      const el = document.createElement('div'); el.className = 'zoom-wrap';
+      el.innerHTML = '<button class="nav-btn bold zoom-x">Fermer</button><div class="zoom-sc"><img src="' + esc(src) + '" alt="Page agrandie"></div>';
+      document.body.appendChild(el);
+      const img = el.querySelector('img'); let big = false;
+      img.onclick = () => { big = !big; img.style.width = big ? '200%' : '100%'; };
+      el.querySelector('.zoom-x').onclick = () => el.remove();
+    });
   },
 
   /* ---------- J'étudie ---------- */
@@ -2509,6 +2607,7 @@ const Prof = {
     if (tab === 'exercices' && id) return this.renderEditor(id === 'nouveau' ? null : id);
     if (tab === 'exercices') return this.renderSets();
     if (tab === 'eleve' && id) return this.renderStudent(id);
+    if (tab === 'copie' && id) return this.renderCopyEditor(id);
     if (tab === 'evals' && id) return this.renderEval(id);
     if (tab === 'evals') return this.renderEvals();
     if (tab === 'cours' && id) return this.renderCourseEditor(id === 'nouveau' ? null : id);
@@ -2519,15 +2618,17 @@ const Prof = {
   },
 
   async load(){
-    const [ev, ea, co, fl, c, s, a] = await Promise.all([
+    const [ev, ea, co, fl, c, s, a, cp] = await Promise.all([
       sb.from('evaluations').select('*').order('created_at', { ascending: false }),
       sb.from('eval_attempts').select('*'),
       sb.from('courses').select('*').order('updated_at', { ascending: false }),
       sb.from('flags').select('*'),
       sb.from('classes').select('id,name,created_at,hidden_tools,challenge,students(id,first_name,code,class_id,created_at)').order('name'),
       sb.from('exercise_sets').select('*').order('created_at', { ascending: false }),
-      sb.from('assignments').select('id,set_id,student_id,due_date,reason,success_message,created_at,from_eval_id,control_qids,attempts(id,score,total,percent,passed,duration_seconds,answers,created_at,kind)')
+      sb.from('assignments').select('id,set_id,student_id,due_date,reason,success_message,created_at,from_eval_id,control_qids,attempts(id,score,total,percent,passed,duration_seconds,answers,created_at,kind)'),
+      sb.from('copies').select('id,student_id,title,copy_date,score,total,comments,published,published_at,seen_at,created_at').order('created_at', { ascending: false })
     ]);
+    this.copies = cp.error ? [] : (cp.data || []);
     const err = c.error || s.error || a.error || co.error || fl.error; if (err) throw err;
     if (ev.error || ea.error) throw (ev.error || ea.error);
     this.courses = co.data || []; this.flags = fl.data || []; this.evals = ev.data || []; this.evalAtts = ea.data || [];
@@ -3567,6 +3668,7 @@ const Prof = {
       '<div class="row"><div class="main t">Dernière activité</div><span class="val">' + (last ? fmtDateTime(last) : '—') + '</span></div>' +
       '<div class="row"><div class="main t">« Je n’ai pas compris »</div><span class="val">' + (this.flags || []).filter(f => f.student_id === sid).length + '</span></div></div>' +
       '<p class="foot">Le score moyen se calcule sur le meilleur essai de chaque série commencée.</p>' +
+      this.copySection(sid, stu) +
       '<div class="section-h">Séries (' + list.length + ')</div>' +
       (list.length ? '<div class="group">' + list.map(x => {
         const [lab, col] = ST[x.st.status];
@@ -3577,6 +3679,154 @@ const Prof = {
     this.shell('classes', html);
     document.getElementById('code').onclick = () => this.studentSheet(c, c.students.find(s => s.id === sid));
     $app.querySelectorAll('[data-a]').forEach(b => b.onclick = () => { const x = list.find(y => y.a.id === b.dataset.a); this.attemptSheet(x, x.set, true); });
+  },
+
+  /* ---------- Copies corrigées ---------- */
+  copySection(sid, stu){
+    const list = (this.copies || []).filter(c => c.student_id === sid);
+    const pill = c => !c.published ? ['Brouillon', 'orange'] : c.seen_at ? ['Vue', 'green'] : ['Envoyée', 'blue'];
+    return '<div class="section-h">Copies corrigées (' + list.length + ')</div>' +
+      (list.length ? '<div class="group">' + list.map(c => {
+        const [lab, col] = pill(c);
+        const meta = [c.copy_date ? fmtDate(c.copy_date) : null, c.score != null && c.total ? fmtNum(c.score) + ' / ' + fmtNum(c.total) : null,
+          (c.comments || []).length ? (c.comments || []).length + ' commentaire' + ((c.comments || []).length > 1 ? 's' : '') : null].filter(Boolean).join(' · ');
+        const ai = (c.comments || []).some(x => x.ai && !x.ok);
+        return '<a class="row" href="#/prof/copie/' + c.id + '"><div class="main"><div class="t">' + esc(c.title) + '</div><div class="s">' + esc(meta || 'Pas encore de commentaire') + (ai ? ' · <span style="color:var(--purple)">commentaires IA à valider</span>' : '') + '</div></div><span class="pill ' + col + '">' + lab + '</span><span class="chev">' + I.chevR + '</span></a>';
+      }).join('') + '</div>' : '') +
+      '<div class="group' + (list.length ? ' mt' : '') + '"><a class="row center" href="#/prof/copie/nouveau-' + sid + '" style="gap:8px;color:var(--blue)">' + I.plus + ' Ajouter une copie corrigée</a></div>' +
+      '<p class="foot">Dépose la copie corrigée et ajoute tes commentaires à côté des exercices. ' + esc(stu.first_name) + ' la retrouve dans l’onglet Évaluation de son appli.</p>';
+  },
+
+  async renderCopyEditor(id){
+    const isNew = id.startsWith('nouveau-');
+    if (!this.pdraft || this.pdraft._for !== id){
+      if (isNew){
+        const sid = id.slice(8);
+        if (!this.studentById[sid]) return go('#/prof/classes');
+        this.pdraft = { _for: id, student_id: sid, title: '', copy_date: todayLocal(), score: null, total: null, general: '', comments: [], pages: [], published: false, published_at: null, seen_at: null };
+      } else {
+        loading();
+        const { data, error } = await sb.from('copies').select('*').eq('id', id).maybeSingle();
+        if (error || !data){ toast('Copie introuvable'); return go('#/prof/classes'); }
+        this.pdraft = { ...data, _for: id, _was: data.published, general: data.general || '', comments: data.comments || [], pages: data.pages || [] };
+      }
+    }
+    const d = this.pdraft, stu = this.studentById[d.student_id];
+    if (!stu) return go('#/prof/classes');
+    const nP = d.pages.length;
+    const pagesHtml = nP ? '<div class="pgrid">' + d.pages.map((p, i) => '<div class="pthumb"><img src="' + esc(p.src) + '" alt="Page ' + (i + 1) + '"><div class="pbar"><span>Page ' + (i + 1) + '</span>' +
+        '<button class="icon-btn" data-act="pup" data-i="' + i + '" ' + (i === 0 ? 'disabled' : '') + ' aria-label="Avancer">' + I.up + '</button>' +
+        '<button class="icon-btn red" data-act="pdel" data-i="' + i + '" aria-label="Retirer la page">' + I.trash + '</button></div></div>').join('') + '</div>'
+      : '<div class="empty" style="padding:22px 16px">Aucune page pour l’instant. Ajoute une photo ou le PDF de la copie corrigée.</div>';
+    const comHtml = (c, i) => {
+      const n = d.comments.length, pend = c.ai && !c.ok;
+      return '<div class="qedit"' + (pend ? ' style="box-shadow:inset 0 0 0 2px var(--purple),var(--shadow)"' : '') + '><div class="qedit-head"><span>' + (c.ai ? (pend ? '<b style="color:var(--purple)">Proposé par l’IA · à relire</b>' : 'Proposé par l’IA · validé') : 'Commentaire') + '</span><div style="display:flex">' +
+        '<button class="icon-btn" data-act="cup" data-i="' + i + '" ' + (i === 0 ? 'disabled' : '') + ' aria-label="Monter">' + I.up + '</button>' +
+        '<button class="icon-btn" data-act="cdown" data-i="' + i + '" ' + (i === n - 1 ? 'disabled' : '') + ' aria-label="Descendre">' + I.down + '</button>' +
+        '<button class="icon-btn red" data-act="cdel" data-i="' + i + '" aria-label="Supprimer">' + I.trash + '</button></div></div>' +
+        '<input class="field" data-c="' + i + '" data-f="label" value="' + esc(c.label || '') + '" placeholder="Exercice (ex. Partie A, exercice 2)" style="font-weight:600">' +
+        '<textarea class="field" rows="3" data-c="' + i + '" data-f="text" placeholder="Ce qui ne va pas, ce qu’il faut revoir…">' + esc(c.text || '') + '</textarea>' +
+        (nP ? '<div class="row"><div class="main t" style="font-size:15px">Afficher sous</div><select class="field" data-c="' + i + '" data-f="page" style="width:auto;padding:0;text-align:right;color:var(--blue)"><option value="">la liste générale</option>' +
+          d.pages.map((p, k) => '<option value="' + (k + 1) + '"' + (+c.page === k + 1 ? ' selected' : '') + '>la page ' + (k + 1) + '</option>').join('') + '</select></div>' : '') +
+        (pend ? '<button class="row center" data-act="cok" data-i="' + i + '" style="color:var(--purple);font-weight:600;gap:6px">' + I.check + ' J’ai relu, je valide</button>' : '') + '</div>';
+    };
+    const pend = d.comments.filter(c => c.ai && !c.ok).length;
+    const status = !d.published ? 'Brouillon : ' + esc(stu.first_name) + ' ne voit pas encore cette copie.'
+      : d.seen_at ? 'Vue par ' + esc(stu.first_name) + ' le ' + fmtDateTime(d.seen_at) + '.' : 'Envoyée' + (d.published_at ? ' le ' + fmtDateTime(d.published_at) : '') + ', pas encore ouverte.';
+    const html = nav(backBtn('#/prof/eleve/' + d.student_id, stu.first_name), '<button class="nav-btn bold" id="psave">Enregistrer</button>') +
+      '<div class="wrap" id="ped"><h1 class="large">Copie corrigée</h1><p class="subtitle">' + esc(stu.first_name) + ' · ' + esc(stu.class_name || '') + '</p>' +
+      '<div class="group"><input class="field" data-f="title" value="' + esc(d.title) + '" placeholder="Titre (ex. Évaluation : les pays d’Europe)" style="font-weight:600">' +
+      '<div class="row"><div class="main t">Date</div><input class="field" type="date" data-f="copy_date" value="' + esc(d.copy_date || '') + '" style="width:auto;padding:0;text-align:right"></div>' +
+      '<div class="row"><div class="main t">Note</div><input class="field" inputmode="decimal" data-f="score" value="' + (d.score == null ? '' : fmtNum(d.score)) + '" aria-label="Points obtenus" style="width:64px;padding:6px 8px;text-align:right;background:var(--fill);border-radius:8px">' +
+        '<span style="margin:0 8px;color:var(--label2)">/</span><input class="field" inputmode="decimal" data-f="total" value="' + (d.total == null ? '' : fmtNum(d.total)) + '" aria-label="Total" style="width:64px;padding:6px 8px;background:var(--fill);border-radius:8px"></div></div>' +
+      '<div class="section-h">Pages de la copie (' + nP + ')</div><div class="group">' + pagesHtml + '</div>' +
+      '<div class="add-row"><label>' + I.image + 'Photo ou image<input type="file" accept="image/*" multiple data-pfile="img" hidden></label><label>' + I.doc + 'PDF<input type="file" accept="application/pdf,.pdf" data-pfile="pdf" hidden></label></div>' +
+      '<p class="foot">Les pages sont enregistrées dans l’appli, pas sur un site public. Pense à cacher le nom de famille avant la photo.</p>' +
+      '<div class="section-h">Mot général</div><div class="group"><textarea class="field" rows="3" data-f="general" placeholder="Facultatif. Ex. : Bon travail sur la carte, revois les capitales.">' + esc(d.general) + '</textarea></div>' +
+      '<div class="section-h">Commentaires à côté des exercices (' + d.comments.length + ')</div>' +
+      (d.comments.length ? d.comments.map(comHtml).join('') : '<div class="empty">Ajoute un commentaire par exercice à expliquer.</div>') +
+      '<div class="group mt"><button class="row center" data-act="cadd" style="gap:8px;color:var(--blue)">' + I.plus + ' Ajouter un commentaire</button></div>' +
+      '<p class="foot">Commentaires rédigés par l’IA : envoie la copie corrigée à Claude dans ta conversation. Ses propositions arrivent ici en violet, et tu les relis avant l’envoi.</p>' +
+      '<div class="section-h">Envoi</div><div class="group"><label class="row" style="cursor:pointer"><div class="main"><div class="t">Visible par ' + esc(stu.first_name) + '</div><div class="s">' + status + '</div></div><span class="switch"><input type="checkbox" id="ppub" ' + (d.published ? 'checked' : '') + ' aria-label="Visible par l’élève"><span></span></span></label></div>' +
+      (pend ? '<p class="foot" style="color:var(--purple)">' + pend + ' commentaire' + (pend > 1 ? 's' : '') + ' de l’IA à valider avant l’envoi.</p>' : '') +
+      '<div class="group mt2"><button class="row center" data-act="pprev">Voir comme l’élève</button>' + (isNew ? '' : '<button class="row danger" data-act="pdelete">Supprimer la copie</button>') + '</div></div>';
+    this.shell('classes', html);
+    const ed = document.getElementById('ped');
+    const rerender = () => { const y = window.scrollY; this.renderCopyEditor(id); window.scrollTo(0, y); };
+    ed.addEventListener('change', e => { const t = e.target; if (t.matches('select[data-f="page"]')) d.comments[+t.dataset.c].page = t.value ? +t.value : null; });
+    ed.addEventListener('input', e => {
+      const t = e.target, f = t.dataset.f; if (!f || f === 'page') return;
+      if (t.dataset.c !== undefined) d.comments[+t.dataset.c][f] = t.value;
+      else if (f === 'score' || f === 'total') d[f] = t.value;
+      else d[f] = t.value;
+    });
+    document.getElementById('ppub').onchange = e => {
+      if (e.target.checked && d.comments.some(c => c.ai && !c.ok)){ e.target.checked = false; return toast('Valide d’abord les commentaires proposés par l’IA'); }
+      d.published = e.target.checked;
+      const sEl = e.target.closest('.row').querySelector('.s');
+      if (sEl) sEl.textContent = d.published ? (d._was ? 'Visible. Enregistre pour mettre à jour.' : 'Sera envoyée quand tu touches Enregistrer.') : 'Brouillon : ' + stu.first_name + ' ne verra pas cette copie.';
+    };
+    ed.addEventListener('change', async e => {
+      const t = e.target; if (!t.matches('input[data-pfile]') || !t.files || !t.files.length) return;
+      const files = [...t.files]; t.value = '';
+      toast('Préparation des pages…');
+      try {
+        for (const f of files){
+          const imgs = t.dataset.pfile === 'pdf' || f.type === 'application/pdf' ? await pdfToPages(f) : [await loadPage(f)];
+          imgs.forEach(src => d.pages.push({ src }));
+        }
+        if (d.pages.length > 12){ d.pages = d.pages.slice(0, 12); toast('12 pages maximum par copie'); }
+        rerender();
+      } catch(err){ console.error(err); toast('Ce fichier ne peut pas être lu'); }
+    });
+    ed.addEventListener('click', async e => {
+      const b = e.target.closest('[data-act]'); if (!b) return;
+      const act = b.dataset.act, i = +b.dataset.i;
+      if (act === 'pup' && i > 0){ d.comments.forEach(c => { if (c.page === i + 1) c.page = i; else if (c.page === i) c.page = i + 1; }); [d.pages[i - 1], d.pages[i]] = [d.pages[i], d.pages[i - 1]]; return rerender(); }
+      if (act === 'pdel'){ if (await confirmDialog('Retirer la page ' + (i + 1) + ' ?', '', 'Retirer', true)){ d.pages.splice(i, 1); d.comments.forEach(c => { if (c.page === i + 1) c.page = null; else if (c.page > i + 1) c.page--; }); rerender(); } return; }
+      if (act === 'cadd'){
+        d.comments.push({ label: '', text: '' }); rerender();
+        const cards = ed.querySelectorAll('.qedit'); const last = cards[cards.length - 1];
+        if (last){ last.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => last.querySelector('input').focus({ preventScroll: true }), 300); }
+        return;
+      }
+      if (act === 'cup' && i > 0){ [d.comments[i - 1], d.comments[i]] = [d.comments[i], d.comments[i - 1]]; return rerender(); }
+      if (act === 'cdown' && i < d.comments.length - 1){ [d.comments[i + 1], d.comments[i]] = [d.comments[i], d.comments[i + 1]]; return rerender(); }
+      if (act === 'cdel'){ if (await confirmDialog('Supprimer ce commentaire ?', '', 'Supprimer', true)){ d.comments.splice(i, 1); rerender(); } return; }
+      if (act === 'cok'){ d.comments[i].ok = true; return rerender(); }
+      if (act === 'pprev') return Student.showCopy(this.copyView(d), () => this.renderCopyEditor(id), 'Retour à la copie', true);
+      if (act === 'pdelete'){
+        if (!await confirmDialog('Supprimer cette copie ?', stu.first_name + ' ne la verra plus. Cette action est définitive.', 'Supprimer', true)) return;
+        const { error } = await sb.from('copies').delete().eq('id', id);
+        if (error) return toast('Erreur : ' + esc(error.message));
+        this.pdraft = null; await this.load(); go('#/prof/eleve/' + d.student_id); toast('Copie supprimée');
+      }
+    });
+    document.getElementById('psave').onclick = async () => {
+      if (!String(d.title || '').trim()) return toast('Donne un titre à la copie.');
+      const sc = parseNum(d.score), tot = parseNum(d.total);
+      if (sc === false || tot === false) return toast('La note doit être un nombre (ex. 14,5).');
+      if (d.published && d.comments.some(c => c.ai && !c.ok)) return toast('Valide d’abord les commentaires proposés par l’IA');
+      const comments = d.comments.filter(c => String(c.text || '').trim() || String(c.label || '').trim()).map(c => ({ label: String(c.label || '').trim(), text: String(c.text || '').trim(), ...(c.page ? { page: +c.page } : {}), ...(c.ai ? { ai: true, ok: !!c.ok } : {}) }));
+      const payload = { title: d.title.trim(), copy_date: d.copy_date || null, score: sc, total: tot, general: String(d.general || '').trim() || null,
+        comments, pages: d.pages, published: !!d.published, updated_at: new Date().toISOString() };
+      if (d.published && !d._was) payload.published_at = new Date().toISOString();
+      if (!d.published) payload.published_at = null;
+      if (JSON.stringify(payload.pages).length > 9e6) return toast('Copie trop lourde : retire une page.');
+      const btn = document.getElementById('psave'); btn.disabled = true;
+      const res = isNew ? await sb.from('copies').insert({ ...payload, student_id: d.student_id, teacher_id: this.user.id }).select('id').single()
+        : await sb.from('copies').update(payload).eq('id', id);
+      btn.disabled = false;
+      if (res.error) return toast('Erreur : ' + esc(res.error.message));
+      this.pdraft = null; await this.load();
+      toast(payload.published ? (d._was ? 'Copie mise à jour' : 'Copie envoyée à ' + esc(stu.first_name)) : 'Brouillon enregistré');
+      go('#/prof/eleve/' + d.student_id);
+    };
+  },
+  copyView(d){
+    const sc = parseNum(d.score), tot = parseNum(d.total);
+    return { title: d.title || 'Copie corrigée', copy_date: d.copy_date, score: typeof sc === 'number' ? sc : null, total: typeof tot === 'number' ? tot : null,
+      general: d.general, comments: (d.comments || []).filter(c => String(c.text || '').trim()).map(c => ({ label: c.label, text: c.text, page: c.page || null, ai: !!c.ai })), pages: d.pages };
   },
 
   addStudentsSheet(c){
