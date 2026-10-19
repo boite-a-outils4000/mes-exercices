@@ -347,12 +347,25 @@ select.leg:disabled{opacity:1;color:var(--label)}
 .cl-seg button:disabled{color:inherit}
 .clic-wrap{cursor:crosshair}.pin.mine{background:var(--orange)}.pin.mine.ok{background:var(--green)}.pin.mine.ko{background:var(--red)}
 .qedit .seg button{white-space:normal;line-height:1.2}
+.exrow{box-shadow:inset 3px 0 0 var(--blue)}.evrow{box-shadow:inset 3px 0 0 var(--purple)}
+.evcard.ev{box-shadow:inset 4px 0 0 var(--purple),var(--shadow)}
+.pill.purple{background:color-mix(in srgb,var(--purple) 15%,transparent);color:var(--purple)}.btn.purple{background:var(--purple)}
+.ev-title-l{color:var(--purple)}
+.tabbar a[data-stab="eval"].on,.tabbar a[href$="/evals"].on{color:var(--purple)}
+.wrap.wide{max-width:1180px}
+.cols{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:32px;align-items:start}
+.col-ev{position:sticky;top:64px}
+.col-h{font-size:24px;font-weight:700;margin:22px 0 4px;color:var(--purple)}
+@media (min-width:1000px){ body.prof .tabbar a[href$="/evals"] svg{color:var(--purple)} body.prof .tabbar a[href$="/evals"].on{background:color-mix(in srgb,var(--purple) 14%,transparent);color:var(--purple)} }
+.pill.teal{background:color-mix(in srgb,var(--teal) 16%,transparent);color:var(--teal)}.btn.teal{background:var(--teal)}
+.rec-on{background:var(--red)!important;color:#fff!important;animation:recp 1.4s ease-in-out infinite}@keyframes recp{50%{opacity:.75}}
+#rmic{display:flex;align-items:center;justify-content:center;gap:8px}
 .stp{background:var(--card);border-radius:14px;padding:12px 14px 14px;margin-top:12px}.stp-h{font-size:12px;font-weight:700;text-transform:uppercase;color:var(--blue);letter-spacing:.02em}
 .stp-q{font-size:17px;font-weight:600;margin:4px 0 2px}.stp .opt{background:var(--bg);padding:12px 14px;font-size:16px}.stp .vf{margin-top:10px}.stp .vf .opt{padding:14px 10px}
 .stp .sinp{border-radius:10px;background:var(--bg);margin-top:10px}.stp.stp-ok{box-shadow:inset 0 0 0 2px var(--green)}.stp.stp-ko{box-shadow:inset 0 0 0 2px var(--red)}
 .opt.picked{box-shadow:inset 0 0 0 2px var(--blue)}
-.num-row{display:flex;align-items:center;gap:10px}.num-in{font-size:22px;font-weight:600;border-radius:12px;background:var(--card);flex:1}.num-u{font-size:18px;color:var(--label2)}
-.num-in.num-ok{box-shadow:inset 0 0 0 2px var(--green)}.num-in.num-ko{box-shadow:inset 0 0 0 2px var(--red);text-decoration:line-through}
+.num-row{display:flex;align-items:center;gap:10px}.numq{font-size:22px;font-weight:600;border-radius:12px;background:var(--card);flex:1}.num-u{font-size:18px;color:var(--label2)}
+.numq.num-ok{box-shadow:inset 0 0 0 2px var(--green)}.numq.num-ko{box-shadow:inset 0 0 0 2px var(--red);text-decoration:line-through}
 .fr-axis{position:relative;height:74px;margin:6px 14px 0}.fr-line{position:absolute;left:0;right:0;top:30px;height:4px;border-radius:2px;background:var(--label3)}
 .fr-tick{position:absolute;top:40px;transform:translateX(-50%);font-size:12px;color:var(--label2)}.fr-tick i{position:absolute;left:50%;top:-14px;width:2px;height:10px;background:var(--label3)}
 .fr-pin{top:31px}.fr-row{flex-direction:column;align-items:stretch;gap:6px}.fr-h{display:flex;align-items:center;gap:10px}.fr-l{flex:1;font-size:16px}.fr-y{font-size:16px;min-width:3.5ch;text-align:right}
@@ -590,6 +603,17 @@ const store = {
   del(k){ try { localStorage.removeItem(k); } catch(e){} }
 };
 try { if (localStorage.getItem('exos_easy') === '1') document.body.classList.add('easy'); } catch(e){}
+function applyTheme(v){
+  v = v || store.get('exos_theme') || 'auto';
+  if (v === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = v;
+  const dark = v === 'dark' || (v === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => { m.removeAttribute('media'); m.content = dark ? '#000000' : '#f2f2f7'; });
+}
+applyTheme();
+const wideScreen = () => !!(window.matchMedia && matchMedia('(min-width:1000px)').matches);
+try { matchMedia('(min-width:1000px)').addEventListener('change', () => { if (Student.home && document.querySelector('[data-stab]') && !document.querySelector('.quiz')) Student.renderList(); else if (location.hash.startsWith('#/prof') && (location.hash === '#/prof' || location.hash.startsWith('#/prof/suivi')) && Prof.loaded && !location.hash.match(/suivi\/./)) Prof.renderDashboard(); }); } catch(e){}
+const themeSeg = () => '<div class="seg" id="themeseg">' + [['auto', 'Automatique'], ['light', 'Clair'], ['dark', 'Sombre']].map(([k, l]) => '<button data-th="' + k + '" class="' + ((store.get('exos_theme') || 'auto') === k ? 'on' : '') + '">' + l + '</button>').join('') + '</div>';
+const bindThemeSeg = el => el.querySelectorAll('[data-th]').forEach(b => b.onclick = () => { store.set('exos_theme', b.dataset.th); applyTheme(b.dataset.th); el.querySelectorAll('[data-th]').forEach(x => x.classList.toggle('on', x === b)); });
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid = () => Math.random().toString(36).slice(2, 10);
 function shuffle(a){ a = a.slice(); for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
@@ -668,6 +692,7 @@ I.frise = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="c
 I.intrus = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><circle cx="17.5" cy="17.5" r="3.5"/></svg>';
 I.vfc = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l3 3 5-6"/><path d="M14 20h4L21 17l-3-3-7 7v-1"/><path d="M3 14l5 5M8 14l-5 5"/></svg>';
 I.lien = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8" width="6" height="8" rx="1.5"/><rect x="15.5" y="8" width="6" height="8" rx="1.5"/><path d="M9 12h6M13 10l2 2-2 2"/></svg>';
+I.mic = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
 I.chrono = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h18"/><circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="18" cy="12" r="2" fill="currentColor"/><path d="M6 7V5M12 19v-2M18 7V5"/></svg>';
 I.image = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.6" fill="currentColor"/></svg>';
 I.book = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 016.5 3H20v15H6.5A2.5 2.5 0 004 20.5v-15z"/><path d="M4 20.5A2.5 2.5 0 016.5 18H20v3H6.5"/></svg>';
@@ -695,6 +720,18 @@ I.target = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="
 I.timer = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2M9.5 2.5h5"/></svg>';
 I.redo = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.3-5.6L4 8.7"/><path d="M4 4v4.7h4.7"/></svg>';
 I.printer = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>';
+const ANCHOR_GAPS = [2, 7];
+function addDaysISO(d, n){ const x = new Date(d + 'T12:00:00'); x.setDate(x.getDate() + n); return isoDate(x); }
+function anchorInfo(passes, anchor){
+  anchor = Math.max(1, Math.min(3, +anchor || 1));
+  const ds = [...new Set((passes || []).map(String))].sort(), steps = [];
+  ds.forEach(d => { if (!steps.length) steps.push(d); else if (steps.length < 3 && d >= addDaysISO(steps[steps.length - 1], ANCHOR_GAPS[steps.length - 1])) steps.push(d); });
+  const level = Math.min(steps.length, anchor), anchored = level >= anchor && level > 0;
+  const next = level > 0 && !anchored ? addDaysISO(steps[level - 1], ANCHOR_GAPS[level - 1]) : null;
+  const today = todayLocal();
+  return { level, anchor, anchored, next, due: !!next && next <= today, anchoredAt: anchored ? steps[anchor - 1] : null,
+    archived: anchored && addDaysISO(steps[anchor - 1], 7) <= today };
+}
 function parseNumFR(v){
   let t = String(v ?? '').trim().replace(/[\s  ]/g, '').replace(/^\+/, '');
   if (!t) return null;
@@ -704,6 +741,7 @@ function parseNumFR(v){
 }
 const fmtFR = n => { const r = Math.round(n * 100) / 100; const [a, b] = String(Math.abs(r)).split('.'); return (r < 0 ? '−' : '') + a.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + (b ? ',' + b : ''); };
 const LIENS = ['donc', 'parce que'];
+const evQN = (e, n) => { const L = (e.questions || []).length, d = e.draw_count && e.draw_count < L ? e.draw_count : 0; return n ? (d || L) : d ? d + ' questions par élève (banque de ' + L + ')' : L + ' questions'; };
 function vfcParse(text){
   const out = []; String(text || '').split(/(\[[^\]]*\])/).forEach(part => {
     const m = part.match(/^\[([^\]]*)\]$/);
@@ -1218,15 +1256,29 @@ const Student = {
     document.getElementById('r').onclick = () => this.loadList();
   },
 
+  anc(a){ if (!a._anc) a._anc = anchorInfo(a.passes, a.anchor); return a._anc; },
   status(a){
     const today = todayLocal();
     if (a.done && a.control_open) return ['Test de contrôle', 'blue'];
-    if (a.done) return ['Validé', 'green'];
+    if (a.done){ const n = this.anc(a); if (n.anchored) return ['Acquise', 'green']; return n.due ? ['À revoir · ' + n.level + '/' + n.anchor, 'teal'] : ['Ancrage ' + n.level + '/' + n.anchor, 'teal']; }
     if (a.due_date && a.due_date < today) return ['En retard', 'red'];
     if (a.attempt_count > 0) return ['Pas encore validé', 'orange'];
     return ['À faire', 'blue'];
   },
 
+  evalBody(evals, evOpen, inCol){
+      const results = evals.filter(e => e.my_status === 'done');
+      return (inCol ? '<div class="col-h">Mes évaluations</div>' : '<h1 class="large ev-title-l" id="stab-eval-view">Évaluation</h1>') +
+        (evOpen.length ? evOpen.map(e => {
+          const st = e.my_status;
+          return '<div class="evcard ev"><span class="pill purple">En cours en classe</span><div class="ev-title">' + esc(e.title) + '</div><div style="color:var(--label2);font-size:15px">' + e.question_count + ' questions' + (e.anticheat ? ' · ne quitte pas l’appli' : '') + '</div>' +
+            (st === 'locked' ? '<button class="btn red mt" data-ev="' + e.id + '">' + I.lock.replace('width="34" height="34"', 'width="18" height="18"') + ' Évaluation bloquée</button>'
+              : '<button class="btn purple mt" data-ev="' + e.id + '">' + (st === 'in_progress' ? 'Reprendre l’évaluation' : 'Commencer') + '</button>') + '</div>';
+        }).join('') : '<div class="empty mt"><b>Aucune évaluation en cours</b>Quand ton professeur lance une évaluation en classe, elle apparaît ici.</div>') +
+        (results.length ? '<div class="section-h">Mes résultats</div><div class="group">' + results.map(e => '<div class="row evrow"><div class="main"><div class="t">' + esc(e.title) + '</div><div class="s">' + (e.status === 'open' ? 'Terminée' : 'Corrigée') + '</div></div>' +
+          (e.my_score != null ? '<span class="score">' + e.my_score + ' / ' + e.my_total + (e.my_penalty ? '<span class="pen">−' + e.my_penalty + '</span>' : '') + '</span>' : '<span class="val" style="font-size:14px">Note donnée par ton professeur</span>') + '</div>').join('') + '</div>' : '') +
+        this.copiesSection();
+  },
   mastered(){ try { return JSON.parse(store.get('exos_ok_' + this.code) || '[]'); } catch(e){ return []; } },
   mistakes(){ const m = new Set(this.mastered()); return ((this.home && this.home.mistakes) || []).filter(x => x.question && !m.has(x.assignment_id + ':' + x.question.id)); },
 
@@ -1238,11 +1290,16 @@ const Student = {
     const evOpen = evals.filter(e => e.status === 'open' && e.my_status !== 'done');
     let body = '';
     if (tab === 'ex'){
-      const todo = this.list.filter(a => !a.done || a.control_open), done = this.list.filter(a => a.done && !a.control_open);
+      const A = a => this.anc(a);
+      const todo = this.list.filter(a => !a.done || a.control_open || A(a).due);
+      const waiting = this.list.filter(a => a.done && !a.control_open && !A(a).anchored && !A(a).due);
+      const done = this.list.filter(a => a.done && !a.control_open && A(a).anchored && !A(a).archived);
+      const archived = this.list.filter(a => a.done && !a.control_open && A(a).archived);
       const row = a => {
         const [lab, col] = this.status(a);
-        const meta = [a.subject, a.due_date && !a.done ? 'Pour le ' + fmtDate(a.due_date) : null, a.best_percent != null ? 'Meilleur score : ' + a.best_percent + ' %' : null].filter(Boolean).join(' · ');
-        return '<button class="row" data-id="' + a.id + '"><div class="main"><div class="t">' + esc(a.title) + '</div><div class="s">' + esc(meta || a.question_count + ' questions') + '</div></div><span class="pill ' + col + '">' + lab + '</span><span class="chev">' + I.chevR + '</span></button>';
+        const n = a.done ? A(a) : null;
+        const meta = [a.subject, a.due_date && !a.done ? 'Pour le ' + fmtDate(a.due_date) : null, n && !n.anchored && !n.due ? 'Reviens à partir du ' + fmtDate(n.next) : null, n && n.due ? 'Refais-la pour bien la retenir' : null, a.best_percent != null ? 'Meilleur score : ' + a.best_percent + ' %' : null].filter(Boolean).join(' · ');
+        return '<button class="row exrow" data-id="' + a.id + '"><div class="main"><div class="t">' + esc(a.title) + '</div><div class="s">' + esc(meta || a.question_count + ' questions') + '</div></div><span class="pill ' + col + '">' + lab + '</span><span class="chev">' + I.chevR + '</span></button>';
       };
       const name = this.me ? this.me.first_name : '';
       const days = new Set(h.days || []);
@@ -1254,17 +1311,17 @@ const Student = {
         return '<i class="' + (on ? 'on' : '') + (k === dow ? ' today' : '') + '">' + (on ? I.check : l) + '</i>';
       }).join('');
       const nVal = h.validated || 0, mis = this.mistakes(), today = todayLocal();
-      const prio = a => a.control_open ? 0 : a.due_date && a.due_date < today ? 1 : a.due_date ? 2 : a.attempt_count ? 3 : 4;
+      const prio = a => a.control_open ? 0 : a.done ? 2.5 : a.due_date && a.due_date < today ? 1 : a.due_date ? 2 : a.attempt_count ? 3 : 4;
       const sorted = todo.slice().sort((x, y) => prio(x) - prio(y) || String(x.due_date || '9999').localeCompare(String(y.due_date || '9999')));
       const top = evOpen.length ? null : sorted[0], rest = evOpen.length ? sorted : sorted.slice(1);
       const hero = evOpen.length
-        ? '<div class="hero" style="--hc:var(--red)"><div class="hero-k">En ce moment en classe</div><div class="hero-t">' + esc(evOpen[0].title) + '</div><div class="hero-s">Ton professeur a lancé une évaluation.</div><button class="btn red" id="goeval">Aller à l\u2019évaluation</button></div>'
+        ? '<div class="hero" style="--hc:var(--purple)"><div class="hero-k">En ce moment en classe</div><div class="hero-t">' + esc(evOpen[0].title) + '</div><div class="hero-s">Ton professeur a lancé une évaluation.</div><button class="btn purple" id="goeval">Aller à l\u2019évaluation</button></div>'
         : top
-        ? (() => { const late = top.due_date && top.due_date < today, ctl = top.control_open;
-            const col = ctl ? 'var(--blue)' : late ? 'var(--red)' : 'var(--blue)';
-            const sub = ctl ? 'Tu as validé la série. Il te reste le test de contrôle.' : late ? 'En retard : c\u2019était pour le ' + fmtDate(top.due_date) + '.' : top.due_date ? 'Pour le ' + fmtDate(top.due_date) + ' · ' + top.question_count + ' questions' : top.question_count + ' questions';
+        ? (() => { const late = !top.done && top.due_date && top.due_date < today, ctl = top.control_open, rev = top.done && !ctl;
+            const col = ctl ? 'var(--blue)' : late ? 'var(--red)' : rev ? 'var(--teal)' : 'var(--blue)';
+            const sub = ctl ? 'Tu as validé la série. Il te reste le test de contrôle.' : rev ? 'Révision d\u2019ancrage : réussis-la encore une fois pour la retenir durablement (' + A(top).level + ' réussite' + (A(top).level > 1 ? 's' : '') + ' sur ' + A(top).anchor + ').' : late ? 'En retard : c\u2019était pour le ' + fmtDate(top.due_date) + '.' : top.due_date ? 'Pour le ' + fmtDate(top.due_date) + ' · ' + top.question_count + ' questions' : top.question_count + ' questions';
             return '<div class="hero" style="--hc:' + col + '"><div class="hero-k">À faire maintenant</div><div class="hero-t">' + esc(top.title) + '</div><div class="hero-s">' + sub + (top.best_percent != null && !ctl ? ' · meilleur score ' + top.best_percent + ' %' : '') + '</div>' +
-              '<button class="btn' + (late ? ' red' : '') + '" data-id="' + top.id + '">' + (ctl ? 'Passer le test' : top.attempt_count ? 'Continuer' : 'Commencer') + '</button></div>'; })()
+              '<button class="btn' + (late ? ' red' : rev ? ' teal' : '') + '" data-id="' + top.id + '">' + (ctl ? 'Passer le test' : rev ? 'Réviser' : top.attempt_count ? 'Continuer' : 'Commencer') + '</button></div>'; })()
         : '<div class="hero" style="--hc:var(--green)"><div class="hero-k">Bravo</div><div class="hero-t">Tout est fait !</div><div class="hero-s">Tu n\u2019as aucun exercice à faire. Envie de réviser un peu ?</div><button class="btn green" id="tostudy">Aller dans J\u2019étudie</button></div>';
       body = '<h1 class="large">Bonjour ' + esc(name) + '</h1><p class="subtitle">' + esc(this.me ? this.me.class_name : '') + '</p>' +
         hero +
@@ -1275,8 +1332,11 @@ const Student = {
             '<div class="bar" style="height:8px;margin-top:10px"><i style="width:' + pc + '%;background:' + (ok ? 'var(--green)' : 'var(--purple)') + '"></i></div><div style="font-size:14px;color:var(--label2);margin-top:8px">' + (ok ? 'Objectif atteint : bravo à toute la classe !' : 'Bonnes réponses de toute la classe cette semaine. Chacune compte !') + '</div></div>'; })() : '') +
         (rest.length ? '<div class="section-h">' + (top ? 'Ensuite' : 'À faire') + ' (' + rest.length + ')</div><div class="group">' + rest.map(row).join('') + '</div>' : '') +
         (mis.length ? '<div class="section-h">Réviser</div><div class="group"><button class="row" id="mist"><div class="main"><div class="t">Mes erreurs</div><div class="s">' + mis.length + ' question' + (mis.length > 1 ? 's' : '') + ' ratée' + (mis.length > 1 ? 's' : '') + ' à retravailler</div></div><span class="pill orange">' + mis.length + '</span><span class="chev">' + I.chevR + '</span></button></div>' : '') +
-        (done.length ? '<div class="section-h">Terminés · tu peux les refaire pour réviser</div><div class="group">' + done.map(row).join('') + '</div>' : '') +
+        (waiting.length ? '<div class="section-h">En cours d\u2019ancrage (' + waiting.length + ')</div><div class="group">' + waiting.map(row).join('') + '</div><p class="foot">Pour retenir durablement, chaque série se réussit 3 fois, à quelques jours d\u2019écart. L\u2019appli te dit quand revenir.</p>' : '') +
+        (done.length ? '<div class="section-h">Acquises · tu peux les refaire pour réviser</div><div class="group">' + done.map(row).join('') + '</div>' : '') +
+        (archived.length ? '<button class="tools-toggle" id="archtog"><b>Archives</b><span>' + (this._archOpen ? 'Masquer' : 'Afficher (' + archived.length + ')') + '</span></button>' + (this._archOpen ? '<div class="group">' + archived.map(row).join('') + '</div><p class="foot">Les séries acquises depuis plus d\u2019une semaine sont rangées ici. Tu les retrouves aussi dans J\u2019étudie.</p>' : '') : '') +
         '<a class="link-quiet" href="#" id="logout">Ce n’est pas toi ? Changer de code</a>';
+      if (wideScreen()) body = '<div class="cols"><div class="col-ex">' + body + '</div><div class="col-ev">' + this.evalBody(evals, evOpen, true) + '</div></div>';
     } else if (tab === 'study'){
       if (!this.study){
         body = '<h1 class="large">J’étudie</h1><div class="spinner" style="margin:60px auto"></div>';
@@ -1316,7 +1376,10 @@ const Student = {
         const ico = k => (TOOLS.find(t => t[0] === k) || [])[2] || '';
         let open = TOOLS.length <= 6; try { if (!open) open = store.get('exos_tools_open') === '1'; } catch(e){}
         this._toolsOpen = open;
+        const nArch = this.archivedIds().size, sc = this.scope();
         body = '<h1 class="large">J’étudie</h1>' +
+          (nArch ? '<div class="seg" style="margin:4px 0 6px">' + [['act', 'Séries actives'], ['arch', 'Archivées (' + nArch + ')'], ['all', 'Toutes']].map(([k, l]) => '<button data-scope="' + k + '" class="' + (sc === k ? 'on' : '') + '">' + l + '</button>').join('') + '</div>' +
+            '<p class="foot" style="margin:0 0 6px">' + (sc === 'act' ? 'Les outils utilisent tes séries en cours.' : sc === 'arch' ? 'Les outils utilisent tes séries archivées : idéal pour ne pas oublier.' : 'Les outils utilisent toutes tes séries.') + '</p>' : '') +
           (sugg.length ? '<div class="section-h">Pour toi aujourd’hui</div><div class="group">' + sugg.slice(0, 3).map(x => '<button class="row todo-row" data-study="' + x[0] + '"><span class="ic" style="background:var(--' + COL[x[0]] + ')">' + ico(x[0]) + '</span><div class="main"><div class="t">' + x[1] + '</div><div class="s">' + x[2] + '</div></div><span class="chev">' + I.chevR + '</span></button>').join('') + '</div>' : '') +
           (TOOLS.length > 6 ? '<button class="tools-toggle" id="ttog"><b>Tous les outils</b><span>' + (open ? 'Masquer' : 'Afficher (' + TOOLS.length + ')') + '</span></button>' : '<div class="section-h">Mes outils</div>') +
           '<div id="tools"' + (open ? '' : ' hidden') + '>' + ['test', 'train', 'review'].map(f => { const L = TOOLS.filter(t => t[1] === f); return L.length ? '<div class="study-h">' + FAM[f][0] + '</div><div class="study-grid">' + L.map(tile).join('') + '</div>' : ''; }).join('') + '</div>' +
@@ -1329,21 +1392,11 @@ const Student = {
         (courses.length ? '<div class="group mt">' + courses.map(c => '<button class="row" data-course="' + c.id + '"><span style="color:var(--blue);display:flex">' + I.book + '</span><div class="main"><div class="t">' + esc(c.title) + '</div>' + (c.subject ? '<div class="s">' + esc(c.subject) + '</div>' : '') + '</div><span class="chev">' + I.chevR + '</span></button>').join('') + '</div>'
           : '<div class="empty mt"><b>Aucun cours pour l’instant</b>Ton professeur peut mettre ses cours à ta disposition ici.</div>');
     } else {
-      const results = evals.filter(e => e.my_status === 'done');
-      body = '<h1 class="large" id="stab-eval-view">Évaluation</h1>' +
-        (evOpen.length ? evOpen.map(e => {
-          const st = e.my_status;
-          return '<div class="evcard"><span class="pill green">En cours en classe</span><div class="ev-title">' + esc(e.title) + '</div><div style="color:var(--label2);font-size:15px">' + e.question_count + ' questions' + (e.anticheat ? ' · ne quitte pas l’appli' : '') + '</div>' +
-            (st === 'locked' ? '<button class="btn red mt" data-ev="' + e.id + '">' + I.lock.replace('width="34" height="34"', 'width="18" height="18"') + ' Évaluation bloquée</button>'
-              : '<button class="btn mt" data-ev="' + e.id + '">' + (st === 'in_progress' ? 'Reprendre l’évaluation' : 'Commencer') + '</button>') + '</div>';
-        }).join('') : '<div class="empty mt"><b>Aucune évaluation en cours</b>Quand ton professeur lance une évaluation en classe, elle apparaît ici.</div>') +
-        (results.length ? '<div class="section-h">Mes résultats</div><div class="group">' + results.map(e => '<div class="row"><div class="main"><div class="t">' + esc(e.title) + '</div><div class="s">' + (e.status === 'open' ? 'Terminée' : 'Corrigée') + '</div></div>' +
-          (e.my_score != null ? '<span class="score">' + e.my_score + ' / ' + e.my_total + (e.my_penalty ? '<span class="pen">−' + e.my_penalty + '</span>' : '') + '</span>' : '<span class="val" style="font-size:14px">Note donnée par ton professeur</span>') + '</div>').join('') + '</div>' : '') +
-        this.copiesSection();
+      body = this.evalBody(evals, evOpen);
     }
     const tb = (k, label, icon, badge) => '<a href="#" data-stab="' + k + '" class="' + (tab === k ? 'on' : '') + '">' + icon + '<span>' + label + '</span>' + (badge ? '<b class="tdot"></b>' : '') + '</a>';
     $app.innerHTML = nav('<button class="nav-btn" id="opts">Réglages</button>', '<button class="nav-btn" id="refresh">Actualiser</button>') +
-      '<div class="wrap">' + body + '</div>' +
+      '<div class="wrap' + (tab === 'ex' && wideScreen() ? ' wide' : '') + '">' + body + '</div>' +
       '<nav class="tabbar">' + tb('ex', 'Exercices', I.tabDoc) + tb('cours', 'Cours', I.tabBook) + tb('study', 'J\u2019étudie', I.tabStudy) + tb('eval', 'Évaluation', I.tabEval, evOpen.length || (this.copies || []).some(c => !c.seen_at)) + '</nav>';
     $app.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => this.openCopy(b.dataset.copy));
     $app.querySelectorAll('[data-stab]').forEach(a => a.onclick = e => { e.preventDefault(); this.stab = a.dataset.stab; this.renderList(); window.scrollTo(0, 0); });
@@ -1353,6 +1406,8 @@ const Student = {
     const ts = document.getElementById('tostudy'); if (ts) ts.onclick = () => { this.stab = 'study'; this.renderList(); window.scrollTo(0, 0); };
     const ge = document.getElementById('goeval'); if (ge) ge.onclick = () => { this.stab = 'eval'; this.renderList(); window.scrollTo(0, 0); };
     const mb = document.getElementById('mist'); if (mb) mb.onclick = () => this.runMistakes();
+    const at = document.getElementById('archtog'); if (at) at.onclick = () => { this._archOpen = !this._archOpen; const y = window.scrollY; this.renderList(); window.scrollTo(0, y); };
+    $app.querySelectorAll('[data-scope]').forEach(b => b.onclick = () => { store.set('exos_scope', b.dataset.scope); this.applyScope(); const y = window.scrollY; this.renderList(); window.scrollTo(0, y); });
     document.getElementById('opts').onclick = () => this.settingsSheet();
     document.getElementById('refresh').onclick = () => { this.study = null; this.loadList(); };
     const lo = document.getElementById('logout'); if (lo) lo.onclick = e => { e.preventDefault(); store.del('exos_code'); this.code = null; this.me = null; this.renderLogin(); };
@@ -1431,7 +1486,15 @@ const Student = {
   async loadStudy(){
     const { data, error } = await sb.rpc('student_study', { p_code: this.code });
     if (error || !data) return false;
-    this.study = data; return true;
+    this.studyAll = data; this.applyScope(); return true;
+  },
+  scope(){ const v = store.get('exos_scope'); return ['act', 'arch', 'all'].includes(v) ? v : 'act'; },
+  archivedIds(){ return new Set((this.list || []).filter(a => a.done && !a.control_open && this.anc(a).archived).map(a => a.id)); },
+  applyScope(){
+    if (!this.studyAll) return;
+    const arch = this.archivedIds(), sc = this.scope();
+    const sets = (this.studyAll.sets || []).filter(x => sc === 'all' || (sc === 'arch') === arch.has(x.assignment_id));
+    this.study = { ...this.studyAll, sets };
   },
   buildCards(){
     const st = this.study || { sets: [], courses: [] }, cards = [], seen = new Set();
@@ -1638,6 +1701,7 @@ const Student = {
       '<div class="wrap notab"><span class="pill" style="background:color-mix(in srgb,var(--pink) 14%,transparent);color:var(--pink)">Vide ta tête</span><h1 class="large" style="margin-top:8px">' + esc(sec.title) + '</h1>' +
       '<p class="subtitle">Écris tout ce dont tu te souviens sur ce thème, sans regarder ton cours. Des mots ou des phrases : tout compte. Ne t’occupe pas de l’orthographe.</p>' +
       '<textarea class="recall" id="rtxt" placeholder="Par exemple : les noms, les dates, les définitions…" autocapitalize="sentences"></textarea>' +
+      ((window.SpeechRecognition || window.webkitSpeechRecognition) ? '<button class="btn tinted mt" id="rmic">' + I.mic + ' <span>Parler au lieu d\u2019écrire</span></button><p class="foot" id="rmich" style="text-align:center;margin-top:6px">Dis tout ce que tu sais, comme si tu l\u2019expliquais à quelqu\u2019un. Ton téléphone écrit pour toi.</p>' : '') +
       '<button class="btn mt" id="rdone" disabled>J’ai fini, je compare</button><p class="foot" style="text-align:center">Essayer de se souvenir, même avec des trous, fait mieux retenir que relire.</p></div>';
     const ta = document.getElementById('rtxt'), done = document.getElementById('rdone'), tm = document.getElementById('rtime');
     let left = 180;
@@ -1645,8 +1709,23 @@ const Student = {
     tick(); this._rInt = setInterval(tick, 1000);
     ta.oninput = () => { done.disabled = ta.value.trim().length < 3; };
     setTimeout(() => ta.focus(), 200);
-    document.getElementById('back').onclick = () => { clearInterval(this._rInt); this.stab = 'study'; this.renderList(); };
-    done.onclick = () => { clearInterval(this._rInt); this.recallResult(sec, ta.value); };
+    const mic = document.getElementById('rmic');
+    if (mic){
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition; let rec = null, on = false, base = '';
+      const stop = () => { on = false; if (rec) try { rec.stop(); } catch(e){} mic.classList.remove('rec-on'); mic.querySelector('span').textContent = 'Parler au lieu d\u2019écrire'; };
+      this._micStop = stop;
+      mic.onclick = () => {
+        if (on) return stop();
+        rec = new SR(); rec.lang = 'fr-BE'; rec.continuous = true; rec.interimResults = true;
+        base = ta.value.trim() ? ta.value.trim() + ' ' : '';
+        rec.onresult = e => { let fin = '', tmp = ''; for (let k = 0; k < e.results.length; k++){ const r = e.results[k]; if (r.isFinal) fin += r[0].transcript + ' '; else tmp += r[0].transcript; } ta.value = base + fin + tmp; done.disabled = ta.value.trim().length < 3; };
+        rec.onerror = e => { stop(); if (e.error === 'not-allowed' || e.error === 'service-not-allowed') toast('Autorise le micro dans les réglages du navigateur'); else if (e.error !== 'aborted' && e.error !== 'no-speech') toast('La dictée ne fonctionne pas ici : écris plutôt.'); };
+        rec.onend = () => { if (on){ base = ta.value.trim() ? ta.value.trim() + ' ' : ''; try { rec.start(); } catch(e){ stop(); } } };
+        try { rec.start(); on = true; mic.classList.add('rec-on'); mic.querySelector('span').textContent = 'J\u2019ai fini de parler'; } catch(e){ toast('La dictée ne fonctionne pas ici : écris plutôt.'); }
+      };
+    }
+    document.getElementById('back').onclick = () => { clearInterval(this._rInt); if (this._micStop) this._micStop(); this.stab = 'study'; this.renderList(); };
+    done.onclick = () => { clearInterval(this._rInt); if (this._micStop) this._micStop(); this.recallResult(sec, ta.value); };
   },
   recallResult(sec, text){
     const t = norm(text);
@@ -2226,11 +2305,13 @@ const Student = {
     const easy = document.body.classList.contains('easy');
     const html = '<div class="grabber"></div><div class="sheet-head"><span></span><h2>Réglages</h2><button class="nav-btn bold" data-close>OK</button></div>' +
       '<div class="group"><label class="row" style="cursor:pointer"><div class="main"><div class="t">Lecture facile</div><div class="s">Texte plus grand et plus espacé</div></div><span class="switch"><input type="checkbox" id="easy" ' + (easy ? 'checked' : '') + ' aria-label="Lecture facile"><span></span></span></label></div>' +
-      '<p class="foot">Ce réglage reste sur ton téléphone. Personne d’autre ne le voit.</p>' +
+      '<div class="section-h">Apparence</div>' + themeSeg() +
+      '<p class="foot">Ces réglages restent sur ton téléphone. Personne d’autre ne les voit.</p>' +
       '<div class="section-h">Aide</div><div class="group"><button class="row" id="tourb"><div class="main"><div class="t">Revoir la visite guidée</div><div class="s">Comment fonctionne l\u2019appli</div></div><span class="chev">' + I.chevR + '</span></button></div>' +
       '<div class="section-h">Sur ton téléphone</div><div class="group"><button class="row" id="inst"><div class="main"><div class="t">Ajouter l’appli à l’écran d’accueil</div><div class="s">Pour l’ouvrir comme une vraie appli</div></div><span class="chev">' + I.chevR + '</span></button></div>';
     openSheet(html, (el, close) => {
       el.querySelector('#easy').onchange = e => { document.body.classList.toggle('easy', e.target.checked); store.set('exos_easy', e.target.checked ? '1' : '0'); };
+      bindThemeSeg(el);
       el.querySelector('#inst').onclick = () => { close(); setTimeout(() => this.installSheet(), 250); };
       el.querySelector('#tourb').onclick = () => { close(); setTimeout(() => this.showTour(), 250); };
     });
@@ -2337,6 +2418,7 @@ const Student = {
       '<div class="group mt">' +
       '<div class="row"><div class="main t">Questions</div><span class="val">' + (s.draw_count && s.draw_count < s.questions.length ? s.draw_count + ', nouvelles à chaque essai' : s.questions.length) + '</span></div>' +
       '<div class="row"><div class="main t">Pour valider</div><span class="val">' + s.pass_score + ' %</span></div>' +
+      ((s.anchor || 1) > 1 && s.assignment_id ? (() => { const n = anchorInfo(s.passes, s.anchor); return '<div class="row"><div class="main t">Ancrage</div><span class="val">' + (n.anchored ? 'Acquise ✓' : n.level + ' réussite' + (n.level > 1 ? 's' : '') + ' sur ' + n.anchor + (n.next ? (n.due ? ' · à refaire maintenant' : ' · prochaine le ' + fmtDate(n.next)) : '')) + '</span></div>'; })() : '') +
       (C && !C.available && !C.done ? '<div class="row"><div class="main t">Ensuite</div><span class="val">Test de contrôle (' + C.count + ' questions)</span></div>' : '') +
       (info.due_date ? '<div class="row"><div class="main t">À faire pour le</div><span class="val">' + fmtDate(info.due_date) + '</span></div>' : '') +
       (info.attempt_count ? '<div class="row"><div class="main t">Tes essais</div><span class="val">' + info.attempt_count + ' · meilleur ' + info.best_percent + ' %</span></div>' : '') +
@@ -2427,7 +2509,7 @@ const Student = {
       speech = (q.prompt ? q.prompt + '. ' : '') + q.steps.map((st, k) => 'Étape ' + (k + 1) + ' : ' + st.prompt).join('. ');
     } else if (q.type === 'nombre'){
       body = '<div class="qprompt">' + nb(esc(q.prompt)) + '</div>' + hint +
-        '<div class="num-row"><input class="field num-in" id="numin" inputmode="decimal" autocomplete="off" placeholder="Ta réponse">' + (q.unit ? '<span class="num-u">' + esc(q.unit) + '</span>' : '') + '</div>' + check;
+        '<div class="num-row"><input class="field numq" id="numin" inputmode="decimal" autocomplete="off" placeholder="Ta réponse">' + (q.unit ? '<span class="num-u">' + esc(q.unit) + '</span>' : '') + '</div>' + check;
       speech = q.prompt;
     } else if (q.type === 'frise'){
       const span = q.end - q.start, stp = [1, 2, 5, 10, 20, 25, 50, 100].find(x => span / x <= 6) || 100;
@@ -2906,6 +2988,13 @@ const Student = {
       '<h1>' + (res.passed ? 'Exercice validé !' : 'Encore un effort') + '</h1>' +
       '<p>' + score + ' bonne' + (score > 1 ? 's' : '') + ' réponse' + (score > 1 ? 's' : '') + ' du premier coup sur ' + total + '.</p>' +
       '<p>' + (res.passed ? (this.preview ? '' : 'Ton professeur verra que tu l\u2019as terminé.') : 'Il faut ' + res.pass_score + ' % pour valider. Les questions ratées reviendront en premier.') + '</p>' +
+      (res.passed && !this.preview && (this.set.anchor || 1) > 1 ? (() => {
+        const before = anchorInfo(this.set.passes, this.set.anchor), after = anchorInfo((this.set.passes || []).concat([todayLocal()]), this.set.anchor);
+        const txt = after.anchored && !before.anchored ? 'Série acquise ! Tu l\u2019as réussie ' + after.anchor + ' fois, à plusieurs jours d\u2019écart : c\u2019est comme ça qu\u2019on retient vraiment.'
+          : after.anchored ? 'Cette série est déjà acquise. Bravo pour la révision !'
+          : after.level > before.level ? 'Réussite ' + after.level + ' sur ' + after.anchor + '. Reviens à partir du ' + fmtDate(after.next) + ' pour la suivante : laisser passer quelques jours aide ta mémoire.'
+          : 'Bien joué ! Pour l\u2019ancrage, la prochaine réussite comptera à partir du ' + fmtDate(after.next) + '.';
+        return '<div class="msg-card" style="text-align:left"><div class="from">Ancrage</div>' + txt + '</div>'; })() : '') +
       (res.passed && this.set.success_message && !this.preview ? '<div class="msg-card"><div class="from">Message de ton professeur</div>' + esc(this.set.success_message.replace(/\{pr[ée]nom\}/gi, this.me ? this.me.first_name : '')) + '</div>' : '') +
       (this.preview ? '<p><span class="pill blue">Aperçu : rien n\u2019a été enregistré</span></p>' : '') +
       (res.passed && !this.preview && this.set.control && !this.set.control.done ? '<div class="msg-card" style="text-align:left"><div class="from">Étape suivante</div>Ton test de contrôle est débloqué : ' + this.set.control.count + ' questions nouvelles, un seul essai.</div>' : '') +
@@ -3052,7 +3141,8 @@ const Prof = {
       best: atts.length ? Math.max(...atts.map(x => x.percent)) : null,
       time: atts.reduce((t, x) => t + (x.duration_seconds || 0), 0),
       last: atts.length ? atts[atts.length - 1].created_at : null,
-      status: done ? 'done' : late ? 'late' : atts.length ? 'progress' : 'todo'
+      status: done ? 'done' : late ? 'late' : atts.length ? 'progress' : 'todo',
+      anc: done ? anchorInfo(atts.filter(x => x.passed).map(x => isoDate(new Date(x.created_at))), ((this.sets || []).find(z => z.id === a.set_id) || {}).anchor || 1) : null
     };
   },
 
@@ -3136,6 +3226,19 @@ const Prof = {
     const seg = (n, col) => n ? '<i style="width:' + (n / x.total * 100) + '%;background:' + col + '"></i>' : '';
     return '<div class="sbar">' + seg(x.done, 'var(--green)') + seg(x.progress, 'var(--orange)') + seg(x.late, 'var(--red)') + seg(x.todo, 'var(--fill)') + '</div>';
   },
+  dashCols(sets, as){
+    const left = this.dashSetsHtml(sets, as);
+    if (!wideScreen()) return left;
+    const cname = id => (this.classes.find(c => c.id === id) || {}).name || '';
+    const evs = this.evals.filter(e => this.classFilter === 'all' || e.class_id === this.classFilter)
+      .sort((x, y) => String(y.opened_at || y.created_at || '').localeCompare(String(x.opened_at || x.created_at || ''))).slice(0, 10);
+    const right = '<div class="section-h">Évaluations</div>' + (evs.length ? '<div class="group">' + evs.map(e => {
+      const [lab, col] = this.evalStatus(e), done = this.evalAtts.filter(x => x.evaluation_id === e.id && x.status === 'done' && x.score != null);
+      const tot = done.length ? done[0].total : evQN(e, true), avg = done.length ? Math.round(done.reduce((t, a) => t + finalScore(a) / (a.total || 1), 0) / done.length * 100) : null;
+      return '<a class="row evrow" href="#/prof/evals/' + e.id + '"><div class="main"><div class="t">' + esc(e.title) + '</div><div class="s">' + esc(cname(e.class_id)) + (done.length ? ' · ' + done.length + ' copie' + (done.length > 1 ? 's' : '') + ' · moyenne ' + avg + ' %' : '') + '</div></div><span class="pill ' + col + '">' + lab + '</span><span class="chev">' + I.chevR + '</span></a>';
+    }).join('') + '</div>' : '<div class="empty">Pas encore d\u2019évaluation.</div>') + '<p class="foot">Les évaluations faites en classe, en violet. Les séries d\u2019exercices, en bleu.</p>';
+    return '<div class="cols"><div class="col-ex">' + left + '</div><div class="col-ev">' + right + '</div></div>';
+  },
   dashSetsHtml(sets, as){
     if (!sets.length) return '<div class="section-h">Séries assignées</div>';
     const view = store.get('suivi_vue') === 'finies' ? 'finies' : 'cours';
@@ -3199,7 +3302,7 @@ const Prof = {
     const attn = [];
     this.evals.filter(e => e.status === 'open' && (this.classFilter === 'all' || e.class_id === this.classFilter)).forEach(e => {
       const lk = this.evalAtts.filter(x => x.evaluation_id === e.id && x.status === 'locked').length;
-      attn.push(['#/prof/evals/' + e.id, lk ? 'red' : 'green', lk ? I.lock : I.tabEval, lk ? lk + ' copie' + (lk > 1 ? 's' : '') + ' bloquée' + (lk > 1 ? 's' : '') : 'Évaluation en cours', e.title]);
+      attn.push(['#/prof/evals/' + e.id, lk ? 'red' : 'purple', lk ? I.lock : I.tabEval, lk ? lk + ' copie' + (lk > 1 ? 's' : '') + ' bloquée' + (lk > 1 ? 's' : '') : 'Évaluation en cours', e.title]);
     });
     const flBy = {}; (this.flags || []).filter(f => inCls(f.student_id)).forEach(f => { const a = this.assignments.find(x => x.id === f.assignment_id); if (a) flBy[a.set_id] = (flBy[a.set_id] || 0) + 1; });
     Object.keys(flBy).forEach(sid => { const st = this.sets.find(x => x.id === sid); if (st) attn.push(['#/prof/suivi/' + sid, 'blue', I.flag, flBy[sid] + ' « Je n’ai pas compris »', st.title]); });
@@ -3207,7 +3310,7 @@ const Prof = {
     as.forEach(x => { if (x.st.ctl && new Date(x.st.ctl.created_at) > wk) ctlBy[x.a.set_id] = (ctlBy[x.a.set_id] || 0) + 1; });
     Object.keys(ctlBy).forEach(sid => { const st = this.sets.find(x => x.id === sid); if (st) attn.push(['#/prof/suivi/' + sid, 'purple', I.check, ctlBy[sid] + ' test' + (ctlBy[sid] > 1 ? 's' : '') + ' de contrôle fait' + (ctlBy[sid] > 1 ? 's' : '') + ' cette semaine', st.title]); });
     const html = nav('', '<button class="nav-btn" id="acct">Compte</button>') +
-      '<div class="wrap"><h1 class="large">Suivi</h1>' + this.classSeg() +
+      '<div class="wrap' + (wideScreen() ? ' wide' : '') + '"><h1 class="large">Suivi</h1>' + this.classSeg() +
       '<div class="section-h">À traiter</div>' + (attn.length || late.length
         ? '<div class="group attn">' + (late.length ? '<button class="row" id="golate"><span class="ic" style="background:var(--red)">' + I.alert + '</span><div class="main"><div class="t">' + late.length + ' exercice' + (late.length > 1 ? 's' : '') + ' en retard</div><div class="s">' + [...new Set(late.map(x => x.stu.first_name))].slice(0, 5).map(esc).join(', ') + (new Set(late.map(x => x.stu.first_name)).size > 5 ? '…' : '') + '</div></div><span class="chev">' + I.chevR + '</span></button>' : '') +
           attn.map(x => '<a class="row" href="' + x[0] + '"><span class="ic" style="background:var(--' + x[1] + ')">' + x[2].replace(/width="\d+" height="\d+"/, 'width="17" height="17"') + '</span><div class="main"><div class="t">' + x[3] + '</div><div class="s">' + esc(x[4]) + '</div></div><span class="chev">' + I.chevR + '</span></a>').join('') + '</div>'
@@ -3220,7 +3323,7 @@ const Prof = {
           (this.classes.length > 1 && this.classFilter === 'all' ? ' <span style="color:var(--label2);font-size:15px">· ' + esc(x.stu.class_name) + '</span>' : '') + '</div><div class="s">' + esc(x.set.title) + (x.st.count ? ' · ' + x.st.count + ' essai' + (x.st.count > 1 ? 's' : '') + ', meilleur ' + x.st.best + ' %' : ' · pas commencé') + '</div></div>' +
           '<span class="late-due">' + fmtDate(x.a.due_date) + '</span></a>').join('') +
         '<button class="row center" id="copylate">Copier la liste pour un message</button></div>' : '') +
-      this.dashSetsHtml(sets, as) +
+      this.dashCols(sets, as) +
       (sets.length ? ''
         : '<div class="empty"><b>Rien à suivre pour l\u2019instant</b>' + (this.classes.length ? 'Crée une série dans l\u2019onglet Exercices, puis assigne-la à des élèves.' : 'Commence par créer une classe et ses élèves dans l\u2019onglet Classes.') + '</div>') +
       '</div>';
@@ -3235,7 +3338,7 @@ const Prof = {
     const cl = document.getElementById('copylate'); if (cl) cl.onclick = () => copyText(this.lateText(late), 'Liste copiée');
     const gl = document.getElementById('golate'); if (gl) gl.onclick = () => document.getElementById('latehead').scrollIntoView({ behavior: 'smooth', block: 'start' });
     const bd = document.getElementById('board'); if (bd) bd.onclick = () => this.showBoard(late);
-    document.getElementById('acct').onclick = () => actionSheet(this.user.email, [{ label: 'Se déconnecter', red: true, run: async () => { await sb.auth.signOut(); this.loaded = false; go('#/prof'); } }]);
+    document.getElementById('acct').onclick = () => actionSheet(this.user.email, [{ label: 'Apparence (clair ou sombre)', run: () => openSheet('<div class="grabber"></div><div class="sheet-head"><span></span><h2>Apparence</h2><button class="nav-btn bold" data-close>OK</button></div>' + themeSeg() + '<p class="foot">Ce réglage reste sur cet appareil.</p>', el => bindThemeSeg(el)) }, { label: 'Se déconnecter', red: true, run: async () => { await sb.auth.signOut(); this.loaded = false; go('#/prof'); } }]);
   },
 
   flagsHtml(all, set){
@@ -3298,6 +3401,7 @@ const Prof = {
       (list.length ? '<div class="group">' + list.map(x => {
         const [lab, col] = x.ph === 'ctl' ? ['Contrôle ' + x.st.ctl.percent + ' %', x.st.ctl.percent >= set.pass_score ? 'green' : 'orange'] : ST[x.ph];
         let meta = x.st.count ? 'Meilleur ' + x.st.best + ' % · ' + x.st.count + ' essai' + (x.st.count > 1 ? 's' : '') + ' · ' + fmtDuration(x.st.time) : (x.a.due_date ? 'Pour le ' + fmtDate(x.a.due_date) : 'Aucun essai');
+        if (x.st.anc && x.st.anc.anchor > 1) meta += ' · ' + (x.st.anc.anchored ? '<span style="color:var(--green)">acquise</span>' : 'ancrage ' + x.st.anc.level + '/' + x.st.anc.anchor);
         if (hasCtl || x.before != null) meta = [x.before != null ? 'Éval ' + x.before + ' %' : null, x.st.done ? 'série validée' : x.st.count ? 'série ' + x.st.best + ' %' : 'série pas commencée', hasCtl ? (x.st.ctl ? 'contrôle ' + x.st.ctl.percent + ' %' : 'contrôle') : null].filter(Boolean).join(' → ');
         return '<button class="row" data-a="' + x.a.id + '"><div class="avatar">' + initials(x.stu.first_name) + '</div><div class="main"><div class="t">' + esc(x.stu.first_name) +
           (multi && this.classFilter === 'all' ? ' <span style="color:var(--label2);font-size:15px">· ' + esc(x.stu.class_name) + '</span>' : '') + '</div><div class="s">' + meta + '</div></div><span class="pill ' + col + '">' + lab + '</span></button>';
@@ -3393,7 +3497,7 @@ const Prof = {
     const countFor = id => this.assignments.filter(a => a.set_id === id).length;
     const rowS = s => {
       const n = countFor(s.id);
-      return '<button class="row" data-s="' + s.id + '"><div class="main"><div class="t">' + esc(s.title) + '</div><div class="s">' +
+      return '<button class="row exrow" data-s="' + s.id + '"><div class="main"><div class="t">' + esc(s.title) + '</div><div class="s">' +
         [s.subject ? esc(s.subject) : null, s.questions.length + ' question' + (s.questions.length > 1 ? 's' : '') + (s.draw_count && s.draw_count < s.questions.length ? ' (' + s.draw_count + ' par essai)' : ''), n ? n + ' élève' + (n > 1 ? 's' : '') : 'non assignée'].filter(Boolean).join(' · ') +
         '</div></div><span class="chev">' + I.chevR + '</span></button>';
     };
@@ -3491,7 +3595,7 @@ const Prof = {
   },
 
   async duplicate(s){
-    const { error } = await sb.from('exercise_sets').insert({ teacher_id: this.user.id, title: s.title + ' (copie)', subject: s.subject, folder: s.folder || null, description: s.description, recap: s.recap, course_id: s.course_id, pass_score: s.pass_score, questions: s.questions, draw_count: s.draw_count || null });
+    const { error } = await sb.from('exercise_sets').insert({ teacher_id: this.user.id, title: s.title + ' (copie)', subject: s.subject, folder: s.folder || null, description: s.description, recap: s.recap, course_id: s.course_id, pass_score: s.pass_score, questions: s.questions, draw_count: s.draw_count || null, anchor: s.anchor || 3 });
     if (error) return toast('Erreur : ' + esc(error.message));
     await this.load(); this.renderSets(); toast('Série dupliquée');
   },
@@ -3664,6 +3768,8 @@ const Prof = {
         '<option value="">Aucun</option>' + (this.courses || []).map(c => '<option value="' + c.id + '"' + (d.course_id === c.id ? ' selected' : '') + '>' + esc(c.title) + '</option>').join('') + '</select></div></div>' +
       '<p class="foot">L\u2019élève voit le rappel avant de commencer et peut le rouvrir pendant l\u2019exercice. Mets les mots importants entre **deux astérisques** pour les surligner.</p>' +
       '<div class="section-h">Score pour valider</div><div class="seg">' + [50, 60, 70, 80, 90, 100].map(p => '<button data-act="pass" data-v="' + p + '" class="' + (d.pass_score === p ? 'on' : '') + '">' + p + ' %</button>').join('') + '</div>' +
+      '<div class="section-h">Ancrage</div><div class="seg">' + [[1, '1 réussite'], [2, '2 réussites'], [3, '3 réussites']].map(([v, l]) => '<button data-act="anchor" data-v="' + v + '" class="' + ((d.anchor || 3) === v ? 'on' : '') + '">' + l + '</button>').join('') + '</div>' +
+      '<p class="foot">' + ((d.anchor || 3) === 1 ? 'La série est acquise dès la première réussite.' : 'La série est acquise après ' + (d.anchor || 3) + ' réussites espacées : la 2e au moins 2 jours après la 1re' + ((d.anchor || 3) === 3 ? ', la 3e au moins 7 jours après la 2e' : '') + '. L\u2019élève voit quand revenir. Le test de contrôle se débloque dès la 1re réussite.') + '</p>' +
       (d.questions.length >= 10 ? '<div class="section-h">Questions par essai</div><div class="seg">' + [0, 6, 8, 10, 12, 15].filter(k => k < d.questions.length).map(k => '<button data-act="draw" data-v="' + k + '" class="' + ((d.draw_count || 0) === k ? 'on' : '') + '">' + (k ? k : 'Toutes') + '</button>').join('') + '</div>' +
         '<p class="foot">' + (d.draw_count ? 'À chaque essai, l\u2019élève reçoit ' + d.draw_count + ' questions tirées parmi les ' + d.questions.length + ' : d\u2019abord une partie de celles qu\u2019il a ratées, puis celles qu\u2019il n\u2019a pas vues la dernière fois. Il ne refait donc pas toujours la même série.' : 'L\u2019élève reçoit toutes les questions à chaque essai. Avec un nombre plus petit, chaque essai tire d\u2019autres questions de la série.') + '</p>' : '') +
       '<div class="section-h">Test de contrôle</div><div class="group"><div class="row"><div class="main t">Questions tirées de</div><select class="field" data-f="control_set_id" id="ctlsel" style="width:auto;max-width:60%;padding:6px 0;text-align:right;color:var(--blue);background:transparent;-webkit-appearance:none;appearance:none;border:0">' +
@@ -3730,6 +3836,7 @@ const Prof = {
       const act = b.dataset.act, i = +b.dataset.q, q = d.questions[i];
       const rerender = () => { const y = window.scrollY; this.renderEditor(id); window.scrollTo(0, y); };
       if (act === 'pass'){ d.pass_score = +b.dataset.v; return rerender(); }
+      if (act === 'anchor'){ d.anchor = +b.dataset.v; return rerender(); }
       if (act === 'ccount'){ d.control_count = +b.dataset.v; return rerender(); }
       if (act === 'draw'){ d.draw_count = +b.dataset.v || null; return rerender(); }
       if (act === 'radio'){ q.answer = +b.dataset.o; return rerender(); }
@@ -3800,7 +3907,7 @@ const Prof = {
       const copy = JSON.parse(JSON.stringify(d)); const err = cleanAndValidate(copy);
       if (err) return toast(esc(err));
       const payload = { title: copy.title.trim(), subject: (copy.subject || '').trim() || null, description: (copy.description || '').trim() || null,
-        recap: (copy.recap || '').trim() || null, folder: (copy.folder || '').trim().replace(/\s+/g, ' ') || null, course_id: copy.course_id || null, pass_score: copy.pass_score, questions: copy.questions, control_set_id: copy.control_set_id || null, control_count: copy.control_set_id ? (copy.control_count || 10) : null, draw_count: copy.draw_count && copy.draw_count < copy.questions.length ? copy.draw_count : null, updated_at: new Date().toISOString() };
+        recap: (copy.recap || '').trim() || null, folder: (copy.folder || '').trim().replace(/\s+/g, ' ') || null, course_id: copy.course_id || null, pass_score: copy.pass_score, questions: copy.questions, control_set_id: copy.control_set_id || null, control_count: copy.control_set_id ? (copy.control_count || 10) : null, draw_count: copy.draw_count && copy.draw_count < copy.questions.length ? copy.draw_count : null, anchor: copy.anchor || 3, updated_at: new Date().toISOString() };
       const btn = document.getElementById('save'); btn.disabled = true;
       const res = id ? await sb.from('exercise_sets').update(payload).eq('id', id) : await sb.from('exercise_sets').insert({ ...payload, teacher_id: this.user.id });
       btn.disabled = false;
@@ -3988,10 +4095,10 @@ const Prof = {
   renderEvals(){
     const cname = id => (this.classes.find(c => c.id === id) || {}).name || '';
     const html = nav('', '<button class="nav-btn" id="newev" aria-label="Nouvelle évaluation">' + I.plus + '</button>') +
-      '<div class="wrap"><h1 class="large">Évaluations</h1>' +
+      '<div class="wrap"><h1 class="large ev-title-l">Évaluations</h1>' +
       (this.evals.length ? '<div class="group">' + this.evals.map(e => {
         const [lab, col] = this.evalStatus(e), atts = this.evalAtts.filter(x => x.evaluation_id === e.id), nDone = atts.filter(x => x.status === 'done').length;
-        return '<a class="row" href="#/prof/evals/' + e.id + '"><div class="main"><div class="t">' + esc(e.title) + '</div><div class="s">' + esc(cname(e.class_id)) + ' · ' + (e.questions || []).length + ' questions' +
+        return '<a class="row evrow" href="#/prof/evals/' + e.id + '"><div class="main"><div class="t">' + esc(e.title) + '</div><div class="s">' + esc(cname(e.class_id)) + ' · ' + evQN(e) +
           (e.status !== 'draft' ? ' · ' + nDone + ' copie' + (nDone > 1 ? 's' : '') : '') + '</div></div><span class="pill ' + col + '">' + lab + '</span><span class="chev">' + I.chevR + '</span></a>';
       }).join('') + '</div>'
         : '<div class="empty"><b>Aucune évaluation</b>Crée une évaluation à partir d’une série d’exercices, puis lance-la en classe. Les élèves la font sur leur téléphone, dans l’onglet Évaluation.</div>') +
@@ -4003,7 +4110,7 @@ const Prof = {
   newEvalSheet(){
     if (!this.sets.length){ toast('Crée d’abord une série d’exercices'); return go('#/prof/exercices'); }
     if (!this.classes.length){ toast('Crée d’abord une classe'); return go('#/prof/classes'); }
-    let setId = this.sets[0].id, cls = this.classFilter !== 'all' ? this.classFilter : this.classes[0].id, anti = true, show = true;
+    let setId = this.sets[0].id, cls = this.classFilter !== 'all' ? this.classFilter : this.classes[0].id, anti = true, show = true, drawN = 0;
     const html = '<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Annuler</button><h2>Nouvelle évaluation</h2><button class="nav-btn bold" id="ok">Créer</button></div><div id="nb"></div>';
     openSheet(html, (el, close) => {
       let title = '';
@@ -4013,6 +4120,9 @@ const Prof = {
           '<div class="group"><input class="field" id="evt" placeholder="Titre (ex. Interro : la Révolution industrielle)" value="' + esc(title || 'Interro : ' + set.title) + '"></div>' +
           '<div class="section-h">Questions reprises de la série</div>' + this.folderGroups().map(([f, list], k, all) => (all.length > 1 ? '<div class="section-h" style="margin-top:' + (k ? 14 : 4) + 'px;text-transform:none;font-size:14px">' + esc(f || 'Sans dossier') + '</div>' : '') + '<div class="group">' + list.map(x => '<button class="row" data-set="' + x.id + '"><span class="check ' + (x.id === setId ? 'on' : '') + '">' + (x.id === setId ? I.check : '') + '</span><div class="main"><div class="t">' + esc(x.title) + '</div><div class="s">' + x.questions.length + ' questions</div></div></button>').join('') + '</div>').join('') +
           '<div class="section-h">Classe</div><div class="seg">' + this.classes.map(c => '<button data-c="' + c.id + '" class="' + (c.id === cls ? 'on' : '') + '">' + esc(c.name) + '</button>').join('') + '</div>' +
+          (set.questions.length >= 8 ? (() => { if (drawN >= set.questions.length) drawN = 0; const opts = [0, 6, 8, 10, 12, 15, 20].filter(k => k < set.questions.length);
+            return '<div class="section-h">Questions par élève</div><div class="seg">' + opts.map(k => '<button data-dn="' + k + '" class="' + (drawN === k ? 'on' : '') + '">' + (k ? k : 'Toutes (' + set.questions.length + ')') + '</button>').join('') + '</div>' +
+              '<p class="foot">' + (drawN ? 'Banque de questions : chaque élève reçoit ' + drawN + ' questions tirées parmi les ' + set.questions.length + '. Deux voisins n\u2019ont donc pas la même copie. S\u2019il reprend son évaluation, il retrouve les mêmes questions.' : 'Tous les élèves reçoivent les mêmes questions. Choisis un nombre plus petit pour que chacun ait sa propre copie.') + '</p>'; })() : '') +
           '<div class="section-h">Réglages</div><div class="group">' +
           '<label class="row" style="cursor:pointer"><div class="main"><div class="t">Bloquer si l’élève quitte l’appli</div><div class="s">Changement d’application, d’onglet, écran verrouillé</div></div><span class="switch"><input type="checkbox" id="anti" ' + (anti ? 'checked' : '') + '><span></span></span></label>' +
           '<label class="row" style="cursor:pointer"><div class="main"><div class="t">Montrer la note à la fin</div><div class="s">Sinon, tu la communiques toi-même</div></div><span class="switch"><input type="checkbox" id="show" ' + (show ? 'checked' : '') + '><span></span></span></label></div>' +
@@ -4020,6 +4130,7 @@ const Prof = {
         el.querySelector('#evt').oninput = e => { title = e.target.value; };
         el.querySelectorAll('[data-set]').forEach(b => b.onclick = () => { if (!title || title.startsWith('Interro : ')) title = ''; setId = b.dataset.set; draw(); });
         el.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { cls = b.dataset.c; draw(); });
+        el.querySelectorAll('[data-dn]').forEach(b => b.onclick = () => { drawN = +b.dataset.dn; const y = el.querySelector('.sheet').scrollTop; draw(); el.querySelector('.sheet').scrollTop = y; });
         el.querySelector('#anti').onchange = e => { anti = e.target.checked; };
         el.querySelector('#show').onchange = e => { show = e.target.checked; };
       };
@@ -4027,7 +4138,7 @@ const Prof = {
       el.querySelector('#ok').onclick = async () => {
         const set = this.sets.find(x => x.id === setId);
         const t = (el.querySelector('#evt').value || '').trim() || 'Interro : ' + set.title;
-        const { data, error } = await sb.from('evaluations').insert({ teacher_id: this.user.id, title: t, class_id: cls, set_id: set.id, questions: set.questions, anticheat: anti, show_score: show, status: 'draft' }).select().single();
+        const { data, error } = await sb.from('evaluations').insert({ teacher_id: this.user.id, title: t, class_id: cls, set_id: set.id, questions: set.questions, draw_count: drawN && drawN < set.questions.length ? drawN : null, anticheat: anti, show_score: show, status: 'draft' }).select().single();
         if (error) return toast('Erreur : ' + esc(error.message));
         close(); await this.load(); go('#/prof/evals/' + data.id);
       };
@@ -4039,7 +4150,7 @@ const Prof = {
     const cl = this.classes.find(c => c.id === e.class_id) || { name: '', students: [] };
     const atts = this.evalAtts.filter(x => x.evaluation_id === id), byStu = {};
     atts.forEach(a => { byStu[a.student_id] = a; });
-    const total = (e.questions || []).length;
+    const total = evQN(e, true);
     const [lab, col] = this.evalStatus(e);
     const rows = cl.students.map(st => ({ st, a: byStu[st.id] })).sort((x, y) => {
       const o = a => !a ? 3 : a.status === 'locked' ? 0 : a.status === 'in_progress' ? 1 : 2;
@@ -4062,7 +4173,7 @@ const Prof = {
     const hard = (e.questions || []).map(q => ({ q, ...(stats[q.id] || { n: 0, ok: 0 }) })).filter(x => x.n).sort((a, b) => a.ok / a.n - b.ok / b.n).slice(0, 5);
     const html = nav(backBtn('#/prof/evals', 'Évaluations'), '') +
       '<div class="wrap"><span class="pill ' + col + '">' + lab + '</span><h1 class="large" style="margin-top:8px">' + esc(e.title) + '</h1>' +
-      '<p class="subtitle">' + esc(cl.name) + ' · ' + total + ' questions' + (e.status === 'open' ? ' · <span class="live">En direct</span>' : '') + '</p>' +
+      '<p class="subtitle">' + esc(cl.name) + ' · ' + evQN(e) + (e.status === 'open' ? ' · <span class="live">En direct</span>' : '') + '</p>' +
       (e.status === 'draft' ? '<button class="btn green" id="launch">Lancer l’évaluation</button><p class="foot">Les élèves de ' + esc(cl.name) + ' la verront aussitôt dans l’onglet Évaluation de leur appli.</p>' : '') +
       (e.status !== 'draft' ? '<div class="tiles">' +
         (e.status === 'open'
