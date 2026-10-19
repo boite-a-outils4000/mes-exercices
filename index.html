@@ -358,6 +358,49 @@ select.leg:disabled{opacity:1;color:var(--label)}
 .col-h{font-size:24px;font-weight:700;margin:22px 0 4px;color:var(--purple)}
 @media (min-width:1000px){ body.prof .tabbar a[href$="/evals"] svg{color:var(--purple)} body.prof .tabbar a[href$="/evals"].on{background:color-mix(in srgb,var(--purple) 14%,transparent);color:var(--purple)} }
 .pill.teal{background:color-mix(in srgb,var(--teal) 16%,transparent);color:var(--teal)}.btn.teal{background:var(--teal)}
+/* Fiches interactives */
+.fwrap .fpage{position:relative;container-type:inline-size;border-radius:10px;overflow:hidden;background:#fff;box-shadow:var(--shadow),0 0 0 .5px var(--sep);margin:0 0 6px;line-height:1.15;color:#111}
+.fpage img{display:block;width:100%;height:100%;object-fit:fill;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;pointer-events:none}
+.fpage-n{text-align:center;font-size:13px;color:var(--label2);margin:0 0 14px}
+.fzl{position:absolute;inset:0}
+.fzhit{position:absolute;background:none;border:0;padding:0;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent}.fzhit .fz{pointer-events:none}.fzl.tool{cursor:crosshair}
+.fz{position:absolute;border:2px solid #2f6fed;background:rgba(47,111,237,.13);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:inherit;font-weight:600;font-size:2.5cqw;line-height:1.15;color:#1747b8;overflow:hidden;cursor:pointer;padding:0 .4cqw;text-align:center;margin:0;-webkit-tap-highlight-color:transparent}
+.fz.filled{background:rgba(47,111,237,.05);border-color:rgba(47,111,237,.6)}
+.fz .v{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:100%}
+.fz .v.ck svg{width:2.4cqw;height:2.4cqw;display:block}.fz.coche{padding:0}.fz.coche.filled:not(.ok):not(.ko):not(.part):not(.todo){background:#2f6fed;border-color:#2f6fed;color:#fff}.fz.coche.filled.ok{background:#1fa64a;color:#fff}.fz.coche.filled.ko{background:#e5372c;color:#fff}
+.fz.libre .v{white-space:pre-wrap;text-align:left;align-self:flex-start;width:100%;font-weight:500;font-size:2.1cqw;padding:.5cqw .3cqw}
+.fz img{position:absolute;inset:0;width:100%;height:100%}
+.fz.ok{border-color:#1fa64a;background:rgba(31,166,74,.14);color:#137a35}
+.fz.ko{border-color:#e5372c;background:rgba(229,55,44,.12);color:#b3261e}
+.fz.part{border-color:#f08c00;background:rgba(240,140,0,.14);color:#9a5a00}
+.fz.todo{border-color:#a24bd6;border-style:dashed;background:rgba(175,82,222,.13);color:#7a2aa8}
+.fz.sel{border-color:#ff9500;box-shadow:0 0 0 3px rgba(255,149,0,.4);z-index:2}
+.fz.edit{touch-action:none;cursor:move;background:rgba(47,111,237,.16)}
+.fz.edit.miss{border-style:dashed}
+.fz.edit.sel{overflow:visible}.fz .badge{position:absolute;left:-2px;bottom:100%;margin-bottom:2px;font-size:max(10px,1.4cqw);background:#ff9500;color:#fff;padding:1px 6px;border-radius:4px;font-weight:700;line-height:1.4;white-space:nowrap;pointer-events:none}
+.fz.sel .badge{background:#ff9500}
+.fz .ans{opacity:.75;font-weight:600;pointer-events:none}
+.fz .fh{position:absolute;right:0;bottom:0;width:16px;height:16px;background:#ff9500;border-top-left-radius:6px;touch-action:none;cursor:nwse-resize}
+.ftools{position:sticky;top:calc(env(safe-area-inset-top) + 44px);z-index:6;display:flex;gap:6px;overflow-x:auto;padding:8px 0;background:var(--bg);scrollbar-width:none}
+.ftools .chip{flex:none}
+.fwrap.zopen{padding-bottom:52vh}
+.zpanel{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);border-radius:16px 16px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.2);max-height:46vh;overflow:auto;padding:6px 16px calc(16px + env(safe-area-inset-bottom))}
+.zpanel .zp-head{display:flex;justify-content:space-between;align-items:center;position:sticky;top:-6px;background:var(--card);padding:8px 0 4px;z-index:1}
+.zpanel .zp-sec{font-size:13px;text-transform:uppercase;color:var(--label2);margin:12px 0 6px}
+.zpanel .fin{background:var(--fill);border-radius:10px;padding:10px 12px;width:100%}
+.zpanel .zp-act{display:flex;gap:8px;margin-top:14px}
+@media (min-width:1000px){.zpanel{left:auto;right:28px;bottom:28px;width:420px;border-radius:16px;max-height:72vh}.fwrap.zopen{padding-bottom:110px;padding-right:440px;max-width:1400px}}
+.fprog{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);margin:4px 0 0}
+.fprog .bar{flex:1;height:8px}.fprog b{font-variant-numeric:tabular-nums}
+.fsave{font-size:13px;color:var(--label2)}
+.fcrop{position:relative;width:100%;border-radius:10px;background-color:#fff;background-repeat:no-repeat;box-shadow:0 0 0 .5px var(--sep);margin:2px 0 14px;overflow:hidden}
+.fhl{position:absolute;border:2.5px solid #ff9500;border-radius:4px;box-shadow:0 0 0 2000px rgba(0,0,0,.08)}
+.fbig{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fbig button{height:64px;border-radius:14px;border:0;background:var(--card);box-shadow:var(--shadow);font-size:20px;font-weight:700;color:var(--label)}
+.fbig button.on{background:var(--blue);color:#fff}
+.fdraw .fcrop{touch-action:none}.fdraw canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.fdtools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:-4px}
+.fcol{width:34px;height:34px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1px var(--sep)}.fcol.on{box-shadow:0 0 0 3px var(--blue)}
 .ctlrow{box-shadow:inset 3px 0 0 var(--indigo)}.btn.indigo{background:var(--indigo)}
 .ctl-h{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.01em;color:var(--indigo);margin:14px 16px 7px;display:flex;align-items:center;gap:6px}
 .ctl-h:before{content:'';width:8px;height:8px;border-radius:2px;background:var(--indigo)}
@@ -1214,7 +1257,8 @@ const Student = {
       if (!data){ store.del('exos_code'); return this.renderLogin('Ce code n\u2019est plus valide.'); }
       this.me = data;
     }
-    const [{ data, error }, cp] = await Promise.all([sb.rpc('student_home', { p_code: this.code }), sb.rpc('student_copies', { p_code: this.code })]);
+    const [{ data, error }, cp, fw] = await Promise.all([sb.rpc('student_home', { p_code: this.code }), sb.rpc('student_copies', { p_code: this.code }), sb.rpc('student_worksheets', { p_code: this.code })]);
+    this.fiches = fw.error ? (this.fiches || []) : (fw.data || []);
     if (error || !data) return this.offline();
     this.copies = cp.error ? (this.copies || []) : (cp.data || []);
     this.home = data; this.list = data.assignments || []; this.practice = false;
@@ -1284,7 +1328,7 @@ const Student = {
         }).join('') : '<div class="empty mt"><b>Aucune évaluation en cours</b>Quand ton professeur lance une évaluation en classe, elle apparaît ici.</div>') +
         (results.length ? '<div class="section-h">Mes résultats</div><div class="group">' + results.map(e => '<div class="row evrow"><div class="main"><div class="t">' + esc(e.title) + '</div><div class="s">' + (e.status === 'open' ? 'Terminée' : 'Corrigée') + '</div></div>' +
           (e.my_score != null ? '<span class="score">' + e.my_score + ' / ' + e.my_total + (e.my_penalty ? '<span class="pen">−' + e.my_penalty + '</span>' : '') + '</span>' : '<span class="val" style="font-size:14px">Note donnée par ton professeur</span>') + '</div>').join('') + '</div>' : '') +
-        this.copiesSection();
+        this.fichesSection() + this.copiesSection();
   },
   mastered(){ try { return JSON.parse(store.get('exos_ok_' + this.code) || '[]'); } catch(e){ return []; } },
   mistakes(){ const m = new Set(this.mastered()); return ((this.home && this.home.mistakes) || []).filter(x => x.question && !m.has(x.assignment_id + ':' + x.question.id)); },
@@ -1407,8 +1451,9 @@ const Student = {
     const tb = (k, label, icon, badge) => '<a href="#" data-stab="' + k + '" class="' + (tab === k ? 'on' : '') + '">' + icon + '<span>' + label + '</span>' + (badge ? '<b class="tdot"></b>' : '') + '</a>';
     $app.innerHTML = nav('<button class="nav-btn" id="opts">Réglages</button>', '<button class="nav-btn" id="refresh">Actualiser</button>') +
       '<div class="wrap' + (tab === 'ex' && wideScreen() ? ' wide' : '') + '">' + body + '</div>' +
-      '<nav class="tabbar">' + tb('ex', 'Exercices', I.tabDoc) + tb('cours', 'Cours', I.tabBook) + tb('study', 'J\u2019étudie', I.tabStudy) + tb('eval', 'Évaluation', I.tabEval, evOpen.length || (this.copies || []).some(c => !c.seen_at)) + '</nav>';
+      '<nav class="tabbar">' + tb('ex', 'Exercices', I.tabDoc) + tb('cours', 'Cours', I.tabBook) + tb('study', 'J\u2019étudie', I.tabStudy) + tb('eval', 'Évaluation', I.tabEval, evOpen.length || (this.copies || []).some(c => !c.seen_at) || (this.fiches || []).some(f => f.status === 'todo' || (f.status === 'corrected' && !f.seen_at))) + '</nav>';
     $app.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => this.openCopy(b.dataset.copy));
+    $app.querySelectorAll('[data-fiche]').forEach(b => b.onclick = () => this.openFiche(b.dataset.fiche));
     $app.querySelectorAll('[data-stab]').forEach(a => a.onclick = e => { e.preventDefault(); this.stab = a.dataset.stab; this.renderList(); window.scrollTo(0, 0); });
     $app.querySelectorAll('[data-id]').forEach(b => b.onclick = () => this.open(b.dataset.id));
     $app.querySelectorAll('[data-course]').forEach(b => b.onclick = () => this.openCourse(b.dataset.course));
@@ -3118,6 +3163,10 @@ const Prof = {
     if (tab === 'copie' && id) return this.renderCopyEditor(id);
     if (tab === 'evals' && id) return this.renderEval(id);
     if (tab === 'evals') return this.renderEvals();
+    if (tab === 'fiches' && id) return this.renderFicheEditor(id);
+    if (tab === 'fiches') return this.renderFiches();
+    if (tab === 'fsend' && id) return this.renderFicheSend(id);
+    if (tab === 'fcopy' && id) return this.renderFicheCopy(id);
     if (tab === 'cours' && id) return this.renderCourseEditor(id === 'nouveau' ? null : id);
     if (tab === 'cours') return this.renderCourses();
     if (tab === 'classes' && id) return this.renderClass(id);
@@ -3126,6 +3175,7 @@ const Prof = {
   },
 
   async load(){
+    const wp = Promise.all([sb.from('worksheets').select('id,title,subject,zones,created_at,updated_at').order('updated_at', { ascending: false }), sb.from('worksheet_sends').select('*').order('created_at', { ascending: false }), sb.from('worksheet_copies').select('id,send_id,student_id,status,score,total,submitted_at,corrected_at,seen_at,updated_at')]);
     const [ev, ea, co, fl, c, s, a, cp] = await Promise.all([
       sb.from('evaluations').select('*').order('created_at', { ascending: false }),
       sb.from('eval_attempts').select('*'),
@@ -3137,6 +3187,7 @@ const Prof = {
       sb.from('copies').select('id,student_id,title,copy_date,score,total,comments,published,published_at,seen_at,created_at').order('created_at', { ascending: false })
     ]);
     this.copies = cp.error ? [] : (cp.data || []);
+    { const [fw, fs, fc] = await wp; this.worksheets = fw.error ? [] : fw.data || []; this.wsends = fs.error ? [] : fs.data || []; this.wcopies = fc.error ? [] : fc.data || []; }
     const err = c.error || s.error || a.error || co.error || fl.error; if (err) throw err;
     if (ev.error || ea.error) throw (ev.error || ea.error);
     this.courses = co.data || []; this.flags = fl.data || []; this.evals = ev.data || []; this.evalAtts = ea.data || [];
@@ -4119,7 +4170,7 @@ const Prof = {
   renderEvals(){
     const cname = id => (this.classes.find(c => c.id === id) || {}).name || '';
     const html = nav('', '<button class="nav-btn" id="newev" aria-label="Nouvelle évaluation">' + I.plus + '</button>') +
-      '<div class="wrap"><h1 class="large ev-title-l">Évaluations</h1>' +
+      '<div class="wrap"><h1 class="large ev-title-l">Évaluations</h1>' + this.evSeg('evals') +
       (this.evals.length ? '<div class="group">' + this.evals.map(e => {
         const [lab, col] = this.evalStatus(e), atts = this.evalAtts.filter(x => x.evaluation_id === e.id), nDone = atts.filter(x => x.status === 'done').length;
         return '<a class="row evrow" href="#/prof/evals/' + e.id + '"><div class="main"><div class="t">' + esc(e.title) + '</div><div class="s">' + esc(cname(e.class_id)) + ' · ' + evQN(e) +
@@ -4128,6 +4179,7 @@ const Prof = {
         : '<div class="empty"><b>Aucune évaluation</b>Crée une évaluation à partir d’une série d’exercices, puis lance-la en classe. Les élèves la font sur leur téléphone, dans l’onglet Évaluation.</div>') +
       '<p class="foot" style="margin-top:14px">Pendant une évaluation, l’appli bloque la copie d’un élève qui change d’application ou d’onglet. Tu la débloques depuis le suivi en direct.</p></div>';
     this.shell('evals', html);
+    this.bindEvSeg();
     document.getElementById('newev').onclick = () => this.newEvalSheet();
   },
 
@@ -4811,6 +4863,566 @@ const Prof = {
 };
 
 /* ---------- Routeur ---------- */
+/* ---------- Fiches interactives (document d'origine + zones de réponse) ---------- */
+const FZ = {
+  kinds: [['vf', 'Vrai/faux'], ['coche', 'Case à cocher'], ['texte', 'Mot'], ['nombre', 'Nombre'], ['choix', 'Liste'], ['libre', 'Texte libre'], ['dessin', 'Dessin']],
+  size: { vf: [13, 3.4], coche: [4, 2.9], texte: [24, 3.4], nombre: [16, 3.4], choix: [22, 3.4], libre: [84, 10], dessin: [44, 22] },
+  name(k){ return (FZ.kinds.find(x => x[0] === k) || [k, k])[1]; },
+  closed(z){ return z.kind !== 'libre' && z.kind !== 'dessin'; },
+  uid(){ return 'z' + Math.random().toString(36).slice(2, 9); },
+  norm(s){ return String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[’']/g, "'").replace(/\s+/g, ' ').replace(/[.\s]+$/, '').trim(); },
+  filled(z, v){ return z.kind === 'coche' ? v === true : v != null && String(v).trim() !== ''; },
+  okZone(z, v){
+    if (z.kind === 'coche') return !!v === !!z.answer;
+    if (!FZ.filled(z, v)) return false;
+    if (z.kind === 'vf' || z.kind === 'choix') return String(v) === String(z.answer);
+    if (z.kind === 'nombre'){ const n = parseNumFR(v), a = parseNumFR(z.answer); return n != null && a != null && Math.abs(n - a) <= (parseNumFR(z.tol) || 0) + 1e-9; }
+    return String(z.answer || '').split('|').map(FZ.norm).filter(Boolean).includes(FZ.norm(v));
+  },
+  order(zones){
+    return zones.slice().sort((a, b) => (a.page - b.page) || (Math.round(a.y / 1.5) - Math.round(b.y / 1.5)) || (a.x - b.x));
+  },
+  /* Une question = une zone, sauf les cases à cocher d'un même groupe (QCM) qui comptent ensemble */
+  items(zones){
+    const out = [], groups = {};
+    FZ.order(zones).forEach(z => {
+      if (z.kind === 'coche' && z.group){
+        const k = 'g:' + z.page + ':' + z.group;
+        if (!groups[k]){ groups[k] = { key: k, zones: [], kind: 'coche' }; out.push(groups[k]); }
+        groups[k].zones.push(z);
+      } else out.push({ key: z.id, zones: [z], kind: z.kind });
+    });
+    out.forEach((it, i) => { it.n = i + 1; it.points = Math.max(...it.zones.map(z => +z.points || 0)) || 1; it.closed = FZ.closed(it.zones[0]); });
+    return out;
+  },
+  itemOf(items, zid){ return items.find(it => it.zones.some(z => z.id === zid)); },
+  itemFilled(it, ans){ return it.zones.some(z => FZ.filled(z, ans[z.id])); },
+  itemAuto(it, ans){ return it.closed ? (it.zones.every(z => FZ.okZone(z, ans[z.id])) ? it.points : 0) : null; },
+  /* points retenus pour une question : correction du prof, sinon automatique */
+  itemPts(it, ans, marks){ const m = marks && marks[it.key]; if (m && m.pts != null && m.pts !== '') return +m.pts; return FZ.itemAuto(it, ans); },
+  totals(zones, ans, marks){
+    const items = FZ.items(zones); let score = 0, total = 0, todo = 0;
+    items.forEach(it => { total += it.points; const p = FZ.itemPts(it, ans, marks); if (p == null) todo++; else score += p; });
+    return { items, score: Math.round(score * 100) / 100, total, todo };
+  },
+  show(z, v){
+    if (!FZ.filled(z, v)) return '';
+    if (z.kind === 'vf') return '<span class="v">' + (v === 'V' ? 'Vrai' : 'Faux') + '</span>';
+    if (z.kind === 'coche') return '<span class="v ck">' + I.check + '</span>';
+    if (z.kind === 'dessin') return '<img src="' + esc(v) + '" alt="">';
+    return '<span class="v">' + esc(v) + '</span>';
+  },
+  ansText(z){
+    if (z.kind === 'vf') return z.answer === 'V' ? 'Vrai' : z.answer === 'F' ? 'Faux' : '';
+    if (z.kind === 'coche') return z.answer ? 'à cocher' : 'à laisser vide';
+    if (z.kind === 'nombre') return z.answer != null && z.answer !== '' ? z.answer + (z.unit ? ' ' + z.unit : '') + (parseNumFR(z.tol) ? ' (à ' + z.tol + ' près)' : '') : '';
+    if (z.kind === 'texte') return String(z.answer || '').split('|').map(x => x.trim()).filter(Boolean).join(' ou ');
+    return String(z.answer || '');
+  },
+  givenText(z, v){
+    if (!FZ.filled(z, v)) return z.kind === 'coche' ? 'pas cochée' : '';
+    if (z.kind === 'vf') return v === 'V' ? 'Vrai' : 'Faux';
+    if (z.kind === 'coche') return 'cochée';
+    if (z.kind === 'nombre') return v + (z.unit ? ' ' + z.unit : '');
+    return String(v);
+  },
+  async dims(pages){
+    await Promise.all(pages.map(p => p.w && p.h ? null : new Promise(res => { const im = new Image(); im.onload = () => { p.w = im.naturalWidth; p.h = im.naturalHeight; res(); }; im.onerror = () => { p.w = 1000; p.h = 1414; res(); }; im.src = p.src; })));
+  },
+  /* morceau de page (x, y, largeur, hauteur en fractions de la page) en arrière-plan */
+  crop(p, rx, ry, rw, rh){
+    const A = (p.h || 1414) / (p.w || 1000);
+    const px = rw >= 1 ? 0 : rx / (1 - rw) * 100, py = rh >= 1 ? 0 : ry / (1 - rh) * 100;
+    return 'background-image:url(' + p.src + ');background-size:' + (100 / rw) + '% ' + (100 / rh) + '%;background-position:' + px + '% ' + py + '%;aspect-ratio:' + rw + ' / ' + (rh * A);
+  },
+  region(z){
+    const ry = Math.max(0, z.y / 100 - 0.05), rh = Math.min(1 - ry, z.h / 100 + 0.1);
+    return { rx: 0, ry, rw: 1, rh };
+  },
+  pagesHtml(pages, layerCls){
+    return pages.map((p, i) => '<div class="fpage" style="aspect-ratio:' + (p.w || 1000) + ' / ' + (p.h || 1414) + '"><img src="' + esc(p.src) + '" alt="Page ' + (i + 1) + '"><div class="fzl ' + (layerCls || '') + '" data-pg="' + i + '"></div></div>' +
+      (pages.length > 1 ? '<div class="fpage-n">Page ' + (i + 1) + ' sur ' + pages.length + '</div>' : '')).join('');
+  },
+  box(z){ return 'left:' + z.x + '%;top:' + z.y + '%;width:' + z.w + '%;height:' + z.h + '%'; },
+  /* bouton de zone ; les petites cases à cocher reçoivent une zone de toucher plus grande */
+  btn(z, cls, inner, extra){
+    if (z.kind !== 'coche' || z.w > 6) return '<button class="' + cls + '" data-z="' + z.id + '" style="' + FZ.box(z) + '"' + (extra || '') + '>' + inner + '</button>';
+    const H = { x: Math.max(0, z.x - 1.4), y: Math.max(0, z.y - 1.1), w: z.w + 5.5, h: z.h + 2.2 };
+    return '<button class="fzhit" data-z="' + z.id + '" style="' + FZ.box(H) + '"' + (extra || '') + '><span class="' + cls + '" style="left:' + ((z.x - H.x) / H.w * 100) + '%;top:' + ((z.y - H.y) / H.h * 100) + '%;width:' + (z.w / H.w * 100) + '%;height:' + (z.h / H.h * 100) + '%">' + inner + '</span></button>';
+  },
+  fmt(n){ return fmtNum(Math.round(n * 100) / 100); },
+  reveal(zid, panel){
+    requestAnimationFrame(() => { const el = document.querySelector('.fzl [data-z="' + zid + '"]'); if (!el || panel.hidden) return; const pr = panel.getBoundingClientRect(), r = el.getBoundingClientRect();
+      if (pr.left > 20) return; if (r.bottom > pr.top - 16) window.scrollBy({ top: r.bottom - pr.top + 70, behavior: 'smooth' }); else if (r.top < 100) window.scrollBy({ top: r.top - 120, behavior: 'smooth' }); });
+  }
+};
+
+/* ===== Côté élève ===== */
+Object.assign(Student, {
+  fichesSection(){
+    const L = this.fiches || []; if (!L.length) return '';
+    const today = todayLocal(), todo = L.filter(f => f.status === 'todo' || f.status === 'draft'), done = L.filter(f => f.status === 'submitted' || f.status === 'corrected');
+    const row = f => {
+      const late = (f.status === 'todo' || f.status === 'draft') && f.due_date && f.due_date < today;
+      const [lab, col] = f.status === 'corrected' ? (f.seen_at ? [null, null] : ['Nouveau', 'blue']) : f.status === 'submitted' ? ['Rendue', 'teal'] : late ? ['En retard', 'red'] : f.status === 'draft' ? ['Commencée', 'orange'] : ['À faire', 'purple'];
+      const sub = f.status === 'corrected' ? 'Corrigée · note formative' : f.status === 'submitted' ? 'En attente de correction' : f.due_date ? 'À rendre pour le ' + fmtDate(f.due_date) : 'À rendre';
+      return '<button class="row evrow" data-fiche="' + f.send_id + '"><span style="color:var(--purple);display:flex">' + I.doc + '</span><div class="main"><div class="t">' + esc(f.title) + '</div><div class="s">' + esc(sub) + '</div></div>' +
+        (f.status === 'corrected' && f.score != null && f.total ? '<span class="score">' + FZ.fmt(f.score) + ' / ' + FZ.fmt(f.total) + '</span>' : '') + (lab ? '<span class="pill ' + col + '">' + lab + '</span>' : '') + '<span class="chev">' + I.chevR + '</span></button>';
+    };
+    return (todo.length ? '<div class="section-h">Fiches à rendre (' + todo.length + ')</div><div class="group">' + todo.map(row).join('') + '</div>' : '') +
+      (done.length ? '<div class="section-h">Mes fiches rendues</div><div class="group">' + done.map(row).join('') + '</div>' : '');
+  },
+  async openFiche(sid){
+    loading();
+    const { data, error } = await sb.rpc('student_get_worksheet', { p_code: this.code, p_send_id: sid });
+    if (error || !data){ toast('Cette fiche n’est pas disponible'); return this.renderList(); }
+    await FZ.dims(data.pages || []);
+    this.fiche = { ...data, answers: data.answers || {}, zones: data.zones || [] };
+    const f = (this.fiches || []).find(x => x.send_id === sid); if (f && data.status === 'corrected') f.seen_at = f.seen_at || new Date().toISOString();
+    this.renderFiche();
+  },
+  renderFiche(){
+    const F = this.fiche, fill = F.status === 'todo' || F.status === 'draft', corr = F.status === 'corrected';
+    const items = FZ.items(F.zones), n = items.filter(it => FZ.itemFilled(it, F.answers)).length;
+    const T = corr ? FZ.totals(F.zones, F.answers, F.marks || {}) : null;
+    $app.innerHTML = nav('<button class="nav-btn" id="back">' + I.chevL + '<span>Évaluation</span></button>', fill ? '<span class="fsave" id="fsave"></span>' : '') +
+      '<div class="wrap notab fwrap"><h1 class="large">' + esc(F.title) + '</h1><p class="subtitle">' + esc([F.subject, F.due_date && !corr ? 'À rendre pour le ' + fmtDate(F.due_date) : null].filter(Boolean).join(' · ')) + '</p>' +
+      (corr ? '<div class="copy-score"><span class="n">' + FZ.fmt(F.score != null ? F.score : T.score) + '</span><span class="t">/ ' + FZ.fmt(F.total || T.total) + '</span></div><p class="foot" style="margin:0 0 8px">Note formative : elle sert à voir où tu en es.</p>' +
+        (F.general ? '<div class="msg-card" style="background:color-mix(in srgb,var(--blue) 11%,var(--card))"><div class="from">Le mot de ton professeur</div>' + nb(esc(F.general)).replace(/\n/g, '<br>') + '</div>' : '') +
+        '<p class="foot">En vert, c’est juste. En rouge, c’est à revoir. Touche une case pour voir la bonne réponse.</p>'
+        : F.status === 'submitted' ? '<div class="evcard ev"><span class="pill teal">Fiche rendue</span><div style="color:var(--label2);font-size:15px;margin-top:6px">' + (F.submitted_at ? 'Rendue le ' + fmtDateTime(F.submitted_at) + '. ' : '') + 'Ton professeur va la corriger.</div></div>'
+        : '<div class="fprog"><div><b id="fcount">' + n + ' / ' + items.length + '</b> réponses</div><div class="bar"><i id="fbar" style="width:' + (items.length ? n / items.length * 100 : 0) + '%"></i></div></div><p class="foot" style="margin-top:4px">Touche une case encadrée sur la fiche pour répondre. Ton travail est enregistré tout seul.</p>') +
+      FZ.pagesHtml(F.pages) +
+      (fill ? '<button class="btn purple mt2" id="fsubmit">Rendre ma fiche</button><p class="foot">Une fois rendue, tu ne peux plus la modifier.</p>' : '') +
+      '</div>';
+    this.drawFicheZones();
+    document.getElementById('back').onclick = () => { this.ficheFlush(); this.stab = 'eval'; this.loadList(); };
+    $app.querySelectorAll('.fzl').forEach(L => L.addEventListener('click', e => {
+      const zEl = e.target.closest('[data-z]'); if (!zEl) return;
+      const z = F.zones.find(x => x.id === zEl.dataset.z); if (!z) return;
+      if (fill && z.kind === 'coche'){ F.answers[z.id] = !F.answers[z.id]; if (!F.answers[z.id]) delete F.answers[z.id]; this.ficheChanged(); return; }
+      if (fill) return this.ficheInput(z);
+      this.ficheDetail(z);
+    }));
+    const sb2 = document.getElementById('fsubmit'); if (sb2) sb2.onclick = () => this.ficheSubmit();
+    window.scrollTo(0, 0);
+  },
+  drawFicheZones(){
+    const F = this.fiche, corr = F.status === 'corrected', items = FZ.items(F.zones);
+    $app.querySelectorAll('.fzl').forEach(L => {
+      const pg = +L.dataset.pg;
+      L.innerHTML = F.zones.filter(z => z.page === pg).map(z => {
+        const v = F.answers[z.id], it = FZ.itemOf(items, z.id);
+        let cls = 'fz ' + z.kind + (FZ.filled(z, v) ? ' filled' : '');
+        if (corr && it){ const p = FZ.itemPts(it, F.answers, F.marks || {}); cls += p == null ? '' : p >= it.points ? ' ok' : p > 0 ? ' part' : ' ko'; }
+        return FZ.btn(z, cls, FZ.show(z, v), ' aria-label="Question ' + (it ? it.n : '') + '"');
+      }).join('');
+    });
+    const items2 = items, n = items2.filter(it => FZ.itemFilled(it, F.answers)).length;
+    const c = document.getElementById('fcount'), b = document.getElementById('fbar');
+    if (c) c.textContent = n + ' / ' + items2.length; if (b) b.style.width = (items2.length ? n / items2.length * 100 : 0) + '%';
+  },
+  ficheChanged(){
+    this.drawFicheZones();
+    const s = document.getElementById('fsave'); if (s) s.textContent = 'Enregistrement…';
+    clearTimeout(this._fT); this._fT = setTimeout(() => this.ficheFlush(), 900);
+  },
+  async ficheFlush(){
+    clearTimeout(this._fT); const F = this.fiche;
+    if (!F || !(F.status === 'todo' || F.status === 'draft')) return true;
+    const { error } = await sb.rpc('student_save_worksheet', { p_code: this.code, p_send_id: F.send_id, p_answers: F.answers, p_submit: false });
+    const s = document.getElementById('fsave'); if (s) s.textContent = error ? 'Pas enregistré : vérifie ta connexion' : 'Enregistré';
+    if (!error) F.status = 'draft';
+    return !error;
+  },
+  ficheInput(z, fromNext){
+    const F = this.fiche, items = FZ.items(F.zones), it = FZ.itemOf(items, z.id), p = F.pages[z.page];
+    const order = FZ.order(F.zones).filter(x => x.kind !== 'coche'), k = order.findIndex(x => x.id === z.id), next = order[k + 1];
+    const v = F.answers[z.id];
+    const R = z.kind === 'dessin' ? { rx: z.x / 100, ry: z.y / 100, rw: z.w / 100, rh: z.h / 100 } : FZ.region(z);
+    const hl = z.kind === 'dessin' ? '' : '<i class="fhl" style="left:' + z.x + '%;width:' + z.w + '%;top:' + ((z.y / 100 - R.ry) / R.rh * 100) + '%;height:' + (z.h / 100 / R.rh * 100) + '%"></i>';
+    let body = '';
+    if (z.kind === 'vf') body = '<div class="fbig"><button data-v="V" class="' + (v === 'V' ? 'on' : '') + '">Vrai</button><button data-v="F" class="' + (v === 'F' ? 'on' : '') + '">Faux</button></div>';
+    else if (z.kind === 'choix') body = '<div class="group">' + (z.options || []).map(o => '<button class="row" data-v="' + esc(o) + '"><span class="check ' + (v === o ? 'on' : '') + '">' + (v === o ? I.check : '') + '</span><div class="main t">' + esc(o) + '</div></button>').join('') + '</div>';
+    else if (z.kind === 'libre') body = '<div class="group"><textarea class="field" id="fin" rows="5" placeholder="Écris ta réponse">' + esc(v || '') + '</textarea></div>';
+    else if (z.kind === 'nombre') body = '<div class="group"><div class="row"><input class="field" id="fin" inputmode="decimal" autocomplete="off" placeholder="Ta réponse" value="' + esc(v || '') + '" style="padding:0;font-size:20px">' + (z.unit ? '<span class="val" style="font-size:18px">' + esc(z.unit) + '</span>' : '') + '</div></div>';
+    else if (z.kind === 'texte') body = '<div class="group"><input class="field" id="fin" autocomplete="off" autocapitalize="off" placeholder="Ta réponse" value="' + esc(v || '') + '" style="font-size:20px"></div>';
+    else if (z.kind === 'dessin') body = '<div class="fdraw"><div class="fcrop" id="fdc" style="' + FZ.crop(p, R.rx, R.ry, R.rw, R.rh) + '"><canvas id="fcv"></canvas></div><div class="fdtools">' +
+      [['#1747b8', 'Bleu'], ['#111111', 'Noir'], ['#d0021b', 'Rouge'], ['#1f9d55', 'Vert']].map(([c, l], i) => '<button class="fcol' + (i === 0 ? ' on' : '') + '" data-col="' + c + '" style="background:' + c + '" aria-label="' + l + '"></button>').join('') +
+      '<button class="chip" id="fundo">Annuler</button><button class="chip" id="fclr">Tout effacer</button></div></div>';
+    const html = '<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Fermer</button><h2>Question ' + (it ? it.n : '') + ' sur ' + items.length + '</h2><button class="nav-btn bold" id="fok">' + (next ? 'Suivant' : 'OK') + '</button></div>' +
+      (z.kind !== 'dessin' ? '<div class="fcrop" style="' + FZ.crop(p, R.rx, R.ry, R.rw, R.rh) + '">' + hl + '</div>' : '<p class="foot" style="margin-top:0">Dessine avec ton doigt dans le cadre.</p>') +
+      body + (FZ.filled(z, v) && z.kind !== 'dessin' ? '<button class="link-quiet" id="fclear" style="display:block;margin:14px auto 0;background:none;border:0">Effacer ma réponse</button>' : '');
+    openSheet(html, (el, close) => {
+      let strokes = [], base = null, col = '#1747b8', cv = null, ctx = null;
+      const save = () => {
+        const inp = el.querySelector('#fin');
+        if (inp){ const t = inp.value; if (t.trim()) F.answers[z.id] = t; else delete F.answers[z.id]; }
+        if (cv){ if (strokes.length || base){ F.answers[z.id] = cv.toDataURL('image/png'); } else delete F.answers[z.id]; }
+        this.ficheChanged();
+      };
+      const goNext = () => { save(); close(); if (next) setTimeout(() => this.ficheInput(next, true), 280); };
+      el.querySelector('#fok').onclick = goNext;
+      el.querySelectorAll('[data-close]').forEach(b => b.onclick = () => { save(); close(); });
+      el.querySelector('.sheet-backdrop') && (el.querySelector('.sheet-backdrop').onclick = () => { save(); close(); });
+      el.querySelectorAll('[data-v]').forEach(b => b.onclick = () => { F.answers[z.id] = b.dataset.v; el.querySelectorAll('[data-v]').forEach(x => x.classList.toggle('on', x === b)); this.ficheChanged(); setTimeout(() => { close(); if (next) setTimeout(() => this.ficheInput(next, true), 280); }, 180); });
+      const clr = el.querySelector('#fclear'); if (clr) clr.onclick = () => { delete F.answers[z.id]; this.ficheChanged(); close(); };
+      const inp = el.querySelector('#fin');
+      if (inp){ setTimeout(() => inp.focus(), 320); if (inp.tagName === 'INPUT') inp.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); goNext(); } }; }
+      cv = el.querySelector('#fcv');
+      if (cv){
+        const box = el.querySelector('#fdc'), r = box.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+        cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); ctx = cv.getContext('2d');
+        const redraw = () => { ctx.clearRect(0, 0, cv.width, cv.height); if (base) ctx.drawImage(base, 0, 0, cv.width, cv.height);
+          strokes.forEach(s => { ctx.strokeStyle = s.c; ctx.lineWidth = 3.2 * dpr; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); s.p.forEach((q, i) => i ? ctx.lineTo(q[0] * cv.width, q[1] * cv.height) : ctx.moveTo(q[0] * cv.width, q[1] * cv.height)); if (s.p.length === 1) ctx.lineTo(s.p[0][0] * cv.width + .1, s.p[0][1] * cv.height); ctx.stroke(); }); };
+        if (v){ const im = new Image(); im.onload = () => { base = im; redraw(); }; im.src = v; }
+        let cur = null;
+        const pt = e => { const b = cv.getBoundingClientRect(); return [(e.clientX - b.left) / b.width, (e.clientY - b.top) / b.height]; };
+        cv.onpointerdown = e => { e.preventDefault(); cv.setPointerCapture(e.pointerId); cur = { c: col, p: [pt(e)] }; strokes.push(cur); redraw(); };
+        cv.onpointermove = e => { if (!cur) return; cur.p.push(pt(e)); redraw(); };
+        cv.onpointerup = cv.onpointercancel = () => { cur = null; };
+        el.querySelectorAll('[data-col]').forEach(b => b.onclick = () => { col = b.dataset.col; el.querySelectorAll('[data-col]').forEach(x => x.classList.toggle('on', x === b)); });
+        el.querySelector('#fundo').onclick = () => { strokes.pop(); redraw(); };
+        el.querySelector('#fclr').onclick = () => { strokes = []; base = null; redraw(); };
+      }
+    }, 'fsheet');
+  },
+  ficheDetail(z){
+    const F = this.fiche, items = FZ.items(F.zones), it = FZ.itemOf(items, z.id), corr = F.status === 'corrected', p = F.pages[z.page];
+    const R = FZ.region(z), m = corr && F.marks ? F.marks[it.key] : null, pts = corr ? FZ.itemPts(it, F.answers, F.marks || {}) : null;
+    const zs = it.zones;
+    const given = zs.length > 1 ? zs.map((x, i) => 'Case ' + (i + 1) + ' : ' + FZ.givenText(x, F.answers[x.id])).join('<br>') : z.kind === 'dessin' ? '' : esc(FZ.givenText(z, F.answers[z.id]) || 'Pas de réponse');
+    const ans = zs.length > 1 ? zs.map((x, i) => 'Case ' + (i + 1) + ' : ' + FZ.ansText(x)).join('<br>') : esc(FZ.ansText(z));
+    const html = '<div class="grabber"></div><div class="sheet-head"><span></span><h2>Question ' + it.n + '</h2><button class="nav-btn bold" data-close>Fermer</button></div>' +
+      '<div class="fcrop" style="' + FZ.crop(p, R.rx, R.ry, R.rw, R.rh) + '">' + zs.map(x => '<i class="fhl" style="left:' + x.x + '%;width:' + x.w + '%;top:' + ((x.y / 100 - R.ry) / R.rh * 100) + '%;height:' + (x.h / 100 / R.rh * 100) + '%"></i>').join('') +
+        (z.kind === 'dessin' && F.answers[z.id] ? '<img src="' + esc(F.answers[z.id]) + '" alt="" style="position:absolute;left:' + z.x + '%;width:' + z.w + '%;top:' + ((z.y / 100 - R.ry) / R.rh * 100) + '%;height:' + (z.h / 100 / R.rh * 100) + '%">' : '') + '</div>' +
+      '<div class="group">' + (given ? '<div class="ccom ccor"><div class="lab">Ta réponse</div><div class="txt">' + given + '</div></div>' : '') +
+      (corr && ans ? '<div class="ccom ccor"><div class="lab">Bonne réponse</div><div class="ans">' + ans + '</div></div>' : '') +
+      (corr && pts != null ? '<div class="ccom"><div class="lab">Points</div><div class="txt">' + FZ.fmt(pts) + ' / ' + FZ.fmt(it.points) + '</div></div>' : '') +
+      (m && m.com ? '<div class="ccom"><div class="lab">Commentaire de ton professeur</div><div class="txt">' + nb(esc(m.com)).replace(/\n/g, '<br>') + '</div></div>' : '') + '</div>';
+    openSheet(html, null, 'fsheet');
+  },
+  async ficheSubmit(){
+    const F = this.fiche, items = FZ.items(F.zones), empty = items.filter(it => !it.zones.some(z => z.kind === 'coche') && !FZ.itemFilled(it, F.answers)).length;
+    if (!await confirmDialog('Rendre ta fiche ?', (empty ? empty + ' question' + (empty > 1 ? 's sont' : ' est') + ' sans réponse. ' : '') + 'Tu ne pourras plus la modifier.', 'Rendre')) return;
+    clearTimeout(this._fT);
+    const { error } = await sb.rpc('student_save_worksheet', { p_code: this.code, p_send_id: F.send_id, p_answers: F.answers, p_submit: true });
+    if (error) return toast('Pas de connexion : réessaie dans un instant');
+    toast(I.okCircle.replace('width="26" height="26"', 'width="18" height="18" style="color:var(--green)"') + ' Fiche rendue');
+    const f = (this.fiches || []).find(x => x.send_id === F.send_id); if (f) f.status = 'submitted';
+    this.openFiche(F.send_id);
+  }
+});
+
+/* ===== Côté professeur ===== */
+Object.assign(Prof, {
+  evSeg(active){
+    return '<div class="seg" style="margin-bottom:14px"><button data-evs="evals" class="' + (active === 'evals' ? 'on' : '') + '">Évaluations</button><button data-evs="fiches" class="' + (active === 'fiches' ? 'on' : '') + '">Fiches à rendre</button></div>';
+  },
+  bindEvSeg(){ document.querySelectorAll('[data-evs]').forEach(b => b.onclick = () => go('#/prof/' + b.dataset.evs)); },
+  ficheSends(wid){ return (this.wsends || []).filter(s => s.worksheet_id === wid); },
+  renderFiches(){
+    const cname = id => (this.classes.find(c => c.id === id) || {}).name || '';
+    const list = this.worksheets || [];
+    const html = nav('', '<button class="nav-btn" id="newf" aria-label="Nouvelle fiche">' + I.plus + '</button>') +
+      '<div class="wrap"><h1 class="large ev-title-l">Fiches</h1>' + this.evSeg('fiches') +
+      (list.length ? '<div class="group">' + list.map(w => {
+        const sends = this.ficheSends(w.id), cps = (this.wcopies || []).filter(c => sends.some(s => s.id === c.send_id));
+        const toC = cps.filter(c => c.status === 'submitted').length, nQ = FZ.items(w.zones || []).length;
+        const sub = [w.subject, nQ + ' question' + (nQ > 1 ? 's' : ''), sends.length ? sends.map(s => cname(s.class_id)).join(', ') : null].filter(Boolean).join(' · ');
+        return '<a class="row evrow" href="#/prof/fiches/' + w.id + '"><div class="main"><div class="t">' + esc(w.title) + '</div><div class="s">' + esc(sub) + '</div></div>' +
+          (toC ? '<span class="pill purple">' + toC + ' à corriger</span>' : sends.length ? '<span class="pill green">Envoyée</span>' : '<span class="pill orange">Brouillon</span>') + '<span class="chev">' + I.chevR + '</span></a>';
+      }).join('') + '</div>'
+        : '<div class="empty"><b>Aucune fiche</b>Importe ton cours ou tes exercices en PDF ou en photo, puis place les cases de réponse sur la page. Les élèves répondent sur leur téléphone et te rendent la fiche.</div>') +
+      '<p class="foot" style="margin-top:14px">Les réponses fermées (vrai/faux, cases, mots, nombres, listes) se corrigent toutes seules. Tu corriges les textes libres et les dessins, puis tu renvoies la fiche avec une note formative.</p></div>';
+    this.shell('evals', html);
+    this.bindEvSeg();
+    document.getElementById('newf').onclick = () => { this.fdraft = null; go('#/prof/fiches/nouveau'); };
+  },
+
+  async renderFicheEditor(id){
+    const isNew = id === 'nouveau';
+    if (!this.fdraft || this.fdraft._for !== id){
+      if (isNew) this.fdraft = { _for: id, title: '', subject: '', pages: [], zones: [] };
+      else {
+        loading();
+        const { data, error } = await sb.from('worksheets').select('*').eq('id', id).maybeSingle();
+        if (error || !data){ toast('Fiche introuvable'); return go('#/prof/fiches'); }
+        this.fdraft = { ...data, _for: id, subject: data.subject || '', pages: data.pages || [], zones: data.zones || [] };
+      }
+      await FZ.dims(this.fdraft.pages);
+      this.fdraft.tool = null; this.fdraft.sel = null; this.fdraft.dirty = false;
+    }
+    const d = this.fdraft, cname = cid => (this.classes.find(c => c.id === cid) || {}).name || '';
+    const sends = isNew ? [] : this.ficheSends(id);
+    const html = nav(backBtn('#/prof/fiches', 'Fiches'), '<button class="nav-btn bold" id="fsv">Enregistrer</button>') +
+      '<div class="wrap fwrap" id="fed"><h1 class="large">' + (isNew ? 'Nouvelle fiche' : 'Fiche') + '</h1>' +
+      '<div class="group"><input class="field" data-f="title" value="' + esc(d.title) + '" placeholder="Titre (ex. Fiche 3 : la loi d’Ohm)" style="font-weight:600"><input class="field" data-f="subject" value="' + esc(d.subject) + '" placeholder="Cours (facultatif)"></div>' +
+      (d.pages.length ? '<div class="section-h">Placer les cases de réponse</div><div class="ftools" id="ftools"></div><p class="foot" id="fhint" style="margin-top:2px"></p>' + FZ.pagesHtml(d.pages, 'edit') : '<div class="section-h">Pages</div><div class="empty">Ajoute le PDF de ta fiche ou des photos des pages. Tu placeras ensuite les cases de réponse dessus.</div>') +
+      '<div class="add-row"><label>' + I.doc + 'PDF<input type="file" accept="application/pdf,.pdf" data-ffile="pdf" hidden></label><label>' + I.image + 'Photo ou image<input type="file" accept="image/*" multiple data-ffile="img" hidden></label></div>' +
+      '<p class="foot">12 pages maximum. Les pages restent dans l’appli, pas sur un site public.</p>' +
+      (d.pages.length ? '<div class="section-h">Résumé</div><div class="group"><div class="row"><div class="main t">Questions</div><span class="val" id="fsum"></span></div></div>' : '') +
+      (!isNew ? '<div class="section-h">Envois</div><div class="group">' + sends.map(s => {
+          const cps = (this.wcopies || []).filter(c => c.send_id === s.id), nst = ((this.classes.find(c => c.id === s.class_id) || {}).students || []).length;
+          return '<a class="row" href="#/prof/fsend/' + s.id + '"><div class="main"><div class="t">' + esc(cname(s.class_id)) + '</div><div class="s">' + (s.due_date ? 'Pour le ' + fmtDate(s.due_date) + ' · ' : '') + cps.filter(c => c.status !== 'draft').length + ' / ' + nst + ' rendues</div></div>' +
+            (cps.some(c => c.status === 'submitted') ? '<span class="pill purple">' + cps.filter(c => c.status === 'submitted').length + ' à corriger</span>' : '') + '<span class="chev">' + I.chevR + '</span></a>';
+        }).join('') + '<button class="row center" id="fsend" style="gap:8px;color:var(--purple);font-weight:600">' + I.plus + ' Envoyer à une classe</button></div>' +
+        '<div class="group mt2"><button class="row danger" id="fdel">Supprimer la fiche</button></div>' : '<p class="foot">Enregistre la fiche pour pouvoir l’envoyer à une classe.</p>') +
+      '</div><div class="zpanel" id="zp" hidden></div>';
+    this.shell('evals', html);
+    const ed = document.getElementById('fed');
+    ed.addEventListener('input', e => { const f = e.target.dataset.f; if (f === 'title' || f === 'subject'){ d[f] = e.target.value; d.dirty = true; } });
+    ed.addEventListener('change', async e => {
+      const t = e.target; if (!t.matches('input[data-ffile]') || !t.files || !t.files.length) return;
+      const files = [...t.files]; t.value = ''; toast('Préparation des pages…');
+      try {
+        for (const f of files){ const imgs = t.dataset.ffile === 'pdf' || f.type === 'application/pdf' ? await pdfToPages(f) : [await loadPage(f)]; imgs.forEach(src => d.pages.push({ src })); }
+        if (d.pages.length > 12){ d.pages = d.pages.slice(0, 12); toast('12 pages maximum par fiche'); }
+        await FZ.dims(d.pages); d.dirty = true; const y = window.scrollY; this.renderFicheEditor(id); window.scrollTo(0, y);
+      } catch(err){ console.error(err); toast('Ce fichier ne peut pas être lu'); }
+    });
+    if (d.pages.length) this.ficheEditBind(d);
+    document.getElementById('fsv').onclick = () => this.ficheSave(d, id);
+    const sb3 = document.getElementById('fsend'); if (sb3) sb3.onclick = async () => { if (d.dirty && !await this.ficheSave(d, id, true)) return; this.ficheSendSheet(id); };
+    const del = document.getElementById('fdel'); if (del) del.onclick = async () => {
+      if (!await confirmDialog('Supprimer « ' + (d.title || 'cette fiche') + ' » ?', 'Les envois et les fiches rendues par les élèves seront supprimés.', 'Supprimer', true)) return;
+      const { error } = await sb.from('worksheets').delete().eq('id', id); if (error) return toast('Erreur : ' + esc(error.message));
+      this.fdraft = null; await this.load(); go('#/prof/fiches'); toast('Fiche supprimée');
+    };
+  },
+  ficheEditBind(d){
+    const tools = document.getElementById('ftools'), hint = document.getElementById('fhint'), panel = document.getElementById('zp');
+    const drawTools = () => {
+      tools.innerHTML = FZ.kinds.map(([k, l]) => '<button class="chip' + (d.tool === k ? ' on' : '') + '" data-tool="' + k + '">' + l + '</button>').join('');
+      hint.textContent = d.tool ? 'Touche la page à l’endroit de la réponse pour poser une case « ' + FZ.name(d.tool) + ' ». Touche encore le bouton pour arrêter.' : 'Choisis un type de case, puis touche la page. Fais glisser une case pour la déplacer, et son coin orange pour l’agrandir.';
+      document.querySelectorAll('.fzl').forEach(L => L.classList.toggle('tool', !!d.tool));
+    };
+    const zoneInner = z => (d.sel === z.id ? '<span class="badge">' + esc(FZ.name(z.kind)) + (z.kind === 'coche' && z.group ? ' ' + esc(z.group) : '') + '</span>' : '') + (z.kind === 'coche' ? (z.answer ? '<span class="v ck ans">' + I.check + '</span>' : '') : z.kind !== 'dessin' && z.kind !== 'libre' && z.answer != null && String(z.answer) !== '' ? '<span class="v ans">' + esc(z.kind === 'vf' ? (z.answer === 'V' ? 'Vrai' : 'Faux') : z.kind === 'texte' ? String(z.answer).split('|')[0] : z.answer) + '</span>' : '') + (d.sel === z.id ? '<span class="fh" data-h="1"></span>' : '');
+    const drawZones = () => {
+      document.querySelectorAll('.fzl').forEach(L => {
+        const pg = +L.dataset.pg;
+        L.innerHTML = d.zones.filter(z => z.page === pg).map(z => '<div class="fz edit ' + z.kind + (d.sel === z.id ? ' sel' : '') + (z.kind !== 'libre' && z.kind !== 'dessin' && (z.answer == null || z.answer === '' || (z.kind === 'choix' && !(z.options || []).length)) && z.kind !== 'coche' ? ' miss' : '') + '" data-z="' + z.id + '" style="' + FZ.box(z) + '">' + zoneInner(z) + '</div>').join('');
+      });
+      const T = FZ.items(d.zones), s = document.getElementById('fsum');
+      if (s) s.textContent = T.length + ' · ' + FZ.fmt(T.reduce((a, it) => a + it.points, 0)) + ' points';
+    };
+    const sel = z => { d.sel = z ? z.id : null; drawZones(); drawPanel(); if (z) FZ.reveal(z.id, panel); };
+    const nextGroup = pg => { const used = new Set(d.zones.filter(z => z.kind === 'coche' && z.page === pg).map(z => z.group)); for (const c of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') if (!used.has(c)) return c; return 'Z'; };
+    const drawPanel = () => {
+      const z = d.zones.find(x => x.id === d.sel);
+      document.getElementById('fed').classList.toggle('zopen', !!z);
+      if (!z){ panel.hidden = true; panel.innerHTML = ''; return; }
+      panel.hidden = false;
+      const it = FZ.itemOf(FZ.items(d.zones), z.id);
+      const pts = [0.5, 1, 2, 3, 4], cur = +z.points || 1;
+      let ans = '';
+      if (z.kind === 'vf') ans = '<div class="seg"><button data-za="V" class="' + (z.answer === 'V' ? 'on' : '') + '">Vrai</button><button data-za="F" class="' + (z.answer === 'F' ? 'on' : '') + '">Faux</button></div>';
+      else if (z.kind === 'coche') ans = '<div class="seg"><button data-za="1" class="' + (z.answer ? 'on' : '') + '">À cocher</button><button data-za="0" class="' + (!z.answer ? 'on' : '') + '">À laisser vide</button></div>' +
+        '<div class="row" style="padding:10px 0 0"><div class="main"><div class="t" style="font-size:15px">Question (QCM)</div><div class="s">Les cases avec la même lettre forment une seule question.</div></div><input class="field" data-zf="group" value="' + esc(z.group || '') + '" maxlength="2" style="width:56px;text-align:center;background:var(--fill);border-radius:8px;padding:6px"></div>';
+      else if (z.kind === 'texte') ans = '<input class="field fin" data-zf="answer" value="' + esc(z.answer || '') + '" placeholder="Bonne réponse (variantes séparées par |)">';
+      else if (z.kind === 'nombre') ans = '<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:8px"><input class="field fin" data-zf="answer" inputmode="decimal" value="' + esc(z.answer || '') + '" placeholder="Réponse"><input class="field fin" data-zf="unit" value="' + esc(z.unit || '') + '" placeholder="Unité"><input class="field fin" data-zf="tol" inputmode="decimal" value="' + esc(z.tol || '') + '" placeholder="Marge"></div>';
+      else if (z.kind === 'choix') ans = '<textarea class="field fin" data-zf="options" rows="3" placeholder="Une proposition par ligne">' + esc((z.options || []).join('\n')) + '</textarea>' +
+        ((z.options || []).length ? '<div class="chips" style="padding:8px 0 0">' + z.options.map(o => '<button class="chip' + (z.answer === o ? ' on' : '') + '" data-za="' + esc(o) + '">' + esc(o) + '</button>').join('') + '</div><p class="foot" style="margin:4px 0 0">Touche la bonne réponse.</p>' : '');
+      else ans = '<textarea class="field fin" data-zf="answer" rows="2" placeholder="Réponse attendue (facultatif, montrée à l’élève après correction)">' + esc(z.answer || '') + '</textarea>';
+      panel.innerHTML = '<div class="zp-head"><b>Question ' + (it ? it.n : '') + ' · ' + esc(FZ.name(z.kind)) + '</b><button class="nav-btn bold" data-zx>OK</button></div>' +
+        '<div class="zp-sec">' + (FZ.closed(z) ? 'Bonne réponse' : 'Corrigée par toi') + '</div>' + ans +
+        '<div class="zp-sec">Points' + (z.kind === 'coche' && z.group ? ' de la question ' + esc(z.group) : '') + '</div><div class="seg">' + pts.map(p => '<button data-zp="' + p + '" class="' + (cur === p ? 'on' : '') + '">' + fmtNum(p) + '</button>').join('') + '</div>' +
+        '<div class="zp-sec">Type de case</div><div class="chips" style="padding:0">' + FZ.kinds.map(([k, l]) => '<button class="chip' + (z.kind === k ? ' on' : '') + '" data-zk="' + k + '">' + l + '</button>').join('') + '</div>' +
+        '<div class="zp-act"><button class="chip" data-zdup>Dupliquer</button><button class="chip" data-zdel style="color:var(--red)">Supprimer</button></div>';
+    };
+    panel.addEventListener('click', e => {
+      const z = d.zones.find(x => x.id === d.sel); if (!z) return;
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.hasAttribute('data-zx')) return sel(null);
+      if (b.dataset.za != null){ z.answer = z.kind === 'coche' ? b.dataset.za === '1' : b.dataset.za; d.dirty = true; drawZones(); return drawPanel(); }
+      if (b.dataset.zp){ const p = +b.dataset.zp; (z.kind === 'coche' && z.group ? d.zones.filter(x => x.kind === 'coche' && x.page === z.page && x.group === z.group) : [z]).forEach(x => x.points = p); d.dirty = true; drawZones(); return drawPanel(); }
+      if (b.dataset.zk){ const k = b.dataset.zk; if (k !== z.kind){ z.kind = k; z.answer = k === 'coche' ? false : ''; delete z.options; if (k === 'coche'){ const P = d.pages[z.page]; z.group = nextGroup(z.page); z.w = 4; z.h = Math.round(4 / ((P.h || 1414) / (P.w || 1000)) * 100) / 100; } else delete z.group; d.dirty = true; drawZones(); drawPanel(); } return; }
+      if (b.hasAttribute('data-zdup')){ const c = JSON.parse(JSON.stringify(z)); c.id = FZ.uid(); c.y = Math.min(100 - c.h, c.y + c.h + 1); d.zones.push(c); d.dirty = true; return sel(c); }
+      if (b.hasAttribute('data-zdel')){ d.zones = d.zones.filter(x => x.id !== z.id); d.dirty = true; return sel(null); }
+    });
+    panel.addEventListener('input', e => {
+      const z = d.zones.find(x => x.id === d.sel); if (!z) return; const f = e.target.dataset.zf; if (!f) return;
+      if (f === 'options'){ z.options = e.target.value.split('\n').map(x => x.trim()).filter(Boolean); if (!z.options.includes(z.answer)) z.answer = ''; d.dirty = true; drawZones(); const y = panel.scrollTop, pos = e.target.selectionStart; drawPanel(); panel.scrollTop = y; const ta = panel.querySelector('[data-zf="options"]'); ta.focus(); try { ta.setSelectionRange(pos, pos); } catch(x){} return; }
+      if (f === 'group'){ z.group = e.target.value.toUpperCase().trim(); }
+      else z[f] = e.target.value;
+      d.dirty = true;
+      const el = document.querySelector('.fz[data-z="' + z.id + '"]'); if (el) el.innerHTML = zoneInner(z);
+    });
+    tools.onclick = e => { const b = e.target.closest('[data-tool]'); if (!b) return; d.tool = d.tool === b.dataset.tool ? null : b.dataset.tool; drawTools(); };
+    let drag = null;
+    document.querySelectorAll('.fzl').forEach(L => {
+      L.addEventListener('pointerdown', e => {
+        const zEl = e.target.closest('.fz'); if (!zEl) return;
+        const z = d.zones.find(x => x.id === zEl.dataset.z); if (!z) return;
+        e.preventDefault();
+        if (d.sel !== z.id){ d.sel = z.id; drawZones(); drawPanel(); }
+        const r = L.getBoundingClientRect();
+        drag = { z, L, r, sx: e.clientX, sy: e.clientY, x: z.x, y: z.y, w: z.w, h: z.h, mode: e.target.closest('[data-h]') ? 'size' : 'move', moved: false };
+        L.setPointerCapture(e.pointerId);
+      });
+      L.addEventListener('pointermove', e => {
+        if (!drag) return;
+        const dx = (e.clientX - drag.sx) / drag.r.width * 100, dy = (e.clientY - drag.sy) / drag.r.height * 100, z = drag.z;
+        if (Math.abs(dx) + Math.abs(dy) > 0.3) drag.moved = true;
+        if (drag.mode === 'move'){ z.x = Math.max(0, Math.min(100 - z.w, drag.x + dx)); z.y = Math.max(0, Math.min(100 - z.h, drag.y + dy)); }
+        else { z.w = Math.max(2, Math.min(100 - z.x, drag.w + dx)); z.h = Math.max(1.2, Math.min(100 - z.y, drag.h + dy)); }
+        const el = drag.L.querySelector('.fz[data-z="' + z.id + '"]'); if (el) el.setAttribute('style', FZ.box(z));
+      });
+      const end = () => { if (drag){ if (drag.moved){ ['x', 'y', 'w', 'h'].forEach(k => drag.z[k] = Math.round(drag.z[k] * 100) / 100); d.dirty = true; drawZones(); } drag = null; } };
+      L.addEventListener('pointerup', end); L.addEventListener('pointercancel', end);
+      L.addEventListener('click', e => {
+        if (e.target.closest('.fz')) return;
+        if (!d.tool){ if (d.sel) sel(null); return; }
+        const r = L.getBoundingClientRect(), pg = +L.dataset.pg, P = d.pages[pg], A = (P.h || 1414) / (P.w || 1000);
+        let [w, h] = FZ.size[d.tool]; if (d.tool === 'coche') h = w / A;
+        const px = (e.clientX - r.left) / r.width * 100, py = (e.clientY - r.top) / r.height * 100;
+        const z = { id: FZ.uid(), page: pg, kind: d.tool, x: Math.max(0, Math.min(100 - w, px - (d.tool === 'coche' ? w / 2 : 2))), y: Math.max(0, Math.min(100 - h, py - h / 2)), w, h, points: 1, answer: d.tool === 'coche' ? false : '' };
+        if (d.tool === 'coche'){ const prev = d.zones.find(x => x.id === d.sel); z.group = prev && prev.kind === 'coche' && prev.page === pg ? prev.group : nextGroup(pg); }
+        ['x', 'y', 'w', 'h'].forEach(k => z[k] = Math.round(z[k] * 100) / 100);
+        d.zones.push(z); d.dirty = true; sel(z);
+      });
+    });
+    drawTools(); drawZones(); drawPanel();
+  },
+  async ficheSave(d, id, quiet){
+    if (!String(d.title || '').trim()){ toast('Donne un titre à la fiche.'); return false; }
+    if (!d.pages.length){ toast('Ajoute au moins une page.'); return false; }
+    const miss = d.zones.filter(z => FZ.closed(z) && z.kind !== 'coche' && (z.answer == null || String(z.answer).trim() === '')).length;
+    const payload = { title: d.title.trim(), subject: String(d.subject || '').trim() || null, pages: d.pages.map(p => ({ src: p.src, w: p.w, h: p.h })), zones: d.zones.map(z => { const c = { ...z }; return c; }), updated_at: new Date().toISOString() };
+    if (JSON.stringify(payload.pages).length > 12e6){ toast('Fiche trop lourde : retire une page.'); return false; }
+    const btn = document.getElementById('fsv'); if (btn) btn.disabled = true;
+    const res = id === 'nouveau' ? await sb.from('worksheets').insert({ ...payload, teacher_id: this.user.id }).select('id').single() : await sb.from('worksheets').update(payload).eq('id', id);
+    if (btn) btn.disabled = false;
+    if (res.error){ toast('Erreur : ' + esc(res.error.message)); return false; }
+    d.dirty = false; await this.load();
+    if (id === 'nouveau'){ d._for = res.data.id; go('#/prof/fiches/' + res.data.id); }
+    else if (!quiet){ const y = window.scrollY; this.renderFicheEditor(id); window.scrollTo(0, y); }
+    toast(miss ? 'Fiche enregistrée · ' + miss + ' case' + (miss > 1 ? 's' : '') + ' sans bonne réponse' : 'Fiche enregistrée');
+    return true;
+  },
+  ficheSendSheet(wid){
+    if (!this.classes.length){ toast('Crée d’abord une classe'); return go('#/prof/classes'); }
+    let cls = this.classFilter !== 'all' && this.classes.some(c => c.id === this.classFilter) ? this.classFilter : this.classes[0].id, due = '';
+    const html = '<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Annuler</button><h2>Envoyer la fiche</h2><button class="nav-btn bold" id="ok">Envoyer</button></div>' +
+      '<div class="section-h">Classe</div><div class="seg" id="sc">' + this.classes.map(c => '<button data-c="' + c.id + '" class="' + (c.id === cls ? 'on' : '') + '">' + esc(c.name) + '</button>').join('') + '</div>' +
+      '<div class="section-h">À rendre pour le</div><div class="group"><input class="field" type="date" id="due"></div>' +
+      '<p class="foot">La fiche apparaît dans l’onglet Évaluation des élèves de la classe, rubrique « Fiches à rendre ».</p>';
+    openSheet(html, (el, close) => {
+      el.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { cls = b.dataset.c; el.querySelectorAll('[data-c]').forEach(x => x.classList.toggle('on', x === b)); });
+      el.querySelector('#due').onchange = e => { due = e.target.value; };
+      el.querySelector('#ok').onclick = async () => {
+        if (this.ficheSends(wid).some(s => s.class_id === cls) && !await confirmDialog('Déjà envoyée à cette classe', 'Envoyer une deuxième fois ? Les élèves auront deux fiches à rendre.', 'Envoyer')) return;
+        const { error } = await sb.from('worksheet_sends').insert({ teacher_id: this.user.id, worksheet_id: wid, class_id: cls, due_date: due || null });
+        if (error) return toast('Erreur : ' + esc(error.message));
+        close(); await this.load(); const y = window.scrollY; this.renderFicheEditor(wid); window.scrollTo(0, y); toast('Fiche envoyée');
+      };
+    });
+  },
+  renderFicheSend(sid){
+    const s = (this.wsends || []).find(x => x.id === sid); if (!s) return go('#/prof/fiches');
+    const w = (this.worksheets || []).find(x => x.id === s.worksheet_id) || { title: 'Fiche', zones: [] }, cl = this.classes.find(c => c.id === s.class_id) || { name: '', students: [] };
+    const cps = (this.wcopies || []).filter(c => c.send_id === sid), byS = {}; cps.forEach(c => byS[c.student_id] = c);
+    const st = stu => { const c = byS[stu.id]; return !c ? 0 : c.status === 'draft' ? 1 : c.status === 'submitted' ? 3 : 2; };
+    const studs = (cl.students || []).slice().sort((a, b) => st(b) - st(a) || a.first_name.localeCompare(b.first_name));
+    const nR = cps.filter(c => c.status !== 'draft').length, nC = cps.filter(c => c.status === 'corrected'), toC = cps.filter(c => c.status === 'submitted').length;
+    const avg = nC.length ? Math.round(nC.reduce((a, c) => a + (c.total ? c.score / c.total : 0), 0) / nC.length * 100) : null;
+    const html = nav(backBtn('#/prof/fiches/' + w.id, 'Fiche'), '') +
+      '<div class="wrap"><h1 class="large">' + esc(w.title) + '</h1><p class="subtitle">' + esc(cl.name) + (s.due_date ? ' · pour le ' + fmtDate(s.due_date) : '') + '</p>' +
+      '<div class="tiles"><div class="tile"><div class="n">' + nR + ' / ' + (cl.students || []).length + '</div><div class="l">Rendues</div></div><div class="tile"><div class="n" style="color:var(--purple)">' + toC + '</div><div class="l">À corriger</div></div><div class="tile"><div class="n">' + (avg == null ? '–' : avg + ' %') + '</div><div class="l">Moyenne</div></div></div>' +
+      '<div class="section-h">Élèves</div><div class="group">' + (studs.length ? studs.map(stu => {
+        const c = byS[stu.id], k = st(stu);
+        const [lab, col] = k === 3 ? ['À corriger', 'purple'] : k === 2 ? [FZ.fmt(c.score) + ' / ' + FZ.fmt(c.total), 'green'] : k === 1 ? ['En cours', 'orange'] : ['Pas commencée', ''];
+        const sub = k === 3 ? 'Rendue le ' + fmtDateTime(c.submitted_at) : k === 2 ? 'Corrigée' + (c.seen_at ? ' · vue le ' + fmtDateTime(c.seen_at) : ' · pas encore vue') : k === 1 ? 'Commencée, pas encore rendue' : '';
+        const tag = c && c.status !== 'draft' ? 'a href="#/prof/fcopy/' + c.id + '"' : 'div';
+        return '<' + tag + ' class="row"><div class="avatar">' + initials(stu.first_name) + '</div><div class="main"><div class="t">' + esc(stu.first_name) + '</div>' + (sub ? '<div class="s">' + esc(sub) + '</div>' : '') + '</div>' +
+          (col ? '<span class="pill ' + col + '">' + lab + '</span>' : '<span class="val" style="font-size:14px">' + lab + '</span>') + (c && c.status !== 'draft' ? '<span class="chev">' + I.chevR + '</span>' : '') + '</' + tag.split(' ')[0] + '>';
+      }).join('') : '<div class="empty">Pas encore d’élèves dans cette classe.</div>') + '</div>' +
+      '<div class="group mt2"><button class="row danger" id="sdel">Retirer l’envoi</button></div></div>';
+    this.shell('evals', html);
+    document.getElementById('sdel').onclick = async () => {
+      if (!await confirmDialog('Retirer cette fiche de la classe ?', 'Les fiches déjà rendues par les élèves de cet envoi seront supprimées.', 'Retirer', true)) return;
+      const { error } = await sb.from('worksheet_sends').delete().eq('id', sid); if (error) return toast('Erreur : ' + esc(error.message));
+      await this.load(); go('#/prof/fiches/' + w.id); toast('Envoi retiré');
+    };
+  },
+  async renderFicheCopy(cid){
+    loading();
+    const { data: c, error } = await sb.from('worksheet_copies').select('*').eq('id', cid).maybeSingle();
+    if (error || !c){ toast('Fiche introuvable'); return go('#/prof/fiches'); }
+    const s = (this.wsends || []).find(x => x.id === c.send_id) || {};
+    this._wfull = this._wfull || {};
+    let w = this._wfull[s.worksheet_id];
+    if (!w || w.updated_at !== ((this.worksheets || []).find(x => x.id === s.worksheet_id) || {}).updated_at){
+      const r = await sb.from('worksheets').select('*').eq('id', s.worksheet_id).maybeSingle(); if (r.error || !r.data){ toast('Fiche introuvable'); return go('#/prof/fiches'); }
+      w = this._wfull[s.worksheet_id] = r.data; await FZ.dims(w.pages || []);
+    }
+    const stu = this.studentById[c.student_id] || { first_name: 'Élève' }, ans = c.answers || {};
+    const st = { marks: JSON.parse(JSON.stringify(c.marks || {})), general: c.general || '', sel: null };
+    const zones = w.zones || [];
+    const html = nav(backBtn('#/prof/fsend/' + c.send_id, 'Fiches rendues'), '') +
+      '<div class="wrap fwrap" id="fco"><h1 class="large">' + esc(stu.first_name) + '</h1><p class="subtitle">' + esc(w.title) + (c.submitted_at ? ' · rendue le ' + fmtDateTime(c.submitted_at) : '') + '</p>' +
+      '<div class="copy-score"><span class="n" id="csc"></span><span class="t" id="ctt"></span></div><p class="foot" id="ctodo" style="margin:0 0 8px"></p>' +
+      '<p class="foot">Vert : juste · rouge : faux · violet : à corriger par toi. Touche une case pour voir la réponse de l’élève et changer les points.</p>' +
+      FZ.pagesHtml(w.pages || []) +
+      '<div class="section-h">Mot général</div><div class="group"><textarea class="field" rows="3" id="cgen" placeholder="Facultatif. Ex. : Bien pour les calculs, revois le schéma.">' + esc(st.general) + '</textarea></div>' +
+      '<button class="btn purple mt2" id="csend">' + (c.status === 'corrected' ? 'Mettre à jour la correction' : 'Renvoyer la correction à ' + esc(stu.first_name)) + '</button>' +
+      '<p class="foot">' + (c.status === 'corrected' ? 'Correction envoyée le ' + fmtDateTime(c.corrected_at) + '.' : esc(stu.first_name) + ' verra sa fiche corrigée et sa note formative dans l’onglet Évaluation.') + '</p></div><div class="zpanel" id="zp" hidden></div>';
+    this.shell('evals', html);
+    const panel = document.getElementById('zp');
+    const draw = () => {
+      const T = FZ.totals(zones, ans, st.marks);
+      document.querySelectorAll('.fzl').forEach(L => {
+        const pg = +L.dataset.pg;
+        L.innerHTML = zones.filter(z => z.page === pg).map(z => {
+          const it = FZ.itemOf(T.items, z.id), p = FZ.itemPts(it, ans, st.marks);
+          const cls = 'fz ' + z.kind + (FZ.filled(z, ans[z.id]) ? ' filled' : '') + (p == null ? ' todo' : p >= it.points ? ' ok' : p > 0 ? ' part' : ' ko') + (st.sel === it.key ? ' sel' : '');
+          return FZ.btn(z, cls, FZ.show(z, ans[z.id]));
+        }).join('');
+      });
+      document.getElementById('csc').textContent = FZ.fmt(T.score); document.getElementById('ctt').textContent = '/ ' + FZ.fmt(T.total);
+      document.getElementById('ctodo').textContent = T.todo ? T.todo + ' question' + (T.todo > 1 ? 's' : '') + ' à corriger par toi' : 'Tout est corrigé.';
+      document.getElementById('ctodo').style.color = T.todo ? 'var(--purple)' : '';
+      return T;
+    };
+    const drawPanel = () => {
+      const T = FZ.totals(zones, ans, st.marks), it = T.items.find(x => x.key === st.sel);
+      document.getElementById('fco').classList.toggle('zopen', !!it);
+      if (!it){ panel.hidden = true; return; }
+      panel.hidden = false;
+      const z = it.zones[0], m = st.marks[it.key] || {}, auto = FZ.itemAuto(it, ans), p = FZ.itemPts(it, ans, st.marks);
+      const steps = []; for (let k = 0; k <= it.points + 1e-9; k += (it.points <= 2 ? 0.5 : 1)) steps.push(Math.round(k * 100) / 100);
+      const given = it.zones.length > 1 ? it.zones.map((x, i) => 'Case ' + (i + 1) + ' : ' + FZ.givenText(x, ans[x.id])).join('<br>') : z.kind === 'dessin' ? (ans[z.id] ? 'Dessin sur la fiche' : 'Pas de dessin') : esc(FZ.givenText(z, ans[z.id]) || 'Pas de réponse');
+      const exp = it.zones.length > 1 ? it.zones.map((x, i) => 'Case ' + (i + 1) + ' : ' + FZ.ansText(x)).join('<br>') : esc(FZ.ansText(z) || '');
+      panel.innerHTML = '<div class="zp-head"><b>Question ' + it.n + ' · ' + esc(FZ.name(z.kind)) + '</b><button class="nav-btn bold" data-zx>OK</button></div>' +
+        '<div class="zp-sec">Réponse de ' + esc(stu.first_name) + '</div><div style="font-size:16px">' + given + '</div>' +
+        (exp ? '<div class="zp-sec">Réponse attendue</div><div style="font-size:16px;color:var(--green);font-weight:600">' + exp + '</div>' : '') +
+        '<div class="zp-sec">Points' + (auto != null ? ' (correction automatique : ' + FZ.fmt(auto) + ')' : '') + '</div><div class="seg">' + steps.map(k => '<button data-cp="' + k + '" class="' + (p === k ? 'on' : '') + '">' + fmtNum(k) + '</button>').join('') + '</div>' +
+        '<div class="zp-sec">Commentaire pour l’élève</div><textarea class="field fin" id="ccom" rows="2" placeholder="Facultatif">' + esc(m.com || '') + '</textarea>';
+    };
+    document.querySelectorAll('.fzl').forEach(L => L.addEventListener('click', e => {
+      const zEl = e.target.closest('[data-z]'); if (!zEl) { st.sel = null; draw(); return drawPanel(); }
+      const it = FZ.itemOf(FZ.items(zones), zEl.dataset.z); st.sel = it ? it.key : null; draw(); drawPanel(); FZ.reveal(zEl.dataset.z, panel);
+    }));
+    panel.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.hasAttribute('data-zx')){ st.sel = null; draw(); return drawPanel(); }
+      if (b.dataset.cp != null){ st.marks[st.sel] = { ...(st.marks[st.sel] || {}), pts: +b.dataset.cp }; draw(); const y = panel.scrollTop; drawPanel(); panel.scrollTop = y; }
+    });
+    panel.addEventListener('input', e => { if (e.target.id === 'ccom'){ st.marks[st.sel] = { ...(st.marks[st.sel] || {}), com: e.target.value }; } });
+    document.getElementById('cgen').oninput = e => { st.general = e.target.value; };
+    document.getElementById('csend').onclick = async () => {
+      const T = FZ.totals(zones, ans, st.marks);
+      if (T.todo && !await confirmDialog('Il reste ' + T.todo + ' question' + (T.todo > 1 ? 's' : '') + ' à corriger', 'Elles compteront 0 point. Renvoyer quand même ?', 'Renvoyer')) return;
+      const marks = {}; T.items.forEach(it => { const m = st.marks[it.key] || {}, p = FZ.itemPts(it, ans, st.marks); marks[it.key] = { pts: p == null ? 0 : p, ...(String(m.com || '').trim() ? { com: String(m.com).trim() } : {}) }; });
+      const score = Object.values(marks).reduce((a, m) => a + m.pts, 0);
+      const { error } = await sb.from('worksheet_copies').update({ marks, score: Math.round(score * 100) / 100, total: T.total, general: String(st.general || '').trim() || null, status: 'corrected', corrected_at: new Date().toISOString(), seen_at: null, updated_at: new Date().toISOString() }).eq('id', cid);
+      if (error) return toast('Erreur : ' + esc(error.message));
+      await this.load(); go('#/prof/fsend/' + c.send_id); toast('Correction envoyée à ' + esc(stu.first_name));
+    };
+    draw();
+  }
+});
+
 async function route(){
   if (Student.exam){ Student.examDisarm(); Student.exam = false; }
   clearTimeout(Student._hp);
