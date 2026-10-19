@@ -1581,7 +1581,8 @@ const Student = {
     const s = this.cardSess, c = this.cardStats();
     $app.innerHTML = '<div class="screen center result"><div class="app-icon" style="background:linear-gradient(160deg,#4da3ff,#0062e0);box-shadow:none">' + I.cards + '</div>' +
       '<h1>Session terminée</h1><p>' + s.known + ' carte' + (s.known > 1 ? 's' : '') + ' sue' + (s.known > 1 ? 's' : '') + ' du premier coup sur ' + s.total + '.</p>' +
-      '<p>Cartes maîtrisées : ' + c.mastered + ' / ' + c.all.length + '. Les cartes ratées reviendront demain.</p>' +
+      '<p>Cartes maîtrisées : ' + c.mastered + ' / ' + c.all.length + '. Une carte est maîtrisée quand tu l\u2019as sue 4 fois, à quelques jours d\u2019écart.</p>' +
+      '<p>' + (s.known ? 'Les cartes sues reviendront dans quelques jours pour vérifier que tu t\u2019en souviens.' : '') + (s.known < s.total ? (s.known ? ' ' : '') + 'Les cartes ratées reviendront demain.' : '') + '</p>' +
       '<div class="stack mt2"><button class="btn" id="b1">Retour à J’étudie</button></div></div>';
     document.getElementById('b1').onclick = () => { this.stab = 'study'; this.renderList(); };
   },
