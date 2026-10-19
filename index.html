@@ -358,6 +358,10 @@ select.leg:disabled{opacity:1;color:var(--label)}
 .col-h{font-size:24px;font-weight:700;margin:22px 0 4px;color:var(--purple)}
 @media (min-width:1000px){ body.prof .tabbar a[href$="/evals"] svg{color:var(--purple)} body.prof .tabbar a[href$="/evals"].on{background:color-mix(in srgb,var(--purple) 14%,transparent);color:var(--purple)} }
 .pill.teal{background:color-mix(in srgb,var(--teal) 16%,transparent);color:var(--teal)}.btn.teal{background:var(--teal)}
+.ctlrow{box-shadow:inset 3px 0 0 var(--indigo)}.btn.indigo{background:var(--indigo)}
+.ctl-h{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.01em;color:var(--indigo);margin:14px 16px 7px;display:flex;align-items:center;gap:6px}
+.ctl-h:before{content:'';width:8px;height:8px;border-radius:2px;background:var(--indigo)}
+.rev-h{color:var(--blue)}.rev-h:before{background:var(--blue)}
 .rec-on{background:var(--red)!important;color:#fff!important;animation:recp 1.4s ease-in-out infinite}@keyframes recp{50%{opacity:.75}}
 #rmic{display:flex;align-items:center;justify-content:center;gap:8px}
 .stp{background:var(--card);border-radius:14px;padding:12px 14px 14px;margin-top:12px}.stp-h{font-size:12px;font-weight:700;text-transform:uppercase;color:var(--blue);letter-spacing:.02em}
@@ -1300,8 +1304,11 @@ const Student = {
         const [lab, col] = this.status(a);
         const n = a.done ? A(a) : null;
         const meta = [a.subject, a.due_date && !a.done ? 'Pour le ' + fmtDate(a.due_date) : null, n && !n.anchored && !n.due ? 'Reviens à partir du ' + fmtDate(n.next) : null, n && n.due ? 'Refais-la pour bien la retenir' : null, a.best_percent != null ? 'Meilleur score : ' + a.best_percent + ' %' : null].filter(Boolean).join(' · ');
-        return '<button class="row exrow" data-id="' + a.id + '"><div class="main"><div class="t">' + esc(a.title) + '</div><div class="s">' + esc(meta || a.question_count + ' questions') + '</div></div><span class="pill ' + col + '">' + lab + '</span><span class="chev">' + I.chevR + '</span></button>';
+        return '<button class="row ' + (a.is_control ? 'ctlrow' : 'exrow') + '" data-id="' + a.id + '"><div class="main"><div class="t">' + esc(a.title) + '</div><div class="s">' + esc(meta || a.question_count + ' questions') + '</div></div><span class="pill ' + col + '">' + lab + '</span><span class="chev">' + I.chevR + '</span></button>';
       };
+      const grp = (items, foot) => { const rv = items.filter(a => !a.is_control), ct = items.filter(a => a.is_control);
+        if (!ct.length) return '<div class="group">' + rv.map(row).join('') + '</div>' + (foot || '');
+        return (rv.length ? '<div class="ctl-h rev-h">Révisions</div><div class="group">' + rv.map(row).join('') + '</div>' : '') + '<div class="ctl-h">Contrôles</div><div class="group">' + ct.map(row).join('') + '</div>' + (foot || ''); };
       const name = this.me ? this.me.first_name : '';
       const days = new Set(h.days || []);
       const t = new Date(), dow = (t.getDay() + 6) % 7, monday = new Date(t); monday.setDate(t.getDate() - dow);
@@ -1319,10 +1326,10 @@ const Student = {
         ? '<div class="hero" style="--hc:var(--purple)"><div class="hero-k">En ce moment en classe</div><div class="hero-t">' + esc(evOpen[0].title) + '</div><div class="hero-s">Ton professeur a lancé une évaluation.</div><button class="btn purple" id="goeval">Aller à l\u2019évaluation</button></div>'
         : top
         ? (() => { const late = !top.done && top.due_date && top.due_date < today, ctl = top.control_open, rev = top.done && !ctl;
-            const col = ctl ? 'var(--blue)' : late ? 'var(--red)' : rev ? 'var(--teal)' : 'var(--blue)';
+            const col = ctl ? 'var(--blue)' : late ? 'var(--red)' : rev ? 'var(--teal)' : top.is_control ? 'var(--indigo)' : 'var(--blue)';
             const sub = ctl ? 'Tu as acquis la série. Il te reste le test de contrôle.' : rev ? 'Révision d\u2019ancrage : réussis-la encore une fois pour la retenir durablement (' + A(top).level + ' réussite' + (A(top).level > 1 ? 's' : '') + ' sur ' + A(top).anchor + ').' : late ? 'En retard : c\u2019était pour le ' + fmtDate(top.due_date) + '.' : top.due_date ? 'Pour le ' + fmtDate(top.due_date) + ' · ' + top.question_count + ' questions' : top.question_count + ' questions';
-            return '<div class="hero" style="--hc:' + col + '"><div class="hero-k">À faire maintenant</div><div class="hero-t">' + esc(top.title) + '</div><div class="hero-s">' + sub + (top.best_percent != null && !ctl ? ' · meilleur score ' + top.best_percent + ' %' : '') + '</div>' +
-              '<button class="btn' + (late ? ' red' : rev ? ' teal' : '') + '" data-id="' + top.id + '">' + (ctl ? 'Passer le test' : rev ? 'Réviser' : top.attempt_count ? 'Continuer' : 'Commencer') + '</button></div>'; })()
+            return '<div class="hero" style="--hc:' + col + '"><div class="hero-k">' + (top.is_control ? 'Contrôle à faire' : 'À faire maintenant') + '</div><div class="hero-t">' + esc(top.title) + '</div><div class="hero-s">' + sub + (top.best_percent != null && !ctl ? ' · meilleur score ' + top.best_percent + ' %' : '') + '</div>' +
+              '<button class="btn' + (late ? ' red' : rev ? ' teal' : top.is_control && !ctl ? ' indigo' : '') + '" data-id="' + top.id + '">' + (ctl ? 'Passer le test' : rev ? 'Réviser' : top.attempt_count ? 'Continuer' : 'Commencer') + '</button></div>'; })()
         : '<div class="hero" style="--hc:var(--green)"><div class="hero-k">Bravo</div><div class="hero-t">Tout est fait !</div><div class="hero-s">Tu n\u2019as aucun exercice à faire. Envie de réviser un peu ?</div><button class="btn green" id="tostudy">Aller dans J\u2019étudie</button></div>';
       body = '<h1 class="large">Bonjour ' + esc(name) + '</h1><p class="subtitle">' + esc(this.me ? this.me.class_name : '') + '</p>' +
         hero +
@@ -1331,11 +1338,11 @@ const Student = {
         (h.challenge && h.challenge.target ? (() => { const ch = h.challenge, pc = Math.min(100, Math.round(ch.done / ch.target * 100)), ok = ch.done >= ch.target;
           return '<div class="progress-card challenge"><div class="row1"><div style="font-weight:600;display:flex;align-items:center;gap:8px"><span style="color:var(--purple);display:flex">' + I.users.replace('width="22" height="22"', 'width="20" height="20"') + '</span>Défi de la classe</div><div style="font-variant-numeric:tabular-nums;font-weight:600;color:' + (ok ? 'var(--green)' : 'var(--label2)') + '">' + ch.done + ' / ' + ch.target + '</div></div>' +
             '<div class="bar" style="height:8px;margin-top:10px"><i style="width:' + pc + '%;background:' + (ok ? 'var(--green)' : 'var(--purple)') + '"></i></div><div style="font-size:14px;color:var(--label2);margin-top:8px">' + (ok ? 'Objectif atteint : bravo à toute la classe !' : 'Bonnes réponses de toute la classe cette semaine. Chacune compte !') + '</div></div>'; })() : '') +
-        (rest.length ? '<div class="section-h">' + (top ? 'Ensuite' : 'À faire') + ' (' + rest.length + ')</div><div class="group">' + rest.map(row).join('') + '</div>' : '') +
+        (rest.length ? '<div class="section-h">' + (top ? 'Ensuite' : 'À faire') + ' (' + rest.length + ')</div>' + grp(rest) : '') +
         (mis.length ? '<div class="section-h">Réviser</div><div class="group"><button class="row" id="mist"><div class="main"><div class="t">Mes erreurs</div><div class="s">' + mis.length + ' question' + (mis.length > 1 ? 's' : '') + ' ratée' + (mis.length > 1 ? 's' : '') + ' à retravailler</div></div><span class="pill orange">' + mis.length + '</span><span class="chev">' + I.chevR + '</span></button></div>' : '') +
-        (waiting.length ? '<div class="section-h">En cours d\u2019ancrage (' + waiting.length + ')</div><div class="group">' + waiting.map(row).join('') + '</div><p class="foot">Pour retenir durablement, chaque série se réussit 3 fois, à quelques jours d\u2019écart. L\u2019appli te dit quand revenir.</p>' : '') +
-        (done.length ? '<div class="section-h">Acquises · tu peux les refaire pour réviser</div><div class="group">' + done.map(row).join('') + '</div>' : '') +
-        (archived.length ? '<button class="tools-toggle" id="archtog"><b>Archives</b><span>' + (this._archOpen ? 'Masquer' : 'Afficher (' + archived.length + ')') + '</span></button>' + (this._archOpen ? '<div class="group">' + archived.map(row).join('') + '</div><p class="foot">Les séries acquises depuis plus d\u2019une semaine sont rangées ici. Tu les retrouves aussi dans J\u2019étudie.</p>' : '') : '') +
+        (waiting.length ? '<div class="section-h">En cours d\u2019ancrage (' + waiting.length + ')</div>' + grp(waiting) + '<p class="foot">Pour retenir durablement, chaque série se réussit 3 fois, à quelques jours d\u2019écart. L\u2019appli te dit quand revenir.</p>' : '') +
+        (done.length ? '<div class="section-h">Acquises · tu peux les refaire pour réviser</div>' + grp(done) : '') +
+        (archived.length ? '<button class="tools-toggle" id="archtog"><b>Archives</b><span>' + (this._archOpen ? 'Masquer' : 'Afficher (' + archived.length + ')') + '</span></button>' + (this._archOpen ? grp(archived) + '<p class="foot">Les séries acquises depuis plus d\u2019une semaine sont rangées ici. Tu les retrouves aussi dans J\u2019étudie.</p>' : '') : '') +
         '<a class="link-quiet" href="#" id="logout">Ce n’est pas toi ? Changer de code</a>';
       if (wideScreen()) body = '<div class="cols"><div class="col-ex">' + body + '</div><div class="col-ev">' + this.evalBody(evals, evOpen, true) + '</div></div>';
     } else if (tab === 'study'){
@@ -1823,9 +1830,12 @@ const Student = {
     document.getElementById('b1').onclick = () => { this.stab = 'study'; this.renderList(); };
   },
   chapterPicker(title, foot, rows, mix, run){
+    const cs = new Set((this.list || []).filter(a => a.is_control).map(a => a.id)), isC = r => cs.has(r.x.assignment_id);
+    rows = rows.filter(r => !isC(r)).concat(rows.filter(isC));
+    const firstC = rows.findIndex(isC), anyR = rows.some(r => !isC(r));
     openSheet('<div class="grabber"></div><div class="sheet-head"><span></span><h2>' + title + '</h2><button class="nav-btn bold" data-close>Fermer</button></div>' +
-      '<div class="group">' + (mix ? '<button class="row" data-cp="all"><span style="color:var(--green);display:flex">' + I.target + '</span><div class="main"><div class="t">Tout mélanger</div><div class="s">Tous tes chapitres</div></div><span class="chev">' + I.chevR + '</span></button>' : '') +
-      rows.map((r, k) => '<button class="row" data-cp="' + k + '"><div class="main"><div class="t">' + esc(r.x.set_title) + '</div><div class="s">' + esc(r.sub) + '</div></div><span class="chev">' + I.chevR + '</span></button>').join('') + '</div>' +
+      ('<div class="group">' + (mix ? '<button class="row" data-cp="all"><span style="color:var(--green);display:flex">' + I.target + '</span><div class="main"><div class="t">Tout mélanger</div><div class="s">Tous tes chapitres</div></div><span class="chev">' + I.chevR + '</span></button>' : '') +
+      rows.map((r, k) => (k === firstC ? '</div><div class="ctl-h">Contrôles</div><div class="group">' : k === 0 && cs.size && anyR && firstC > -1 ? '</div><div class="ctl-h rev-h">Révisions</div><div class="group">' : '') + '<button class="row' + (isC(r) ? ' ctlrow' : firstC > -1 ? ' exrow' : '') + '" data-cp="' + k + '"><div class="main"><div class="t">' + esc(r.x.set_title) + '</div><div class="s">' + esc(r.sub) + '</div></div><span class="chev">' + I.chevR + '</span></button>').join('') + '</div>').split('<div class="group"></div>').join('') +
       '<p class="foot">' + nb(foot) + '</p>', (el, close) => el.querySelectorAll('[data-cp]').forEach(b => b.onclick = () => {
         const pick = b.dataset.cp === 'all' ? rows.map(r => r.x) : [rows[+b.dataset.cp].x]; close(); setTimeout(() => run(pick), 250);
       }));
@@ -3499,7 +3509,7 @@ const Prof = {
     const countFor = id => this.assignments.filter(a => a.set_id === id).length;
     const rowS = s => {
       const n = countFor(s.id);
-      return '<button class="row exrow" data-s="' + s.id + '"><div class="main"><div class="t">' + esc(s.title) + '</div><div class="s">' +
+      return '<button class="row ' + ((this.sets || []).some(z => z.control_set_id === s.id) ? 'ctlrow' : 'exrow') + '" data-s="' + s.id + '"><div class="main"><div class="t">' + esc(s.title) + '</div><div class="s">' +
         [s.subject ? esc(s.subject) : null, s.questions.length + ' question' + (s.questions.length > 1 ? 's' : '') + (s.draw_count && s.draw_count < s.questions.length ? ' (' + s.draw_count + ' par essai)' : ''), n ? n + ' élève' + (n > 1 ? 's' : '') : 'non assignée'].filter(Boolean).join(' · ') +
         '</div></div><span class="chev">' + I.chevR + '</span></button>';
     };
