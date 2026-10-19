@@ -1212,6 +1212,7 @@ const Student = {
     if (error || !data) return this.offline();
     this.copies = cp.error ? (this.copies || []) : (cp.data || []);
     this.home = data; this.list = data.assignments || []; this.practice = false;
+    this.list.forEach(a => { if (a.control_open && !anchorInfo(a.passes, a.anchor).anchored) a.control_open = false; });
     this.renderList();
     if (!silent && !store.get('exos_tour_' + this.code)) setTimeout(() => this.showTour(), 350);
   },
@@ -1319,7 +1320,7 @@ const Student = {
         : top
         ? (() => { const late = !top.done && top.due_date && top.due_date < today, ctl = top.control_open, rev = top.done && !ctl;
             const col = ctl ? 'var(--blue)' : late ? 'var(--red)' : rev ? 'var(--teal)' : 'var(--blue)';
-            const sub = ctl ? 'Tu as validé la série. Il te reste le test de contrôle.' : rev ? 'Révision d\u2019ancrage : réussis-la encore une fois pour la retenir durablement (' + A(top).level + ' réussite' + (A(top).level > 1 ? 's' : '') + ' sur ' + A(top).anchor + ').' : late ? 'En retard : c\u2019était pour le ' + fmtDate(top.due_date) + '.' : top.due_date ? 'Pour le ' + fmtDate(top.due_date) + ' · ' + top.question_count + ' questions' : top.question_count + ' questions';
+            const sub = ctl ? 'Tu as acquis la série. Il te reste le test de contrôle.' : rev ? 'Révision d\u2019ancrage : réussis-la encore une fois pour la retenir durablement (' + A(top).level + ' réussite' + (A(top).level > 1 ? 's' : '') + ' sur ' + A(top).anchor + ').' : late ? 'En retard : c\u2019était pour le ' + fmtDate(top.due_date) + '.' : top.due_date ? 'Pour le ' + fmtDate(top.due_date) + ' · ' + top.question_count + ' questions' : top.question_count + ' questions';
             return '<div class="hero" style="--hc:' + col + '"><div class="hero-k">À faire maintenant</div><div class="hero-t">' + esc(top.title) + '</div><div class="hero-s">' + sub + (top.best_percent != null && !ctl ? ' · meilleur score ' + top.best_percent + ' %' : '') + '</div>' +
               '<button class="btn' + (late ? ' red' : rev ? ' teal' : '') + '" data-id="' + top.id + '">' + (ctl ? 'Passer le test' : rev ? 'Réviser' : top.attempt_count ? 'Continuer' : 'Commencer') + '</button></div>'; })()
         : '<div class="hero" style="--hc:var(--green)"><div class="hero-k">Bravo</div><div class="hero-t">Tout est fait !</div><div class="hero-s">Tu n\u2019as aucun exercice à faire. Envie de réviser un peu ?</div><button class="btn green" id="tostudy">Aller dans J\u2019étudie</button></div>';
@@ -2396,6 +2397,7 @@ const Student = {
     loading();
     const { data, error } = await sb.rpc('student_get_set', { p_code: this.code, p_assignment_id: id });
     if (error || !data){ toast('Impossible d\u2019ouvrir cet exercice'); return this.loadList(); }
+    if (data.control && data.control.available && !anchorInfo(data.passes, data.anchor).anchored) data.control.available = false;
     this.set = data; this.renderIntro();
   },
 
@@ -2408,7 +2410,7 @@ const Student = {
       ? '<div class="evcard"><span class="pill ' + (C.percent >= s.pass_score ? 'green' : 'orange') + '">Test de contrôle fait</span><div class="ev-title">' + C.score + ' / ' + C.total + ' · ' + C.percent + ' %</div>' +
         (s.eval_before != null ? '<div style="color:var(--label2);font-size:15px">À l\u2019évaluation : ' + s.eval_before + ' %. ' + (C.percent > s.eval_before ? 'Tu as progressé de ' + (C.percent - s.eval_before) + ' points, bravo !' : 'Continue à t\u2019entraîner : ton professeur voit tes efforts.') + '</div>' : '<div style="color:var(--label2);font-size:15px">Ton professeur voit ton résultat.</div>') + '</div>'
       : C.available
-        ? '<div class="evcard"><span class="pill blue">Débloqué</span><div class="ev-title">Test de contrôle</div><div style="color:var(--label2);font-size:15px">Tu as validé la série. Montre maintenant ce que tu as retenu : ' + C.count + ' questions nouvelles, un seul essai, la correction à la fin.</div><button class="btn mt" id="ctlgo">Commencer le test</button></div>'
+        ? '<div class="evcard"><span class="pill blue">Débloqué</span><div class="ev-title">Test de contrôle</div><div style="color:var(--label2);font-size:15px">Tu as acquis la série. Montre maintenant ce que tu as retenu : ' + C.count + ' questions nouvelles, un seul essai, la correction à la fin.</div><button class="btn mt" id="ctlgo">Commencer le test</button></div>'
         : '';
     $app.innerHTML = nav('<button class="nav-btn" id="back">' + I.chevL + '<span>Mes exercices</span></button>') +
       '<div class="wrap notab"><h1 class="large">' + esc(s.title) + '</h1>' + (s.subject ? '<p class="subtitle">' + esc(s.subject) + '</p>' : '') + ctlCard +
@@ -2419,7 +2421,7 @@ const Student = {
       '<div class="row"><div class="main t">Questions</div><span class="val">' + (s.draw_count && s.draw_count < s.questions.length ? s.draw_count + ', nouvelles à chaque essai' : s.questions.length) + '</span></div>' +
       '<div class="row"><div class="main t">Pour valider</div><span class="val">' + s.pass_score + ' %</span></div>' +
       ((s.anchor || 1) > 1 && s.assignment_id ? (() => { const n = anchorInfo(s.passes, s.anchor); return '<div class="row"><div class="main t">Ancrage</div><span class="val">' + (n.anchored ? 'Acquise ✓' : n.level + ' réussite' + (n.level > 1 ? 's' : '') + ' sur ' + n.anchor + (n.next ? (n.due ? ' · à refaire maintenant' : ' · prochaine le ' + fmtDate(n.next)) : '')) + '</span></div>'; })() : '') +
-      (C && !C.available && !C.done ? '<div class="row"><div class="main t">Ensuite</div><span class="val">Test de contrôle (' + C.count + ' questions)</span></div>' : '') +
+      (C && !C.available && !C.done ? '<div class="row"><div class="main t">Ensuite</div><span class="val">Test de contrôle (' + C.count + ' questions)' + ((s.anchor || 1) > 1 ? ', une fois la série acquise' : '') + '</span></div>' : '') +
       (info.due_date ? '<div class="row"><div class="main t">À faire pour le</div><span class="val">' + fmtDate(info.due_date) + '</span></div>' : '') +
       (info.attempt_count ? '<div class="row"><div class="main t">Tes essais</div><span class="val">' + info.attempt_count + ' · meilleur ' + info.best_percent + ' %</span></div>' : '') +
       '</div>' +
@@ -2997,10 +2999,10 @@ const Student = {
         return '<div class="msg-card" style="text-align:left"><div class="from">Ancrage</div>' + txt + '</div>'; })() : '') +
       (res.passed && this.set.success_message && !this.preview ? '<div class="msg-card"><div class="from">Message de ton professeur</div>' + esc(this.set.success_message.replace(/\{pr[ée]nom\}/gi, this.me ? this.me.first_name : '')) + '</div>' : '') +
       (this.preview ? '<p><span class="pill blue">Aperçu : rien n\u2019a été enregistré</span></p>' : '') +
-      (res.passed && !this.preview && this.set.control && !this.set.control.done ? '<div class="msg-card" style="text-align:left"><div class="from">Étape suivante</div>Ton test de contrôle est débloqué : ' + this.set.control.count + ' questions nouvelles, un seul essai.</div>' : '') +
+      (res.passed && !this.preview && this.set.control && !this.set.control.done && anchorInfo((this.set.passes || []).concat([todayLocal()]), this.set.anchor).anchored ? '<div class="msg-card" style="text-align:left"><div class="from">Étape suivante</div>Ton test de contrôle est débloqué : ' + this.set.control.count + ' questions nouvelles, un seul essai.</div>' : '') +
       '<div class="stack mt2">' +
       (res.passed
-        ? (res.passed && !this.preview && this.set.control && !this.set.control.done ? '<button class="btn" id="b3">Passer le test de contrôle</button><button class="btn plain" id="b1">Plus tard</button>' : '<button class="btn" id="b1">' + (this.preview ? 'Terminer l\u2019aperçu' : 'Mes exercices') + '</button><button class="btn plain" id="b2">Refaire pour réviser</button>')
+        ? (res.passed && !this.preview && this.set.control && !this.set.control.done && anchorInfo((this.set.passes || []).concat([todayLocal()]), this.set.anchor).anchored ? '<button class="btn" id="b3">Passer le test de contrôle</button><button class="btn plain" id="b1">Plus tard</button>' : '<button class="btn" id="b1">' + (this.preview ? 'Terminer l\u2019aperçu' : 'Mes exercices') + '</button><button class="btn plain" id="b2">Refaire pour réviser</button>')
         : '<button class="btn" id="b2">Recommencer</button><button class="btn plain" id="b1">' + (this.preview ? 'Terminer l\u2019aperçu' : 'Mes exercices') + '</button>') +
       '</div></div>';
     requestAnimationFrame(() => requestAnimationFrame(() => { document.getElementById('arc').style.strokeDashoffset = C * (1 - res.percent / 100); }));
@@ -3775,7 +3777,7 @@ const Prof = {
       '<div class="section-h">Test de contrôle</div><div class="group"><div class="row"><div class="main t">Questions tirées de</div><select class="field" data-f="control_set_id" id="ctlsel" style="width:auto;max-width:60%;padding:6px 0;text-align:right;color:var(--blue);background:transparent;-webkit-appearance:none;appearance:none;border:0">' +
         '<option value="">Pas de test</option>' + this.folderGroups(this.sets.filter(x => x.id !== id)).map(([f, list]) => '<optgroup label="' + esc(f || 'Sans dossier') + '">' + list.map(x => '<option value="' + x.id + '"' + (d.control_set_id === x.id ? ' selected' : '') + '>' + esc(x.title) + ' (' + x.questions.length + ' q.)</option>').join('') + '</optgroup>').join('') + '</select></div>' +
         (d.control_set_id ? '<div class="inner-pad" style="border-top:.5px solid var(--sep)"><div class="seg">' + [8, 10, 12, 15].map(k => '<button data-act="ccount" data-v="' + k + '" class="' + ((d.control_count || 10) === k ? 'on' : '') + '">' + k + ' questions</button>').join('') + '</div></div>' : '') + '</div>' +
-      '<p class="foot">Quand l\u2019élève a validé la série, un test de contrôle se débloque : des questions tirées au hasard dans la série choisie, un seul essai, la correction à la fin. Tu vois ensuite ses progrès par rapport à l\u2019évaluation. Choisis une autre série que celle-ci, pour que l\u2019élève ne retrouve pas les mêmes questions.</p>' +
+      '<p class="foot">Quand l\u2019élève a acquis la série (après sa dernière réussite d\u2019ancrage), un test de contrôle se débloque : des questions tirées au hasard dans la série choisie, un seul essai, la correction à la fin. Tu vois ensuite ses progrès par rapport à l\u2019évaluation. Choisis une autre série que celle-ci, pour que l\u2019élève ne retrouve pas les mêmes questions.</p>' +
       '<div class="section-h">Questions (' + d.questions.length + ')</div>' +
       (d.questions.length ? d.questions.map(qHtml).join('') : '<div class="empty">Ajoute une première question avec les boutons ci-dessous.</div>') +
       '<div class="add-row"><button data-act="addq" data-t="qcm">' + I.qcm + 'Choix multiple</button><button data-act="addq" data-t="vf">' + I.vf + 'Vrai ou faux</button><button data-act="addq" data-t="trous">' + I.trous + 'Texte à trous</button><button data-act="addq" data-t="chrono">' + I.chrono + 'Ligne du temps</button><button data-act="addq" data-t="image">' + I.image + 'Image à légender</button><button data-act="addq" data-t="assoc">' + I.assoc + 'Associer</button><button data-act="addq" data-t="classer">' + I.classer + 'Classer</button><button data-act="addq" data-t="clic">' + I.clic + 'Toucher sur la carte</button><button data-act="addq" data-t="etapes">' + I.etapes + 'Analyse de document</button><button data-act="addq" data-t="nombre">' + I.nombre + 'Lire une valeur</button><button data-act="addq" data-t="frise">' + I.frise + 'Placer sur une frise</button><button data-act="addq" data-t="intrus">' + I.intrus + 'Trouver l’intrus</button><button data-act="addq" data-t="vfc">' + I.vfc + 'Vrai ou faux à corriger</button><button data-act="addq" data-t="lien">' + I.lien + 'Cause ou conséquence</button></div>' +
