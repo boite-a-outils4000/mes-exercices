@@ -452,6 +452,8 @@ a.cblock.row{display:flex;color:inherit;text-decoration:none}
 .page-coms{margin:-4px 0 22px}
 .ccom{padding:12px 16px;border-bottom:.5px solid var(--sep);line-height:1.45}.ccom:last-child{border-bottom:0}
 .ccom .lab{font-weight:700;color:var(--blue);font-size:15px;margin-bottom:2px}.ccom .txt{font-size:16px}
+.ccor .given{font-size:15px;color:var(--red)}.ccor .given s{text-decoration-thickness:1px}.ccor .given.none{color:var(--label2);text-decoration:none;font-style:italic}
+.ccor .ans{font-size:16px;color:var(--green);font-weight:600;margin-top:2px}.ccor .k{font-size:13px;color:var(--label2);font-weight:400;margin-right:6px}
 .copy-page{display:block;width:100%;border:0;padding:0;background:none;margin:0 0 16px;text-align:center;cursor:zoom-in}
 .copy-page img{width:100%;display:block;border-radius:12px;box-shadow:var(--shadow);background:#fff}
 .copy-page span{display:block;font-size:13px;color:var(--label2);margin-top:6px}
@@ -1464,7 +1466,12 @@ const Student = {
     const all = (c.comments || []).filter(x => String(x.text || '').trim()), nPg = (c.pages || []).length;
     const onPage = k => all.filter(x => +x.page === k + 1);
     const coms = all.filter(x => !(+x.page >= 1 && +x.page <= nPg));
-    const hasAi = all.some(x => x.ai);
+    const cors = (c.corrections || []).filter(x => String(x.answer || '').trim());
+    const corOn = k => cors.filter(x => +x.page === k + 1), corGen = cors.filter(x => !(+x.page >= 1 && +x.page <= nPg));
+    const hasAi = all.some(x => x.ai) || cors.some(x => x.ai);
+    const cbox = list => '<div class="group">' + list.map(x => '<div class="ccom ccor">' + (x.q ? '<div class="lab">' + esc(x.q) + '</div>' : '') +
+      (String(x.given || '').trim() ? '<div class="given"><span class="k">Ta réponse</span><s>' + esc(x.given) + '</s></div>' : '<div class="given none">Pas de réponse</div>') +
+      '<div class="ans"><span class="k">Bonne réponse</span>' + nb(esc(x.answer)).replace(/\n/g, '<br>') + '</div></div>').join('') + '</div>';
     const box = list => '<div class="group">' + list.map(x => '<div class="ccom">' + (x.label ? '<div class="lab">' + esc(x.label) + '</div>' : '') + '<div class="txt">' + nb(esc(x.text)).replace(/\n/g, '<br>') + '</div></div>').join('') + '</div>';
     $app.innerHTML = nav('<button class="nav-btn" id="back">' + I.chevL + '<span>' + esc(backLabel) + '</span></button>') +
       '<div class="wrap notab">' + (previewTag ? '<span class="pill blue">Aperçu élève</span>' : '') +
@@ -1472,10 +1479,12 @@ const Student = {
       (c.score != null && c.total ? '<div class="copy-score"><span class="n">' + fmtNum(c.score) + '</span><span class="t">/ ' + fmtNum(c.total) + '</span></div>' : '') +
       (c.general ? '<div class="msg-card" style="background:color-mix(in srgb,var(--blue) 11%,var(--card))"><div class="from">Le mot de ton professeur</div>' + nb(esc(c.general)).replace(/\n/g, '<br>') + '</div>' : '') +
       (coms.length ? '<div class="section-h">Pour comprendre tes erreurs</div>' + box(coms) : '') +
+      (corGen.length ? '<div class="section-h">Les bonnes réponses</div>' + cbox(corGen) : '') +
       (nPg ? '<div class="section-h">Ma copie</div>' + c.pages.map((p, i) => '<button class="copy-page" data-pg="' + i + '" aria-label="Agrandir la page ' + (i + 1) + '"><img src="' + esc(p.src) + '" alt="Page ' + (i + 1) + ' de ta copie"><span>Page ' + (i + 1) + ' · touche pour agrandir</span></button>' +
-        (onPage(i).length ? '<div class="page-coms"><div class="section-h" style="margin-top:0">Commentaires sur la page ' + (i + 1) + '</div>' + box(onPage(i)) + '</div>' : '')).join('') : '') +
-      (hasAi ? '<p class="foot">Certains commentaires ont été préparés avec l’aide d’une intelligence artificielle, puis relus par ton professeur.</p>' : '') +
-      (!all.length && !nPg && !c.general ? '<div class="empty mt">Ton professeur n’a pas encore ajouté de commentaire.</div>' : '') +
+        (onPage(i).length ? '<div class="page-coms"><div class="section-h" style="margin-top:0">Commentaires sur la page ' + (i + 1) + '</div>' + box(onPage(i)) + '</div>' : '') +
+        (corOn(i).length ? '<div class="page-coms"><div class="section-h" style="margin-top:0">Bonnes réponses de la page ' + (i + 1) + '</div>' + cbox(corOn(i)) + '</div>' : '')).join('') : '') +
+      (hasAi ? '<p class="foot">Certains commentaires ou corrections ont été préparés avec l’aide d’une intelligence artificielle, puis relus par ton professeur.</p>' : '') +
+      (!all.length && !cors.length && !nPg && !c.general ? '<div class="empty mt">Ton professeur n’a pas encore ajouté de commentaire.</div>' : '') +
       '</div>';
     window.scrollTo(0, 0);
     document.getElementById('back').onclick = onBack;
@@ -4565,12 +4574,12 @@ const Prof = {
       if (isNew){
         const sid = id.slice(8);
         if (!this.studentById[sid]) return go('#/prof/classes');
-        this.pdraft = { _for: id, student_id: sid, title: '', copy_date: todayLocal(), score: null, total: null, general: '', comments: [], pages: [], published: false, published_at: null, seen_at: null };
+        this.pdraft = { _for: id, student_id: sid, title: '', copy_date: todayLocal(), score: null, total: null, general: '', comments: [], corrections: [], pages: [], published: false, published_at: null, seen_at: null };
       } else {
         loading();
         const { data, error } = await sb.from('copies').select('*').eq('id', id).maybeSingle();
         if (error || !data){ toast('Copie introuvable'); return go('#/prof/classes'); }
-        this.pdraft = { ...data, _for: id, _was: data.published, general: data.general || '', comments: data.comments || [], pages: data.pages || [] };
+        this.pdraft = { ...data, _for: id, _was: data.published, general: data.general || '', comments: data.comments || [], corrections: data.corrections || [], pages: data.pages || [] };
       }
     }
     const d = this.pdraft, stu = this.studentById[d.student_id];
@@ -4592,7 +4601,20 @@ const Prof = {
           d.pages.map((p, k) => '<option value="' + (k + 1) + '"' + (+c.page === k + 1 ? ' selected' : '') + '>la page ' + (k + 1) + '</option>').join('') + '</select></div>' : '') +
         (pend ? '<button class="row center" data-act="cok" data-i="' + i + '" style="color:var(--purple);font-weight:600;gap:6px">' + I.check + ' J’ai relu, je valide</button>' : '') + '</div>';
     };
-    const pend = d.comments.filter(c => c.ai && !c.ok).length;
+    const corHtml = (c, i) => {
+      const pend = c.ai && !c.ok;
+      return '<div class="qedit"' + (pend ? ' style="box-shadow:inset 0 0 0 2px var(--purple),var(--shadow)"' : '') + '><div class="qedit-head"><span>' + (c.ai ? (pend ? '<b style="color:var(--purple)">Proposé par l’IA · à relire</b>' : 'Proposé par l’IA · validé') : 'Correction') + '</span><div style="display:flex">' +
+        '<button class="icon-btn red" data-act="kdel" data-i="' + i + '" aria-label="Supprimer">' + I.trash + '</button></div></div>' +
+        '<input class="field" data-k="' + i + '" data-f="q" value="' + esc(c.q || '') + '" placeholder="Question (ex. Exercice 2, b)" style="font-weight:600">' +
+        '<input class="field" data-k="' + i + '" data-f="given" aria-label="Réponse de l’élève" value="' + esc(c.given || '') + '" placeholder="Réponse de l’élève (vide s’il n’a rien écrit)" style="color:var(--red)">' +
+        '<textarea class="field" rows="2" data-k="' + i + '" data-f="answer" aria-label="Bonne réponse" placeholder="Bonne réponse" style="color:var(--green)">' + esc(c.answer || '') + '</textarea>' +
+        (nP ? '<div class="row"><div class="main t" style="font-size:15px">Afficher sous</div><select class="field" data-k="' + i + '" data-f="page" style="width:auto;padding:0;text-align:right;color:var(--blue)"><option value="">la liste générale</option>' +
+          d.pages.map((p, k) => '<option value="' + (k + 1) + '"' + (+c.page === k + 1 ? ' selected' : '') + '>la page ' + (k + 1) + '</option>').join('') + '</select></div>' : '') +
+        (pend ? '<button class="row center" data-act="kok" data-i="' + i + '" style="color:var(--purple);font-weight:600;gap:6px">' + I.check + ' J’ai relu, je valide</button>' : '') + '</div>';
+    };
+    const pendingAi = () => d.comments.some(c => c.ai && !c.ok) || d.corrections.some(c => c.ai && !c.ok);
+    const kPend = d.corrections.filter(c => c.ai && !c.ok).length;
+    const pend = d.comments.filter(c => c.ai && !c.ok).length + kPend;
     const status = !d.published ? 'Brouillon : ' + esc(stu.first_name) + ' ne voit pas encore cette copie.'
       : d.seen_at ? 'Vue par ' + esc(stu.first_name) + ' le ' + fmtDateTime(d.seen_at) + '.' : 'Envoyée' + (d.published_at ? ' le ' + fmtDateTime(d.published_at) : '') + ', pas encore ouverte.';
     const html = nav(backBtn('#/prof/eleve/' + d.student_id, stu.first_name), '<button class="nav-btn bold" id="psave">Enregistrer</button>') +
@@ -4613,21 +4635,26 @@ const Prof = {
       (d.comments.length ? d.comments.map(comHtml).join('') : '<div class="empty">Ajoute un commentaire par exercice à expliquer.</div>') +
       '<div class="group mt"><button class="row center" data-act="cadd" style="gap:8px;color:var(--blue)">' + I.plus + ' Ajouter un commentaire</button></div>' +
       '<p class="foot">Commentaires rédigés par l’IA : envoie la copie corrigée à Claude dans ta conversation. Ses propositions arrivent ici en violet, et tu les relis avant l’envoi.</p>' +
+      '<div class="section-h">Corrections des réponses (' + d.corrections.length + ')</div>' +
+      (d.corrections.length ? d.corrections.map(corHtml).join('') + (kPend > 1 ? '<div class="group mt"><button class="row center" data-act="kok-all" style="gap:8px;color:var(--purple);font-weight:600">' + I.check + ' J’ai tout relu, je valide les ' + kPend + ' corrections</button></div>' : '') : '<div class="empty">Pour chaque réponse fausse ou vide : la question, ce que l’élève a écrit et la bonne réponse.</div>') +
+      '<div class="group mt"><button class="row center" data-act="kadd" style="gap:8px;color:var(--blue)">' + I.plus + ' Ajouter une correction</button></div>' +
+      '<p class="foot">Avec l’IA : envoie à Claude, dans ta conversation, la copie et ton correctif. Il complète chaque réponse fausse ou vide d’après le correctif. Ses corrections arrivent ici en violet ; tu les relis avant l’envoi.</p>' +
       '<div class="section-h">Envoi</div><div class="group"><label class="row" style="cursor:pointer"><div class="main"><div class="t">Visible par ' + esc(stu.first_name) + '</div><div class="s">' + status + '</div></div><span class="switch"><input type="checkbox" id="ppub" ' + (d.published ? 'checked' : '') + ' aria-label="Visible par l’élève"><span></span></span></label></div>' +
-      (pend ? '<p class="foot" style="color:var(--purple)">' + pend + ' commentaire' + (pend > 1 ? 's' : '') + ' de l’IA à valider avant l’envoi.</p>' : '') +
+      (pend ? '<p class="foot" style="color:var(--purple)">' + pend + ' proposition' + (pend > 1 ? 's' : '') + ' de l’IA à valider avant l’envoi.</p>' : '') +
       '<div class="group mt2"><button class="row center" data-act="pprev">Voir comme l’élève</button>' + (isNew ? '' : '<button class="row danger" data-act="pdelete">Supprimer la copie</button>') + '</div></div>';
     this.shell('classes', html);
     const ed = document.getElementById('ped');
     const rerender = () => { const y = window.scrollY; this.renderCopyEditor(id); window.scrollTo(0, y); };
-    ed.addEventListener('change', e => { const t = e.target; if (t.matches('select[data-f="page"]')) d.comments[+t.dataset.c].page = t.value ? +t.value : null; });
+    ed.addEventListener('change', e => { const t = e.target; if (t.matches('select[data-f="page"]')) (t.dataset.k !== undefined ? d.corrections[+t.dataset.k] : d.comments[+t.dataset.c]).page = t.value ? +t.value : null; });
     ed.addEventListener('input', e => {
       const t = e.target, f = t.dataset.f; if (!f || f === 'page') return;
-      if (t.dataset.c !== undefined) d.comments[+t.dataset.c][f] = t.value;
+      if (t.dataset.k !== undefined) d.corrections[+t.dataset.k][f] = t.value;
+      else if (t.dataset.c !== undefined) d.comments[+t.dataset.c][f] = t.value;
       else if (f === 'score' || f === 'total') d[f] = t.value;
       else d[f] = t.value;
     });
     document.getElementById('ppub').onchange = e => {
-      if (e.target.checked && d.comments.some(c => c.ai && !c.ok)){ e.target.checked = false; return toast('Valide d’abord les commentaires proposés par l’IA'); }
+      if (e.target.checked && pendingAi()){ e.target.checked = false; return toast('Valide d’abord les propositions de l’IA'); }
       d.published = e.target.checked;
       const sEl = e.target.closest('.row').querySelector('.s');
       if (sEl) sEl.textContent = d.published ? (d._was ? 'Visible. Enregistre pour mettre à jour.' : 'Sera envoyée quand tu touches Enregistrer.') : 'Brouillon : ' + stu.first_name + ' ne verra pas cette copie.';
@@ -4648,8 +4675,8 @@ const Prof = {
     ed.addEventListener('click', async e => {
       const b = e.target.closest('[data-act]'); if (!b) return;
       const act = b.dataset.act, i = +b.dataset.i;
-      if (act === 'pup' && i > 0){ d.comments.forEach(c => { if (c.page === i + 1) c.page = i; else if (c.page === i) c.page = i + 1; }); [d.pages[i - 1], d.pages[i]] = [d.pages[i], d.pages[i - 1]]; return rerender(); }
-      if (act === 'pdel'){ if (await confirmDialog('Retirer la page ' + (i + 1) + ' ?', '', 'Retirer', true)){ d.pages.splice(i, 1); d.comments.forEach(c => { if (c.page === i + 1) c.page = null; else if (c.page > i + 1) c.page--; }); rerender(); } return; }
+      if (act === 'pup' && i > 0){ d.comments.concat(d.corrections).forEach(c => { if (c.page === i + 1) c.page = i; else if (c.page === i) c.page = i + 1; }); [d.pages[i - 1], d.pages[i]] = [d.pages[i], d.pages[i - 1]]; return rerender(); }
+      if (act === 'pdel'){ if (await confirmDialog('Retirer la page ' + (i + 1) + ' ?', '', 'Retirer', true)){ d.pages.splice(i, 1); d.comments.concat(d.corrections).forEach(c => { if (c.page === i + 1) c.page = null; else if (c.page > i + 1) c.page--; }); rerender(); } return; }
       if (act === 'cadd'){
         d.comments.push({ label: '', text: '' }); rerender();
         const cards = document.querySelectorAll('#ped .qedit'); const last = cards[cards.length - 1];
@@ -4660,6 +4687,15 @@ const Prof = {
       if (act === 'cdown' && i < d.comments.length - 1){ [d.comments[i + 1], d.comments[i]] = [d.comments[i], d.comments[i + 1]]; return rerender(); }
       if (act === 'cdel'){ if (await confirmDialog('Supprimer ce commentaire ?', '', 'Supprimer', true)){ d.comments.splice(i, 1); rerender(); } return; }
       if (act === 'cok'){ d.comments[i].ok = true; return rerender(); }
+      if (act === 'kok'){ d.corrections[i].ok = true; return rerender(); }
+      if (act === 'kok-all'){ d.corrections.forEach(c => { if (c.ai) c.ok = true; }); return rerender(); }
+      if (act === 'kdel'){ if (await confirmDialog('Supprimer cette correction ?', '', 'Supprimer', true)){ d.corrections.splice(i, 1); rerender(); } return; }
+      if (act === 'kadd'){
+        d.corrections.push({ q: '', given: '', answer: '' }); rerender();
+        const cards = document.querySelectorAll('#ped [data-k][data-f="q"]'); const last = cards[cards.length - 1];
+        if (last){ last.closest('.qedit').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => last.focus({ preventScroll: true }), 300); }
+        return;
+      }
       if (act === 'exmore' || act === 'exless'){ this.exCount(Math.max(1, Math.min(40, this.exCount() + (act === 'exmore' ? 1 : -1)))); return rerender(); }
       if (act === 'exn'){
         const lab = 'Exercice ' + i; let k = d.comments.findIndex(c => c.label === lab);
@@ -4684,10 +4720,10 @@ const Prof = {
       if (!String(d.title || '').trim()) return toast('Donne un titre à la copie.');
       const sc = parseNum(d.score), tot = parseNum(d.total);
       if (sc === false || tot === false) return toast('La note doit être un nombre (ex. 14,5).');
-      if (d.published && d.comments.some(c => c.ai && !c.ok)) return toast('Valide d’abord les commentaires proposés par l’IA');
+      if (d.published && pendingAi()) return toast('Valide d’abord les propositions de l’IA');
       const comments = d.comments.filter(c => String(c.text || '').trim() || String(c.label || '').trim()).map(c => ({ label: String(c.label || '').trim(), text: String(c.text || '').trim(), ...(c.page ? { page: +c.page } : {}), ...(c.ai ? { ai: true, ok: !!c.ok } : {}) }));
       const payload = { title: d.title.trim(), copy_date: d.copy_date || null, score: sc, total: tot, general: String(d.general || '').trim() || null,
-        comments, pages: d.pages, published: !!d.published, updated_at: new Date().toISOString() };
+        comments, corrections: d.corrections.filter(c => String(c.answer || '').trim()).map(c => ({ q: String(c.q || '').trim(), given: String(c.given || '').trim(), answer: String(c.answer || '').trim(), ...(c.page ? { page: +c.page } : {}), ...(c.ai ? { ai: true, ok: !!c.ok } : {}) })), pages: d.pages, published: !!d.published, updated_at: new Date().toISOString() };
       if (d.published && !d._was) payload.published_at = new Date().toISOString();
       if (!d.published) payload.published_at = null;
       if (JSON.stringify(payload.pages).length > 9e6) return toast('Copie trop lourde : retire une page.');
@@ -4708,7 +4744,7 @@ const Prof = {
   copyView(d){
     const sc = parseNum(d.score), tot = parseNum(d.total);
     return { title: d.title || 'Copie corrigée', copy_date: d.copy_date, score: typeof sc === 'number' ? sc : null, total: typeof tot === 'number' ? tot : null,
-      general: d.general, comments: (d.comments || []).filter(c => String(c.text || '').trim()).map(c => ({ label: c.label, text: c.text, page: c.page || null, ai: !!c.ai })), pages: d.pages };
+      general: d.general, comments: (d.comments || []).filter(c => String(c.text || '').trim()).map(c => ({ label: c.label, text: c.text, page: c.page || null, ai: !!c.ai })), corrections: (d.corrections || []).filter(c => String(c.answer || '').trim()).map(c => ({ q: c.q, given: c.given, answer: c.answer, page: c.page || null, ai: !!c.ai })), pages: d.pages };
   },
 
   addStudentsSheet(c){
