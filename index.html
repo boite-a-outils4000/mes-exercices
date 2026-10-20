@@ -625,7 +625,7 @@ body.jeu-on{overflow:hidden}
 .geo-opts button{min-height:42px;border-radius:10px;border:0;background:var(--card);color:var(--label);font-size:16px;font-weight:600;box-shadow:inset 0 0 0 1px var(--sep);font-variant-numeric:tabular-nums}
 .geo-opts button.ok{background:var(--green);color:#fff;box-shadow:none}.geo-opts button.ko{background:var(--red);color:#fff;box-shadow:none}.geo-opts button:disabled{opacity:1}
 @keyframes geoPulseL{from{stroke:var(--geo-river)}to{stroke:var(--orange)}}
-@media (hover:hover){.geo-hit:hover+.geo-line{stroke:var(--blue)}}
+@media (hover:hover){.geo-hit:hover+.geo-line:not(.ok):not(.miss):not(.ko){stroke:var(--blue)}}
 @media (prefers-reduced-motion:reduce){.geo-c.hint,.geo-c.geo-line.hint,.geo-ring{animation:none}.geo-c.hint{fill:var(--orange)}.geo-c.geo-line.hint{stroke:var(--orange)}}
 .stile .bar{margin-top:auto}
 .study-h{font-size:13px;text-transform:uppercase;color:var(--label2);margin:24px 4px 8px;letter-spacing:.01em}
