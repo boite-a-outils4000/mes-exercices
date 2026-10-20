@@ -543,6 +543,41 @@ a.cblock.row{display:flex;color:inherit;text-decoration:none}
 .stile .ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;margin-bottom:6px}
 .stile .tt{font-weight:600;font-size:16px;line-height:1.25}
 .stile .ss{font-size:13px;color:var(--label2);line-height:1.35}
+/* Jeu des pays d'Europe */
+:root{--geo-sea:#d6ebf8;--geo-land:#f4efe4;--geo-off:#e3e1dc;--geo-ctx:#e9e9ec;--geo-line:#a9a39a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--geo-sea:#0f2233;--geo-land:#4a4740;--geo-off:#34332f;--geo-ctx:#26262a;--geo-line:#7d786e}}
+:root[data-theme="dark"]{--geo-sea:#0f2233;--geo-land:#4a4740;--geo-off:#34332f;--geo-ctx:#26262a;--geo-line:#7d786e}
+.geo{max-width:900px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column}
+.geo .quiz-top{position:static}
+.geo-ask{padding:2px 16px 10px;text-align:center;min-height:76px}
+.geo-ask .q{font-size:14px;color:var(--label2)}
+.geo-ask .n{font-family:Lexend,Inter,system-ui,sans-serif;font-size:28px;font-weight:600;line-height:1.2;letter-spacing:-.01em}
+.geo-ask .fb{font-size:15px;font-weight:500;min-height:21px;margin-top:2px}
+.geo-ask .fb.ok{color:var(--green)}.geo-ask .fb.ko{color:var(--red)}.geo-ask .fb.miss{color:var(--orange)}
+.geo-map{flex:1;min-height:0;position:relative;background:var(--geo-sea);overflow:hidden}
+.geo-map svg{width:100%;height:100%;display:block;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.geo-map path,.geo-map circle{vector-effect:non-scaling-stroke}
+.geo-ctx{fill:var(--geo-ctx);stroke:var(--geo-line);stroke-width:.6}
+.geo-c{fill:var(--geo-land);stroke:var(--geo-line);stroke-width:.8;cursor:pointer;transition:fill .2s}
+.geo-c.off{fill:var(--geo-off)}
+@media (hover:hover){.geo-c:hover{fill:color-mix(in srgb,var(--blue) 22%,var(--geo-land))}}
+.geo-c.sel{fill:color-mix(in srgb,var(--blue) 45%,var(--geo-land))}
+.geo-c.ok{fill:var(--green)}.geo-c.miss{fill:var(--orange)}
+.geo-c.ko{fill:var(--red)}
+.geo-c.hint{animation:geoPulse .9s ease-in-out infinite alternate}
+@keyframes geoPulse{from{fill:var(--geo-land)}to{fill:var(--orange)}}
+.geo-dot{fill:var(--geo-land);stroke:var(--geo-line);stroke-width:1.2;cursor:pointer}
+.geo-dot.ok{fill:var(--green)}.geo-dot.miss,.geo-dot.hint{fill:var(--orange)}.geo-dot.ko{fill:var(--red)}.geo-dot.sel{fill:var(--blue)}
+.geo-ring{fill:none;stroke:var(--orange);stroke-width:2.5;pointer-events:none;animation:geoRing 1s ease-out infinite}
+@keyframes geoRing{from{opacity:1}to{opacity:.15}}
+.geo-cap{fill:var(--label);stroke:var(--card);stroke-width:1.5;pointer-events:none}
+.geo-lbl{font-family:Inter,system-ui,sans-serif;font-weight:600;fill:var(--label);paint-order:stroke;stroke:var(--card);stroke-width:3.5px;stroke-linejoin:round;pointer-events:none}
+.geo-zoom{position:absolute;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px}
+.geo-zoom button{width:40px;height:40px;border-radius:10px;border:0;background:var(--card);color:var(--label);font-size:22px;font-weight:500;box-shadow:0 1px 4px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center}
+.geo-src{position:absolute;left:8px;bottom:calc(6px + env(safe-area-inset-bottom));font-size:10px;color:var(--label2)}
+.geo-next{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));width:auto;padding:0 26px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.geo-info{position:absolute;left:10px;right:60px;bottom:calc(26px + env(safe-area-inset-bottom));background:var(--card);border-radius:14px;padding:12px 14px;box-shadow:0 4px 14px rgba(0,0,0,.18);font-size:15px;line-height:1.4}
+.geo-info b{font-size:18px;display:block}
 .stile .bar{margin-top:auto}
 .study-h{font-size:13px;text-transform:uppercase;color:var(--label2);margin:24px 4px 8px;letter-spacing:.01em}
 .why-link{display:flex;align-items:center;justify-content:center;gap:6px;margin:18px auto 0;border:0;background:none;color:var(--blue);font-size:15px;font-weight:500}
@@ -833,6 +868,7 @@ I.phone = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="c
 I.hi = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V5.5a1.5 1.5 0 013 0V11M11 10.5V4a1.5 1.5 0 013 0v6.5M14 10.5V5.5a1.5 1.5 0 013 0V14a7 7 0 01-7 7h-.5a6.5 6.5 0 01-5.3-2.8L2.5 15.4a1.5 1.5 0 012.3-1.9L8 16"/></svg>';
 I.users = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18.5 14.4c1.8.8 3 2.7 3 5.6"/></svg>';
 I.gauge = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 17a8 8 0 1116 0"/><path d="M12 17l4-5"/><circle cx="12" cy="17" r="1.4" fill="currentColor"/></svg>';
+I.globe = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg>';
 I.map = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>';
 I.steps = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h5v-5h5V9h5V4"/></svg>';
 I.folder = '<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6.5A2.5 2.5 0 0 1 5.5 4h3.6c.7 0 1.3.3 1.8.8L12.3 6h6.2A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/></svg>';
@@ -875,9 +911,23 @@ const CONSIGNES = [
   { c: 'Localise Liège sur la carte en plaçant une croix.', v: ['localise'], m: 'Localiser, c’est montrer où se trouve un lieu.', k: ['doc'],
     a: [['Je place une croix sur Liège, à l’est de la Belgique.', ''], ['J’écris « Liège » dans la marge de la carte.', 'La consigne demande une croix sur la carte, à l’endroit de Liège.'], ['Liège est une ville de Wallonie.', 'Rien n’est placé sur la carte.']] }
 ];
-const STUDY_TOOLS = [['week', 'test', 'Quiz de la semaine'], ['cards', 'test', 'Cartes mémoire'], ['recall', 'test', 'Vide ta tête'], ['conf', 'test', 'Sûr de toi ?'], ['maps', 'test', 'Cartes muettes'], ['pre', 'test', 'Avant le cours'], ['err', 'test', 'Trouve l’erreur'],
+const STUDY_TOOLS = [['week', 'test', 'Quiz de la semaine'], ['cards', 'test', 'Cartes mémoire'], ['recall', 'test', 'Vide ta tête'], ['conf', 'test', 'Sûr de toi ?'], ['maps', 'test', 'Cartes muettes'], ['geo', 'test', 'Pays d’Europe'], ['pre', 'test', 'Avant le cours'], ['err', 'test', 'Trouve l’erreur'],
   ['cons', 'train', 'Lire les consignes'], ['free', 'train', 'Entraînement libre'], ['mist', 'train', 'Mes erreurs'], ['scale', 'train', 'Échelles'], ['clim', 'train', 'Climatogrammes'], ['doc', 'train', 'Analyser un document'],
   ['recaps', 'review', 'Fiches « Je retiens »'], ['timer', 'review', 'Minuteur']];
+// Jeu des pays d'Europe : [pays, capitale, membre de l'UE]. Le fond de carte est dans data/europe.json (Natural Earth, Crimée rattachée à l'Ukraine).
+const GEO_EU = {
+  AL: ['Albanie', 'Tirana'], DE: ['Allemagne', 'Berlin', 1], AD: ['Andorre', 'Andorre-la-Vieille'], AT: ['Autriche', 'Vienne', 1], BE: ['Belgique', 'Bruxelles', 1],
+  BY: ['Biélorussie', 'Minsk'], BA: ['Bosnie-Herzégovine', 'Sarajevo'], BG: ['Bulgarie', 'Sofia', 1], CY: ['Chypre', 'Nicosie', 1], HR: ['Croatie', 'Zagreb', 1],
+  DK: ['Danemark', 'Copenhague', 1], ES: ['Espagne', 'Madrid', 1], EE: ['Estonie', 'Tallinn', 1], FI: ['Finlande', 'Helsinki', 1], FR: ['France', 'Paris', 1],
+  GR: ['Grèce', 'Athènes', 1], HU: ['Hongrie', 'Budapest', 1], IE: ['Irlande', 'Dublin', 1], IS: ['Islande', 'Reykjavik'], IT: ['Italie', 'Rome', 1],
+  XK: ['Kosovo', 'Pristina'], LV: ['Lettonie', 'Riga', 1], LI: ['Liechtenstein', 'Vaduz'], LT: ['Lituanie', 'Vilnius', 1], LU: ['Luxembourg', 'Luxembourg', 1],
+  MK: ['Macédoine du Nord', 'Skopje'], MT: ['Malte', 'La Valette', 1], MD: ['Moldavie', 'Chisinau'], MC: ['Monaco', 'Monaco'], ME: ['Monténégro', 'Podgorica'],
+  NO: ['Norvège', 'Oslo'], NL: ['Pays-Bas', 'Amsterdam', 1], PL: ['Pologne', 'Varsovie', 1], PT: ['Portugal', 'Lisbonne', 1], RO: ['Roumanie', 'Bucarest', 1],
+  GB: ['Royaume-Uni', 'Londres'], RU: ['Russie', 'Moscou'], SM: ['Saint-Marin', 'Saint-Marin'], RS: ['Serbie', 'Belgrade'], SK: ['Slovaquie', 'Bratislava', 1],
+  SI: ['Slovénie', 'Ljubljana', 1], SE: ['Suède', 'Stockholm', 1], CH: ['Suisse', 'Berne'], CZ: ['Tchéquie', 'Prague', 1], UA: ['Ukraine', 'Kiev'], VA: ['Vatican', 'Cité du Vatican']
+};
+const geoDu = k => { const a = geoLe(k); return a.startsWith('le ') ? 'du ' + a.slice(3) : a.startsWith('les ') ? 'des ' + a.slice(4) : 'de ' + a; };
+const geoLe = k => { const n = GEO_EU[k][0]; return (['CY', 'MT', 'MC', 'SM'].includes(k) ? '' : k === 'NL' ? 'les ' : /^[AEIOUÉ]/.test(n) ? 'l’' : /e$/.test(n.split(' ')[0]) ? 'la ' : 'le ') + n; };
 const STUDY_TIPS = [
   'Teste-toi au lieu de relire : essayer de retrouver la réponse dans ta tête, c’est ce qui fait le plus retenir.',
   'Révise un peu chaque jour : 10 minutes par jour valent mieux qu’une heure la veille de l’interro.',
@@ -1407,6 +1457,7 @@ const Student = {
           ['recall', 'test', I.write, 'Vide ta tête', 'Écris tout ce que tu sais'],
           ['conf', 'test', I.gauge, 'Sûr de toi ?', 'Dis si tu es sûr, puis vérifie'],
           ['maps', 'test', I.map, 'Cartes muettes', nMap ? nMap + ' repères à placer' : 'Pas encore de carte'],
+          ['geo', 'test', I.globe, 'Pays d’Europe', 'Jeu : touche le bon pays sur la carte'],
           ['pre', 'test', I.pre, 'Avant le cours', 'Teste-toi avant d’étudier'],
           ['err', 'test', I.bug, 'Trouve l’erreur', 'Repère les phrases fausses'],
           ['cons', 'train', I.consigne, 'Lire les consignes', 'Comprends ce qu’on te demande'],
@@ -1419,7 +1470,7 @@ const Student = {
           ['timer', 'review', I.timer, 'Minuteur', 'Travaille, puis fais une pause']
         ].filter(t => !hidden.has(t[0]));
         const has = k => TOOLS.some(t => t[0] === k);
-        const COL = { week: 'red', cards: 'blue', recall: 'pink', conf: 'indigo', maps: 'teal', pre: 'purple', err: 'red', cons: 'orange', free: 'green', mist: 'orange', scale: 'indigo', clim: 'blue', doc: 'pink', recaps: 'purple', timer: 'teal' };
+        const COL = { week: 'red', cards: 'blue', recall: 'pink', conf: 'indigo', maps: 'teal', geo: 'green', pre: 'purple', err: 'red', cons: 'orange', free: 'green', mist: 'orange', scale: 'indigo', clim: 'blue', doc: 'pink', recaps: 'purple', timer: 'teal' };
         const tile = t => '<button class="stile" data-study="' + t[0] + '"><span class="ic" style="background:var(--' + COL[t[0]] + ')">' + t[2] + '</span><span class="tt">' + t[3] + '</span><span class="ss">' + t[4] + '</span>' + (t[5] || '') + '</button>';
         const sugg = [];
         if (has('cards') && c.today) sugg.push(['cards', 'Revois tes cartes', c.today + ' carte' + (c.today > 1 ? 's' : '') + ' t’attend' + (c.today > 1 ? 'ent' : '') + ' · 5 min', 'test']);
@@ -1483,6 +1534,7 @@ const Student = {
       if (k === 'clim') return this.climLab();
       if (k === 'doc') return this.docLab();
       if (k === 'maps') return this.mapDrill();
+      if (k === 'geo') return this.geoHome();
       if (k === 'scale') return this.scaleLab();
       if (k === 'why') return this.whySheet();
     });
@@ -1872,6 +1924,206 @@ const Student = {
       '<div class="stack mt2"><button class="btn" id="again">Recommencer avec d’autres nombres</button><button class="btn plain" id="b1">Retour à J’étudie</button></div></div>';
     document.getElementById('again').onclick = () => this.scaleLab();
     document.getElementById('b1').onclick = () => { this.stab = 'study'; this.renderList(); };
+  },
+
+  /* ---------- Jeu : pays et capitales d'Europe ---------- */
+  geoOpts(){ let o = {}; try { o = JSON.parse(store.get('exos_geo') || '{}') || {}; } catch(e){} return Object.assign({ mode: 'pays', zone: 'ue', len: '10' }, o); },
+  geoBest(){ try { return JSON.parse(store.get('exos_geo_best') || '{}') || {}; } catch(e){ return {}; } },
+  geoKeys(zone){ return Object.keys(GEO_EU).filter(k => zone === 'all' || GEO_EU[k][2]); },
+  async geoLoad(){
+    if (!this._geo){ const r = await fetch('data/europe.json'); if (!r.ok) throw new Error('carte'); this._geo = await r.json(); }
+    return this._geo;
+  },
+  geoHome(){
+    const o = this.geoOpts(), b = this.geoBest()[o.mode + ':' + o.zone + ':' + o.len], explore = o.mode === 'explore';
+    const seg = (name, opts) => '<div class="seg" data-g="' + name + '">' + opts.map(([k, l]) => '<button data-v="' + k + '" class="' + (o[name] === k ? 'on' : '') + '">' + l + '</button>').join('') + '</div>';
+    const help = { pays: 'Le nom d’un pays s’affiche : touche-le sur la carte. Tu as trois essais.', cap: 'Le nom d’une capitale s’affiche : touche le pays dont c’est la capitale. Tu as trois essais.', explore: 'Touche un pays pour voir son nom et sa capitale. Idéal pour apprendre avant de jouer.' }[o.mode];
+    $app.innerHTML = '<div class="quiz"><div class="quiz-top"><button class="icon-btn mute" id="quit" aria-label="Retour">' + I.x + '</button><div style="flex:1;font-weight:600;text-align:center">Pays d’Europe</div><span class="counter"></span></div>' +
+      '<div class="quiz-body" style="padding-bottom:60px"><div class="app-icon" style="background:linear-gradient(160deg,#4cd964,#1f9e3d);box-shadow:none">' + I.globe + '</div>' +
+      '<div class="section-h">Je joue avec</div>' + seg('mode', [['pays', 'Les pays'], ['cap', 'Les capitales'], ['explore', 'J’explore']]) + '<p class="foot">' + help + '</p>' +
+      '<div class="section-h">Quels pays ?</div>' + seg('zone', [['ue', 'Union européenne (27)'], ['all', 'Toute l’Europe (46)']]) +
+      (explore ? '' : '<div class="section-h">Combien de questions ?</div>' + seg('len', [['10', '10'], ['20', '20'], ['all', 'Tous (' + this.geoKeys(o.zone).length + ')']]) +
+        (b ? '<p class="foot">Ton record : ' + b.ok + ' / ' + b.n + ' du premier coup, en ' + fmtDuration(b.s) + '.</p>' : '')) +
+      '<button class="btn mt2" id="gplay">' + (explore ? 'Ouvrir la carte' : 'Jouer') + '</button></div></div>';
+    window.scrollTo(0, 0);
+    document.getElementById('quit').onclick = () => { this.stab = 'study'; this.renderList(); };
+    $app.querySelectorAll('[data-g] button').forEach(x => x.onclick = () => { o[x.parentNode.dataset.g] = x.dataset.v; store.set('exos_geo', JSON.stringify(o)); this.geoHome(); });
+    document.getElementById('gplay').onclick = () => this.geoStart();
+  },
+  async geoStart(only){
+    const o = this.geoOpts();
+    loading();
+    try { await this.geoLoad(); } catch(e){ toast('Impossible de charger la carte'); return this.geoHome(); }
+    let list = only || shuffle(this.geoKeys(o.zone));
+    if (!only && o.len !== 'all') list = list.slice(0, +o.len);
+    this.gm = { o, list, i: 0, tries: 0, ok: 0, res: {}, t0: Date.now(), lock: false, retry: !!only };
+    const explore = o.mode === 'explore';
+    $app.innerHTML = '<div class="geo"><div class="quiz-top"><button class="icon-btn mute" id="quit" aria-label="Arrêter">' + I.x + '</button>' +
+      (explore ? '<div style="flex:1;font-weight:600;text-align:center">J’explore l’Europe</div><span class="counter"></span>' : '<div class="bar"><i id="gbar" style="width:0"></i></div><span class="counter" id="gcnt"></span>') + '</div>' +
+      (explore ? '' : '<div class="geo-ask" id="gask"></div>') + '<div class="geo-map" id="gmap"></div></div>';
+    document.getElementById('quit').onclick = () => this.geoHome();
+    const M = this._gmap = this.geoMap(document.getElementById('gmap'), o.zone, k => explore ? this.geoInfo(k) : this.geoTap(k));
+    if (explore) return this.geoInfo(null);
+    M.home(); this.geoAsk();
+  },
+  geoAsk(){
+    const G = this.gm, t = G.list[G.i], cap = G.o.mode === 'cap';
+    document.getElementById('gbar').style.width = (G.i / G.list.length * 100) + '%';
+    document.getElementById('gcnt').textContent = (G.i + 1) + '/' + G.list.length;
+    document.getElementById('gask').innerHTML = '<div class="q">' + (cap ? 'Touche le pays dont c’est la capitale :' : 'Touche ce pays sur la carte :') + '</div><div class="n">' + esc(GEO_EU[t][cap ? 1 : 0]) + '</div><div class="fb" id="gfb"></div>';
+  },
+  geoFb(cls, txt){ const f = document.getElementById('gfb'); if (f){ f.className = 'fb ' + cls; f.textContent = txt; } },
+  geoTap(k){
+    const G = this.gm, M = this._gmap, t = G.list[G.i], cap = G.o.mode === 'cap';
+    if (G.lock || !k) return;
+    const capOf = x => GEO_EU[x][1] + ' est la capitale ' + geoDu(x) + '.';
+    if (k === t){
+      const first = !G.tries; G.lock = true; if (first) G.ok++;
+      G.res[t] = first ? 'ok' : 'ok2'; M.set(t, 'ok');
+      if (cap) M.cap(t);
+      this.geoFb('ok', (first ? ['Bravo !', 'Exact !', 'Parfait !'][G.i % 3] : 'Trouvé !') + (cap ? ' ' + capOf(t) : ''));
+      setTimeout(() => this.geoNext(), cap ? 1600 : 900);
+      return;
+    }
+    G.tries++; M.flash(k);
+    if (G.tries < 3) return this.geoFb('ko', 'Non, ça, c’est ' + geoLe(k) + (cap ? ' (capitale : ' + GEO_EU[k][1] + ')' : '') + '. Encore ' + (3 - G.tries) + ' essai' + (G.tries === 1 ? 's' : '') + '.');
+    G.lock = true; G.res[t] = 'miss';
+    M.set(t, 'hint'); M.focus(t); M.ring(t); if (cap) M.cap(t);
+    this.geoFb('miss', cap ? 'C’était ' + geoLe(t) + ' : ' + capOf(t) : 'Voici ' + geoLe(t) + '.');
+    const nx = document.createElement('button'); nx.className = 'btn geo-next'; nx.textContent = 'Suivant';
+    nx.onclick = () => { nx.remove(); M.set(t, 'miss'); this.geoNext(); };
+    document.getElementById('gmap').appendChild(nx);
+  },
+  geoNext(){
+    const G = this.gm;
+    this._gmap.clearFx(); G.i++; G.tries = 0; G.lock = false;
+    if (G.i >= G.list.length) return this.geoDone();
+    this.geoAsk();
+  },
+  geoInfo(k){
+    const M = this._gmap, map = document.getElementById('gmap'), old = map.querySelector('.geo-info');
+    if (old) old.remove();
+    if (this._gsel) M.set(this._gsel, null);
+    M.clearFx(); this._gsel = k;
+    const box = document.createElement('div'); box.className = 'geo-info';
+    if (!k){ box.innerHTML = 'Touche un pays pour voir son nom et sa capitale.'; M.home(); }
+    else {
+      M.set(k, 'sel'); M.cap(k);
+      box.innerHTML = '<div style="display:flex;align-items:flex-start;gap:8px"><div style="flex:1"><b>' + esc(GEO_EU[k][0]) + '</b>Capitale : ' + esc(GEO_EU[k][1]) + '</div>' +
+        (TTS.ok ? '<button class="icon-btn" id="gsay" aria-label="Écouter">' + I.speaker + '</button>' : '') + '</div>' +
+        '<div style="margin-top:6px">' + (GEO_EU[k][2] ? '<span class="pill blue">Membre de l’Union européenne</span>' : '<span class="pill">Hors de l’Union européenne</span>') + '</div>';
+    }
+    map.appendChild(box);
+    const say = document.getElementById('gsay'); if (say) say.onclick = () => TTS.speak(geoLe(k) + '. Capitale : ' + GEO_EU[k][1] + '.', say);
+  },
+  geoDone(){
+    const G = this.gm, n = G.list.length, s = Math.round((Date.now() - G.t0) / 1000), cap = G.o.mode === 'cap';
+    const weak = G.list.filter(k => G.res[k] !== 'ok');
+    let rec = false;
+    if (!G.retry){
+      const best = this.geoBest(), bk = G.o.mode + ':' + G.o.zone + ':' + G.o.len, b = best[bk];
+      if (!b || G.ok > b.ok || (G.ok === b.ok && s < b.s)){ rec = !!b; best[bk] = { ok: G.ok, n, s }; store.set('exos_geo_best', JSON.stringify(best)); }
+    }
+    $app.innerHTML = '<div class="screen center result"><div class="app-icon" style="background:linear-gradient(160deg,#4cd964,#1f9e3d);box-shadow:none">' + I.globe + '</div>' +
+      '<h1>' + (cap ? 'Capitales' : 'Pays') + ' d’Europe</h1><div class="big-score">' + G.ok + ' / ' + n + '</div><p>trouvés du premier coup, en ' + fmtDuration(s) + '</p>' +
+      (rec ? '<p><span class="pill green">Nouveau record !</span></p>' : '') +
+      (weak.length ? '<div class="section-h">À revoir</div><div class="group">' + weak.map(k => '<div class="row"><div class="main"><div class="t">' + esc(GEO_EU[k][0]) + '</div><div class="s">Capitale : ' + esc(GEO_EU[k][1]) + '</div></div>' +
+          (G.res[k] === 'miss' ? '<span class="pill orange">Pas trouvé</span>' : '<span class="pill">Trouvé après une erreur</span>') + '</div>').join('') + '</div>'
+        : '<p>Aucune erreur : bravo !</p>') +
+      '<div class="stack mt2">' + (weak.length ? '<button class="btn" id="gerr">Rejouer ceux à revoir</button>' : '') +
+      '<button class="btn' + (weak.length ? ' tinted' : '') + '" id="gagain">Rejouer</button><button class="btn plain" id="gback">Retour à J’étudie</button></div></div>';
+    window.scrollTo(0, 0);
+    const ge = document.getElementById('gerr'); if (ge) ge.onclick = () => this.geoStart(shuffle(weak));
+    document.getElementById('gagain').onclick = () => this.geoStart();
+    document.getElementById('gback').onclick = () => { this.stab = 'study'; this.renderList(); };
+  },
+  // Carte zoomable (pincer, molette, glisser) ; onTap reçoit la clé du pays touché
+  geoMap(el, zone, onTap){
+    const D = this._geo, W = D.w, H = D.h, NS = 'http://www.w3.org/2000/svg', inZone = new Set(this.geoKeys(zone));
+    el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Carte de l’Europe"><path class="geo-ctx" d="' + D.ctx + '"/>' +
+      Object.keys(D.c).map(k => '<path class="geo-c' + (inZone.has(k) ? '' : ' off') + '" data-k="' + k + '" d="' + D.c[k].d + '"/>').join('') +
+      Object.keys(D.c).filter(k => D.c[k].dot && inZone.has(k)).map(k => '<circle class="geo-dot" data-k="' + k + '" data-s="6" cx="' + D.c[k].dot[0] + '" cy="' + D.c[k].dot[1] + '"/>').join('') +
+      '<g class="gfx"></g></svg><div class="geo-zoom"><button data-z="1" aria-label="Zoomer">+</button><button data-z="-1" aria-label="Dézoomer">−</button>' +
+      '<button data-z="0" aria-label="Voir toute la carte"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>' +
+      '<div class="geo-src">Fond de carte : Natural Earth</div>';
+    const svg = el.querySelector('svg'), fx = svg.querySelector('.gfx'), vb = { x: 0, y: 0, w: W, h: H };
+    const rect = () => svg.getBoundingClientRect();
+    const bbox = k => { const p = svg.querySelector('path[data-k="' + k + '"]').getBBox(), d = D.c[k].dot; return d ? { x: d[0] - 4, y: d[1] - 4, width: 8, height: 8 } : p; };
+    const apply = () => {
+      const r = rect(), u = vb.w / (r.width || 1);
+      vb.x = Math.min(Math.max(vb.x, -vb.w / 2), W - vb.w / 2); vb.y = Math.min(Math.max(vb.y, -vb.h / 2), H - vb.h / 2);
+      svg.setAttribute('viewBox', vb.x + ' ' + vb.y + ' ' + vb.w + ' ' + vb.h);
+      svg.querySelectorAll('[data-s]').forEach(x => { const s = x.dataset.s * u; if (x.tagName === 'text'){ x.style.fontSize = s + 'px'; x.style.strokeWidth = (s / 3.7) + 'px'; x.setAttribute('dx', (x.getAttribute('text-anchor') === 'end' ? -7 : 7) * u); x.setAttribute('dy', 4.5 * u); } else x.setAttribute('r', s); });
+    };
+    const fit = b => {
+      const r = rect(), ar = (r.width || 1) / (r.height || 1);
+      let w = b.w, h = b.h; if (w / h > ar) h = w / ar; else w = h * ar;
+      Object.assign(vb, { x: b.x + b.w / 2 - w / 2, y: b.y + b.h / 2 - h / 2, w, h }); apply();
+    };
+    const home = () => fit(zone === 'ue' ? { x: 100, y: 230, w: 800, h: 650 } : { x: 0, y: 0, w: W, h: H });
+    const zoomAt = (f, cx, cy) => {
+      const r = rect(), nw = Math.min(Math.max(vb.w * f, 50), Math.max(W, H * r.width / r.height) * 1.1), g = nw / vb.w;
+      const sx = vb.x + (cx - r.left) * vb.w / r.width, sy = vb.y + (cy - r.top) * vb.h / r.height;
+      vb.x = sx - (sx - vb.x) * g; vb.y = sy - (sy - vb.y) * g; vb.w = nw; vb.h *= g; apply();
+    };
+    // Toucher : tolérance de quelques pixels pour les tout petits pays
+    const hit = (x, y) => { const t = document.elementFromPoint(x, y), n = t && t.closest && t.closest('[data-k]'); return n ? n.dataset.k : null; };
+    const pick = (x, y) => {
+      let k = hit(x, y); if (k) return k;
+      const u = vb.w / rect().width;
+      for (let a = 0; a < 8; a++){ k = hit(x + 12 * Math.cos(a * Math.PI / 4), y + 12 * Math.sin(a * Math.PI / 4)); if (k){ const b = bbox(k); if (Math.max(b.width, b.height) / u < 18) return k; } }
+      return null;
+    };
+    const pts = new Map(); let start = null, moved = 0;
+    svg.addEventListener('pointerdown', e => {
+      try { svg.setPointerCapture(e.pointerId); } catch(err){}
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pts.size === 1){ start = { x: e.clientX, y: e.clientY, multi: false }; moved = 0; } else if (start) start.multi = true;
+    });
+    svg.addEventListener('pointermove', e => {
+      const prev = pts.get(e.pointerId); if (!prev) return;
+      const cur = { x: e.clientX, y: e.clientY }, r = rect(), u = vb.w / r.width;
+      if (pts.size === 1){
+        moved = Math.max(moved, Math.hypot(cur.x - start.x, cur.y - start.y));
+        if (moved > 6){ vb.x -= (cur.x - prev.x) * u; vb.y -= (cur.y - prev.y) * u; apply(); }
+      } else if (pts.size === 2){
+        const o = [...pts].find(([id]) => id !== e.pointerId)[1];
+        const d0 = Math.hypot(prev.x - o.x, prev.y - o.y), d1 = Math.hypot(cur.x - o.x, cur.y - o.y);
+        vb.x -= (cur.x - prev.x) / 2 * u; vb.y -= (cur.y - prev.y) / 2 * u;
+        if (d0 > 0 && d1 > 0) zoomAt(d0 / d1, (cur.x + o.x) / 2, (cur.y + o.y) / 2); else apply();
+      }
+      pts.set(e.pointerId, cur);
+    });
+    const up = e => {
+      if (!pts.delete(e.pointerId)) return;
+      if (!pts.size && start && !start.multi && moved <= 6 && e.type === 'pointerup') onTap(pick(e.clientX, e.clientY));
+    };
+    svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
+    svg.addEventListener('wheel', e => { e.preventDefault(); zoomAt(Math.exp(e.deltaY * (e.ctrlKey ? .01 : .0015)), e.clientX, e.clientY); }, { passive: false });
+    el.querySelectorAll('[data-z]').forEach(b => b.onclick = () => { const z = +b.dataset.z, r = rect(); if (!z) home(); else zoomAt(z > 0 ? 1 / 1.6 : 1.6, r.left + r.width / 2, r.top + r.height / 2); });
+    if (window.ResizeObserver) new ResizeObserver(() => { const r = rect(); if (r.width){ const cx = vb.x + vb.w / 2, cy = vb.y + vb.h / 2; vb.h = vb.w * r.height / r.width; vb.x = cx - vb.w / 2; vb.y = cy - vb.h / 2; apply(); } }).observe(svg);
+    const add = (tag, at) => { const n = document.createElementNS(NS, tag); for (const a in at) n.setAttribute(a, at[a]); fx.appendChild(n); return n; };
+    const centre = k => { const b = bbox(k); return [b.x + b.width / 2, b.y + b.height / 2]; };
+    home();
+    return {
+      home,
+      set(k, cls){ svg.querySelectorAll('[data-k="' + k + '"]').forEach(x => { x.classList.remove('ok', 'miss', 'ko', 'hint', 'sel'); if (cls) x.classList.add(cls); }); },
+      flash(k){ svg.querySelectorAll('[data-k="' + k + '"]').forEach(x => { x.classList.add('ko'); setTimeout(() => x.classList.remove('ko'), 650); }); },
+      // Recadre si le pays est trop petit à l'écran ou hors de la vue
+      focus(k){
+        const b = bbox(k), [cx, cy] = centre(k), u = vb.w / rect().width;
+        if (Math.max(b.width, b.height) / u < 16) fit({ x: cx - 90, y: cy - 90, w: 180, h: 180 });
+        else if (cx < vb.x || cx > vb.x + vb.w || cy < vb.y || cy > vb.y + vb.h) fit({ x: b.x - 40, y: b.y - 40, w: b.width + 80, h: b.height + 80 });
+      },
+      ring(k){ const b = bbox(k); if (Math.max(b.width, b.height) < 30){ const [cx, cy] = centre(k); add('circle', { class: 'geo-ring', cx, cy, 'data-s': 18 }); apply(); } },
+      cap(k){
+        const [x, y] = D.c[k].cap;
+        add('circle', { class: 'geo-cap', cx: x, cy: y, 'data-s': 4 });
+        add('text', { class: 'geo-lbl', x, y, 'data-s': 13, 'text-anchor': x > W - 120 ? 'end' : 'start' }).textContent = GEO_EU[k][1];
+        apply();
+      },
+      clearFx(){ fx.innerHTML = ''; }
+    };
   },
 
   /* ---------- Outils communs aux nouveaux entraînements ---------- */
