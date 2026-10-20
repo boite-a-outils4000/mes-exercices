@@ -578,6 +578,43 @@ a.cblock.row{display:flex;color:inherit;text-decoration:none}
 .geo-next{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));width:auto;padding:0 26px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
 .geo-info{position:absolute;left:10px;right:60px;bottom:calc(26px + env(safe-area-inset-bottom));background:var(--card);border-radius:14px;padding:12px 14px;box-shadow:0 4px 14px rgba(0,0,0,.18);font-size:15px;line-height:1.4}
 .geo-info b{font-size:18px;display:block}
+:root{--geo-river:#2f7fd1;--geo-mtn:#c9a77c;--geo-plain:#b9d39a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--geo-river:#5aa7ff;--geo-mtn:#8a6a45;--geo-plain:#5b7442}}
+:root[data-theme="dark"]{--geo-river:#5aa7ff;--geo-mtn:#8a6a45;--geo-plain:#5b7442}
+.geo-maps{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.geo-mapbtn{background:var(--card);border:0;border-radius:14px;padding:12px 14px;text-align:left;display:flex;flex-direction:column;gap:2px;box-shadow:var(--shadow);color:var(--label);box-shadow:inset 0 0 0 2px transparent}
+.geo-mapbtn b{font-size:16px;font-weight:600}.geo-mapbtn span{font-size:13px;color:var(--label2);line-height:1.3}
+.geo-mapbtn.on{box-shadow:inset 0 0 0 2px var(--blue);background:color-mix(in srgb,var(--blue) 8%,var(--card))}
+.geo-write{display:flex;gap:8px;max-width:420px;margin:8px auto 0}
+.geo-write input{flex:1;min-width:0;height:42px;border-radius:10px;border:0;background:var(--card);color:var(--label);padding:0 12px;font-size:17px;box-shadow:inset 0 0 0 1px var(--sep)}
+.geo-write input:focus{outline:none;box-shadow:inset 0 0 0 2px var(--blue)}
+.geo-write input.ok{box-shadow:inset 0 0 0 2px var(--green)}.geo-write input.ko{box-shadow:inset 0 0 0 2px var(--red)}.geo-write input.miss{box-shadow:inset 0 0 0 2px var(--orange)}
+.geo-write .btn.small{height:42px;border-radius:10px}
+.geo-skip{border:0;background:none;color:var(--blue);font-size:14px;padding:4px 8px;margin-top:2px}
+.geo-map.out{background:var(--bg)}
+.geo-sphere{fill:var(--geo-sea);stroke:var(--geo-line);stroke-width:.6}
+.geo-grat{fill:none;stroke:var(--geo-line);stroke-width:.4;opacity:.35}
+.geo-land{fill:var(--geo-land);stroke:var(--geo-line);stroke-width:.6}
+.geo-border{fill:none;stroke:var(--geo-line);stroke-width:.4;opacity:.55;stroke-dasharray:2 2}
+.geo-blbl{font-family:Inter,system-ui,sans-serif;font-weight:600;letter-spacing:.08em;fill:var(--label2);paint-order:stroke;stroke:var(--geo-land);pointer-events:none}
+.geo-dec{pointer-events:none}
+.geo-dec-reg,.geo-dec-prov,.geo-dec-ocean,.geo-dec-mer{display:none}
+.geo-dec-cont{fill:var(--geo-land);stroke:var(--geo-line);stroke-width:.6}
+.geo-dec-fleuve{fill:none;stroke:var(--geo-river);stroke-width:1.2;opacity:.6}
+.geo-dec-relief.geo-mtn{fill:var(--geo-mtn);stroke:none;opacity:.45}.geo-dec-relief.geo-plain{display:none}
+.geo-c.geo-sea{fill:var(--geo-sea);stroke:var(--geo-line);stroke-width:.6;stroke-dasharray:3 3}
+.geo-c.geo-mtn{fill:var(--geo-mtn)}.geo-c.geo-plain{fill:var(--geo-plain)}
+.geo-c.geo-line{fill:none;stroke:var(--geo-river);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;transition:stroke .2s}
+.geo-hit{fill:none!important;stroke:transparent!important;stroke-width:18px;pointer-events:stroke;cursor:pointer}
+.geo-c.geo-line.sel{stroke:var(--blue);stroke-width:5}.geo-c.geo-line.ok{stroke:var(--green);stroke-width:4}.geo-c.geo-line.miss{stroke:var(--orange);stroke-width:4}.geo-c.geo-line.ko{stroke:var(--red);stroke-width:4}
+.geo-c.geo-line.hint{animation:geoPulseL .9s ease-in-out infinite alternate;stroke-width:5}
+@media (hover:hover){.geo-c.geo-sea:hover,.geo-c.geo-mtn:hover,.geo-c.geo-plain:hover{fill:color-mix(in srgb,var(--blue) 25%,var(--geo-land))}}
+.geo-c.geo-sea.sel,.geo-c.geo-mtn.sel,.geo-c.geo-plain.sel{fill:color-mix(in srgb,var(--blue) 45%,var(--geo-land))}
+.geo-c.geo-sea.ok,.geo-c.geo-mtn.ok,.geo-c.geo-plain.ok{fill:var(--green)}.geo-c.geo-sea.miss,.geo-c.geo-mtn.miss,.geo-c.geo-plain.miss{fill:var(--orange)}.geo-c.geo-sea.ko,.geo-c.geo-mtn.ko,.geo-c.geo-plain.ko{fill:var(--red)}
+.geo-c.geo-sea.hint,.geo-c.geo-mtn.hint,.geo-c.geo-plain.hint{animation:geoPulse .9s ease-in-out infinite alternate}
+@keyframes geoPulseL{from{stroke:var(--geo-river)}to{stroke:var(--orange)}}
+@media (hover:hover){.geo-hit:hover+.geo-line{stroke:var(--blue)}}
+@media (prefers-reduced-motion:reduce){.geo-c.hint,.geo-c.geo-line.hint,.geo-ring{animation:none}.geo-c.hint{fill:var(--orange)}.geo-c.geo-line.hint{stroke:var(--orange)}}
 .stile .bar{margin-top:auto}
 .study-h{font-size:13px;text-transform:uppercase;color:var(--label2);margin:24px 4px 8px;letter-spacing:.01em}
 .why-link{display:flex;align-items:center;justify-content:center;gap:6px;margin:18px auto 0;border:0;background:none;color:var(--blue);font-size:15px;font-weight:500}
@@ -911,10 +948,11 @@ const CONSIGNES = [
   { c: 'Localise Liège sur la carte en plaçant une croix.', v: ['localise'], m: 'Localiser, c’est montrer où se trouve un lieu.', k: ['doc'],
     a: [['Je place une croix sur Liège, à l’est de la Belgique.', ''], ['J’écris « Liège » dans la marge de la carte.', 'La consigne demande une croix sur la carte, à l’endroit de Liège.'], ['Liège est une ville de Wallonie.', 'Rien n’est placé sur la carte.']] }
 ];
-const STUDY_TOOLS = [['week', 'test', 'Quiz de la semaine'], ['cards', 'test', 'Cartes mémoire'], ['recall', 'test', 'Vide ta tête'], ['conf', 'test', 'Sûr de toi ?'], ['maps', 'test', 'Cartes muettes'], ['geo', 'test', 'Pays d’Europe'], ['pre', 'test', 'Avant le cours'], ['err', 'test', 'Trouve l’erreur'],
+const STUDY_TOOLS = [['week', 'test', 'Quiz de la semaine'], ['cards', 'test', 'Cartes mémoire'], ['recall', 'test', 'Vide ta tête'], ['conf', 'test', 'Sûr de toi ?'], ['maps', 'test', 'Cartes muettes'], ['geo', 'test', 'Jeu de géographie'], ['pre', 'test', 'Avant le cours'], ['err', 'test', 'Trouve l’erreur'],
   ['cons', 'train', 'Lire les consignes'], ['free', 'train', 'Entraînement libre'], ['mist', 'train', 'Mes erreurs'], ['scale', 'train', 'Échelles'], ['clim', 'train', 'Climatogrammes'], ['doc', 'train', 'Analyser un document'],
   ['recaps', 'review', 'Fiches « Je retiens »'], ['timer', 'review', 'Minuteur']];
-// Jeu des pays d'Europe : [pays, capitale, membre de l'UE]. Le fond de carte est dans data/europe.json (Natural Earth, Crimée rattachée à l'Ukraine).
+// Jeu de géographie. Fonds de carte dans data/*.json (Natural Earth, domaine public ; Crimée rattachée à l'Ukraine).
+// Pays d'Europe : [pays, capitale, membre de l'UE]
 const GEO_EU = {
   AL: ['Albanie', 'Tirana'], DE: ['Allemagne', 'Berlin', 1], AD: ['Andorre', 'Andorre-la-Vieille'], AT: ['Autriche', 'Vienne', 1], BE: ['Belgique', 'Bruxelles', 1],
   BY: ['Biélorussie', 'Minsk'], BA: ['Bosnie-Herzégovine', 'Sarajevo'], BG: ['Bulgarie', 'Sofia', 1], CY: ['Chypre', 'Nicosie', 1], HR: ['Croatie', 'Zagreb', 1],
@@ -926,8 +964,82 @@ const GEO_EU = {
   GB: ['Royaume-Uni', 'Londres'], RU: ['Russie', 'Moscou'], SM: ['Saint-Marin', 'Saint-Marin'], RS: ['Serbie', 'Belgrade'], SK: ['Slovaquie', 'Bratislava', 1],
   SI: ['Slovénie', 'Ljubljana', 1], SE: ['Suède', 'Stockholm', 1], CH: ['Suisse', 'Berne'], CZ: ['Tchéquie', 'Prague', 1], UA: ['Ukraine', 'Kiev'], VA: ['Vatican', 'Cité du Vatican']
 };
-const geoDu = k => { const a = geoLe(k); return a.startsWith('le ') ? 'du ' + a.slice(3) : a.startsWith('les ') ? 'des ' + a.slice(4) : 'de ' + a; };
 const geoLe = k => { const n = GEO_EU[k][0]; return (['CY', 'MT', 'MC', 'SM'].includes(k) ? '' : k === 'NL' ? 'les ' : /^[AEIOUÉ]/.test(n) ? 'l’' : /e$/.test(n.split(' ')[0]) ? 'la ' : 'le ') + n; };
+const geoDu = le => le.startsWith('le ') ? 'du ' + le.slice(3) : le.startsWith('les ') ? 'des ' + le.slice(4) : 'de ' + le;
+// Élément : n nom, le nom avec article, c capitale ou chef-lieu, a et ca autres réponses acceptées (séparées par |), i information
+const gi = (n, le, o) => Object.assign({ n, le }, o || {});
+const GEO_MAPS = {
+  europe: { t: 'Europe', s: 'Pays et capitales', items: Object.fromEntries(Object.entries(GEO_EU).map(([k, v]) => [k, gi(v[0], geoLe(k), {
+      c: v[1], i: v[2] ? 'Membre de l’Union européenne' : 'Hors de l’Union européenne', ib: v[2] ? 'blue' : '',
+      a: { BY: 'Bélarus|Belarus', CZ: 'République tchèque', MK: 'Macédoine', BA: 'Bosnie', MD: 'Moldova', VA: 'Saint-Siège|Cité du Vatican' }[k],
+      ca: { UA: 'Kyiv', MT: 'Valletta|Valette', CH: 'Bern', VA: 'Vatican', IS: 'Reykjavík', AD: 'Andorre' }[k] })])),
+    sets: {
+      ue: { t: 'Union européenne', l: 'pays', k: Object.keys(GEO_EU).filter(k => GEO_EU[k][2]), cap: 1, q: 'ce pays', w: 'le pays', cw: 'la capitale', home: { x: 100, y: 230, w: 800, h: 650 } },
+      all: { t: 'Toute l’Europe', l: 'pays', k: Object.keys(GEO_EU), cap: 1, q: 'ce pays', w: 'le pays', cw: 'la capitale' }
+    } },
+  belgique: { t: 'Belgique', s: 'Régions et provinces', items: {
+      VLG: gi('Région flamande', 'la Région flamande', { a: 'Flandre|Flandres', i: 'Capitale : Bruxelles' }),
+      WAL: gi('Région wallonne', 'la Région wallonne', { a: 'Wallonie', i: 'Capitale : Namur' }),
+      BRU: gi('Région de Bruxelles-Capitale', 'la Région de Bruxelles-Capitale', { a: 'Bruxelles|Bruxelles-Capitale', i: 'Capitale : Bruxelles' }),
+      ANT: gi('Anvers', 'la province d’Anvers', { c: 'Anvers', ca: 'Antwerpen', i: 'Région flamande' }),
+      LIM: gi('Limbourg', 'le Limbourg', { c: 'Hasselt', i: 'Région flamande' }),
+      OVL: gi('Flandre-Orientale', 'la Flandre-Orientale', { c: 'Gand', ca: 'Gent', i: 'Région flamande' }),
+      WVL: gi('Flandre-Occidentale', 'la Flandre-Occidentale', { c: 'Bruges', ca: 'Brugge', i: 'Région flamande' }),
+      VBR: gi('Brabant flamand', 'le Brabant flamand', { c: 'Louvain', ca: 'Leuven', i: 'Région flamande' }),
+      WBR: gi('Brabant wallon', 'le Brabant wallon', { c: 'Wavre', i: 'Région wallonne' }),
+      HAI: gi('Hainaut', 'le Hainaut', { c: 'Mons', i: 'Région wallonne' }),
+      NAM: gi('Namur', 'la province de Namur', { c: 'Namur', i: 'Région wallonne' }),
+      LIE: gi('Liège', 'la province de Liège', { c: 'Liège', i: 'Région wallonne' }),
+      LUX: gi('Luxembourg', 'la province de Luxembourg', { c: 'Arlon', i: 'Région wallonne' }),
+      BXL: gi('Région de Bruxelles-Capitale', 'la Région de Bruxelles-Capitale', { i: 'Ce n’est pas une province' })
+    },
+    sets: {
+      reg: { t: 'Les régions', l: 'reg', k: ['VLG', 'WAL', 'BRU'], q: 'cette région', home: { x: 130, y: 70, w: 780, h: 720 } },
+      prov: { t: 'Les provinces', l: 'prov', k: ['ANT', 'LIM', 'OVL', 'WVL', 'VBR', 'WBR', 'HAI', 'NAM', 'LIE', 'LUX'], cap: 1, q: 'cette province', w: 'la province', cw: 'le chef-lieu', home: { x: 130, y: 70, w: 780, h: 720 } }
+    } },
+  monde: { t: 'Monde', s: 'Continents et océans', items: {
+      EU: gi('Europe', 'l’Europe'), AS: gi('Asie', 'l’Asie'), AF: gi('Afrique', 'l’Afrique'), NA: gi('Amérique du Nord', 'l’Amérique du Nord'),
+      SA: gi('Amérique du Sud', 'l’Amérique du Sud'), OC: gi('Océanie', 'l’Océanie'), AN: gi('Antarctique', 'l’Antarctique', { a: 'Antarctide|Antarctica' }),
+      ATL: gi('Océan Atlantique', 'l’océan Atlantique'), PAC: gi('Océan Pacifique', 'l’océan Pacifique'), IND: gi('Océan Indien', 'l’océan Indien'),
+      ARC: gi('Océan Arctique', 'l’océan Arctique', { a: 'Océan glacial Arctique' }), AUS: gi('Océan Austral', 'l’océan Austral', { a: 'Océan Antarctique|Océan glacial Antarctique' })
+    },
+    sets: { cont: { t: 'Les continents', l: 'cont', k: ['EU', 'AS', 'AF', 'NA', 'SA', 'OC', 'AN'], q: 'ce continent' }, ocean: { t: 'Les océans', l: 'ocean', k: ['ATL', 'PAC', 'IND', 'ARC', 'AUS'], q: 'cet océan' } } },
+  physique: { t: 'Europe physique', s: 'Mers, fleuves et reliefs', file: 'europe-physique', items: {
+      ATL: gi('Océan Atlantique', 'l’océan Atlantique'), NOR: gi('Mer du Nord', 'la mer du Nord'), MAN: gi('Manche', 'la Manche'), BAL: gi('Mer Baltique', 'la mer Baltique'),
+      NRV: gi('Mer de Norvège', 'la mer de Norvège'), GAS: gi('Golfe de Gascogne', 'le golfe de Gascogne'), IRL: gi('Mer d’Irlande', 'la mer d’Irlande'),
+      MED: gi('Mer Méditerranée', 'la mer Méditerranée'), ADR: gi('Mer Adriatique', 'la mer Adriatique'), EGE: gi('Mer Égée', 'la mer Égée'),
+      NOI: gi('Mer Noire', 'la mer Noire'), CAS: gi('Mer Caspienne', 'la mer Caspienne'), BAR: gi('Mer de Barents', 'la mer de Barents'),
+      RHI: gi('Rhin', 'le Rhin'), MEU: gi('Meuse', 'la Meuse', { a: 'Maas' }), ESC: gi('Escaut', 'l’Escaut', { a: 'Schelde' }), SEI: gi('Seine', 'la Seine'),
+      LOI: gi('Loire', 'la Loire'), RHO: gi('Rhône', 'le Rhône'), GAR: gi('Garonne', 'la Garonne'), TAG: gi('Tage', 'le Tage'), EBR: gi('Èbre', 'l’Èbre'),
+      PO: gi('Pô', 'le Pô'), DAN: gi('Danube', 'le Danube'), ELB: gi('Elbe', 'l’Elbe'), ODE: gi('Oder', 'l’Oder'), VIS: gi('Vistule', 'la Vistule'),
+      DNI: gi('Dniepr', 'le Dniepr', { a: 'Dnipro|Dnieper' }), VOL: gi('Volga', 'la Volga'), TAM: gi('Tamise', 'la Tamise'), DON: gi('Don', 'le Don'),
+      ALP: gi('Alpes', 'les Alpes', { i: 'Montagnes' }), PYR: gi('Pyrénées', 'les Pyrénées', { i: 'Montagnes' }), CAR: gi('Carpates', 'les Carpates', { i: 'Montagnes' }),
+      OUR: gi('Oural', 'l’Oural', { a: 'Monts Oural', i: 'Montagnes' }), CAU: gi('Caucase', 'le Caucase', { i: 'Montagnes' }),
+      SCA: gi('Alpes scandinaves', 'les Alpes scandinaves', { a: 'Monts scandinaves', i: 'Montagnes' }), APE: gi('Apennins', 'les Apennins', { a: 'Apennin', i: 'Montagnes' }),
+      DIN: gi('Alpes dinariques', 'les Alpes dinariques', { i: 'Montagnes' }), BLK: gi('Balkans', 'les Balkans', { a: 'Grand Balkan|Mont Balkan|Monts Balkans', i: 'Montagnes' }),
+      MAC: gi('Massif central', 'le Massif central', { i: 'Massif ancien' }), ARD: gi('Ardenne', 'l’Ardenne', { a: 'Ardennes', i: 'Massif ancien' }),
+      JUR: gi('Jura', 'le Jura', { i: 'Montagnes' }), VOS: gi('Vosges', 'les Vosges', { i: 'Massif ancien' }),
+      CAN: gi('Cordillère Cantabrique', 'la cordillère Cantabrique', { a: 'Monts Cantabriques', i: 'Montagnes' }),
+      PEN: gi('Grande plaine d’Europe du Nord', 'la grande plaine d’Europe du Nord', { a: 'Plaine d’Europe du Nord|Plaine germano-polonaise', i: 'Plaine' }),
+      HON: gi('Grande plaine hongroise', 'la grande plaine hongroise', { a: 'Plaine hongroise|Plaine de Pannonie|Alföld', i: 'Plaine' })
+    },
+    sets: { mer: { t: 'Mers et océan', l: 'mer', k: ['ATL', 'NOR', 'MAN', 'BAL', 'NRV', 'GAS', 'IRL', 'MED', 'ADR', 'EGE', 'NOI', 'CAS', 'BAR'] }, fleuve: { t: 'Fleuves', l: 'fleuve', k: ['RHI', 'MEU', 'ESC', 'SEI', 'LOI', 'RHO', 'GAR', 'TAG', 'EBR', 'PO', 'DAN', 'ELB', 'ODE', 'VIS', 'DNI', 'VOL', 'TAM', 'DON'], q: 'ce fleuve' }, relief: { t: 'Reliefs', l: 'relief', k: ['ALP', 'PYR', 'CAR', 'OUR', 'CAU', 'SCA', 'APE', 'DIN', 'BLK', 'MAC', 'ARD', 'JUR', 'VOS', 'CAN', 'PEN', 'HON'], q: 'ce relief' } } }
+};
+// Réponse écrite : accents, majuscules, articles et mots comme « mer » ou « océan » ne comptent pas ; une petite faute d'orthographe est tolérée
+const geoNorm = s => norm(s).replace(/[-‐–]/g, ' ').replace(/^(l'|le |la |les )/, '').replace(/^(ocean glacial |ocean |mer |golfe |province |region |monts? |massif )(de la |de l'|du |des |de |d')?/, '').replace(/\s+/g, ' ').trim();
+function geoLev(a, b){
+  let p = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++){ const c = [i]; for (let j = 1; j <= b.length; j++) c[j] = Math.min(p[j] + 1, c[j - 1] + 1, p[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); p = c; }
+  return p[b.length];
+}
+const geoMatch = (v, alts) => {
+  const x = geoNorm(v); if (!x) return null;
+  let near = false;
+  for (const a of alts){ const y = geoNorm(a); if (x === y) return 'ok'; if (geoLev(x, y) <= (y.length >= 9 ? 2 : y.length >= 5 ? 1 : 0)) near = true; }
+  return near ? 'near' : null;
+};
+const geoGameLabel = g => { const M = GEO_MAPS[g.map], S = M && M.sets[g.set_key]; if (!S) return 'Jeu de géographie';
+  return M.t + ' · ' + S.t + (g.ask === 'cap' ? ' · ' + (S.cw === 'la capitale' ? 'capitales' : 'chefs-lieux') : ''); };
 const STUDY_TIPS = [
   'Teste-toi au lieu de relire : essayer de retrouver la réponse dans ta tête, c’est ce qui fait le plus retenir.',
   'Révise un peu chaque jour : 10 minutes par jour valent mieux qu’une heure la veille de l’interro.',
@@ -1457,7 +1569,7 @@ const Student = {
           ['recall', 'test', I.write, 'Vide ta tête', 'Écris tout ce que tu sais'],
           ['conf', 'test', I.gauge, 'Sûr de toi ?', 'Dis si tu es sûr, puis vérifie'],
           ['maps', 'test', I.map, 'Cartes muettes', nMap ? nMap + ' repères à placer' : 'Pas encore de carte'],
-          ['geo', 'test', I.globe, 'Pays d’Europe', 'Jeu : touche le bon pays sur la carte'],
+          ['geo', 'test', I.globe, 'Jeu de géographie', 'Pays, provinces, fleuves… sur la carte'],
           ['pre', 'test', I.pre, 'Avant le cours', 'Teste-toi avant d’étudier'],
           ['err', 'test', I.bug, 'Trouve l’erreur', 'Repère les phrases fausses'],
           ['cons', 'train', I.consigne, 'Lire les consignes', 'Comprends ce qu’on te demande'],
@@ -1926,73 +2038,136 @@ const Student = {
     document.getElementById('b1').onclick = () => { this.stab = 'study'; this.renderList(); };
   },
 
-  /* ---------- Jeu : pays et capitales d'Europe ---------- */
-  geoOpts(){ let o = {}; try { o = JSON.parse(store.get('exos_geo') || '{}') || {}; } catch(e){} return Object.assign({ mode: 'pays', zone: 'ue', len: '10' }, o); },
-  geoBest(){ try { return JSON.parse(store.get('exos_geo_best') || '{}') || {}; } catch(e){ return {}; } },
-  geoKeys(zone){ return Object.keys(GEO_EU).filter(k => zone === 'all' || GEO_EU[k][2]); },
-  async geoLoad(){
-    if (!this._geo){ const r = await fetch('data/europe.json'); if (!r.ok) throw new Error('carte'); this._geo = await r.json(); }
-    return this._geo;
+  /* ---------- Jeu de géographie ---------- */
+  geoOpts(){
+    let o = {}; try { o = JSON.parse(store.get('exos_geo2') || '{}') || {}; } catch(e){}
+    o = Object.assign({ map: 'europe', sets: {}, ask: 'nom', how: 'tap', len: '10' }, o);
+    const M = GEO_MAPS[o.map] || GEO_MAPS.europe; if (!GEO_MAPS[o.map]) o.map = 'europe';
+    if (!M.sets[o.sets[o.map]]) o.sets[o.map] = Object.keys(M.sets)[0];
+    o.set = o.sets[o.map]; o.M = M; o.S = M.sets[o.set];
+    if (!o.S.cap) o.ask = 'nom';
+    return o;
+  },
+  geoSaveOpts(o){ store.set('exos_geo2', JSON.stringify({ map: o.map, sets: o.sets, ask: o.ask, how: o.how, len: o.len })); },
+  geoBest(){ try { return JSON.parse(store.get('exos_geo_best2') || '{}') || {}; } catch(e){ return {}; } },
+  geoBestKey(o){ return [o.map, o.set, o.ask, o.how, o.len].join(':'); },
+  async geoLoad(map){
+    this._geo = this._geo || {};
+    if (!this._geo[map]){ const r = await fetch('data/' + (GEO_MAPS[map].file || map) + '.json'); if (!r.ok) throw new Error('carte'); this._geo[map] = await r.json(); }
+    return this._geo[map];
   },
   geoHome(){
-    const o = this.geoOpts(), b = this.geoBest()[o.mode + ':' + o.zone + ':' + o.len], explore = o.mode === 'explore';
+    const o = this.geoOpts(), M = o.M, S = o.S, n = S.k.length, b = this.geoBest()[this.geoBestKey(o)], explore = o.how === 'explore';
     const seg = (name, opts) => '<div class="seg" data-g="' + name + '">' + opts.map(([k, l]) => '<button data-v="' + k + '" class="' + (o[name] === k ? 'on' : '') + '">' + l + '</button>').join('') + '</div>';
-    const help = { pays: 'Le nom d’un pays s’affiche : touche-le sur la carte. Tu as trois essais.', cap: 'Le nom d’une capitale s’affiche : touche le pays dont c’est la capitale. Tu as trois essais.', explore: 'Touche un pays pour voir son nom et sa capitale. Idéal pour apprendre avant de jouer.' }[o.mode];
-    $app.innerHTML = '<div class="quiz"><div class="quiz-top"><button class="icon-btn mute" id="quit" aria-label="Retour">' + I.x + '</button><div style="flex:1;font-weight:600;text-align:center">Pays d’Europe</div><span class="counter"></span></div>' +
-      '<div class="quiz-body" style="padding-bottom:60px"><div class="app-icon" style="background:linear-gradient(160deg,#4cd964,#1f9e3d);box-shadow:none">' + I.globe + '</div>' +
-      '<div class="section-h">Je joue avec</div>' + seg('mode', [['pays', 'Les pays'], ['cap', 'Les capitales'], ['explore', 'J’explore']]) + '<p class="foot">' + help + '</p>' +
-      '<div class="section-h">Quels pays ?</div>' + seg('zone', [['ue', 'Union européenne (27)'], ['all', 'Toute l’Europe (46)']]) +
-      (explore ? '' : '<div class="section-h">Combien de questions ?</div>' + seg('len', [['10', '10'], ['20', '20'], ['all', 'Tous (' + this.geoKeys(o.zone).length + ')']]) +
-        (b ? '<p class="foot">Ton record : ' + b.ok + ' / ' + b.n + ' du premier coup, en ' + fmtDuration(b.s) + '.</p>' : '')) +
+    const cw = S.cw ? S.cw.replace(/^(la|le) /, '') : '';
+    const help = explore ? 'Touche un endroit pour voir son nom' + (S.cap ? ' et ' + S.cw : '') + '. Idéal pour apprendre avant de jouer.'
+      : o.how === 'write' ? 'Un endroit s’allume sur la carte : écris ' + (o.ask === 'cap' ? S.cw : 'son nom') + '. Les accents ne comptent pas. Tu as deux essais.'
+      : (o.ask === 'cap' ? 'Le nom d’' + (cw === 'capitale' ? 'une capitale' : 'un chef-lieu') + ' s’affiche : touche ' + S.w + ' qui correspond.' : 'Un nom s’affiche : touche le bon endroit sur la carte.') + ' Tu as trois essais.';
+    $app.innerHTML = '<div class="quiz"><div class="quiz-top"><button class="icon-btn mute" id="quit" aria-label="Retour">' + I.x + '</button><div style="flex:1;font-weight:600;text-align:center">Jeu de géographie</div><span class="counter"></span></div>' +
+      '<div class="quiz-body" style="padding-bottom:60px"><div class="section-h" style="margin-top:4px">Quelle carte ?</div><div class="geo-maps">' +
+        Object.entries(GEO_MAPS).map(([k, m]) => '<button class="geo-mapbtn' + (o.map === k ? ' on' : '') + '" data-map="' + k + '"><b>' + m.t + '</b><span>' + m.s + '</span></button>').join('') + '</div>' +
+      '<div class="section-h">Quoi ?</div>' + seg('set', Object.entries(M.sets).map(([k, s]) => [k, s.t + ' (' + s.k.length + ')'])) +
+      (S.cap ? '<div class="section-h">Je joue avec</div>' + seg('ask', [['nom', 'Les noms'], ['cap', cw === 'capitale' ? 'Les capitales' : 'Les chefs-lieux']]) : '') +
+      '<div class="section-h">Comment ?</div>' + seg('how', [['tap', 'Je touche'], ['write', 'J’écris'], ['explore', 'J’explore']]) + '<p class="foot">' + help + '</p>' +
+      (explore || n <= 10 ? '' : '<div class="section-h">Combien de questions ?</div>' + seg('len', [['10', '10']].concat(n > 20 ? [['20', '20']] : []).concat([['all', 'Tous (' + n + ')']]))) +
+      (!explore && b ? '<p class="foot">Ton record : ' + b.ok + ' / ' + b.n + ' du premier coup, en ' + fmtDuration(b.s) + '.</p>' : '') +
       '<button class="btn mt2" id="gplay">' + (explore ? 'Ouvrir la carte' : 'Jouer') + '</button></div></div>';
     window.scrollTo(0, 0);
     document.getElementById('quit').onclick = () => { this.stab = 'study'; this.renderList(); };
-    $app.querySelectorAll('[data-g] button').forEach(x => x.onclick = () => { o[x.parentNode.dataset.g] = x.dataset.v; store.set('exos_geo', JSON.stringify(o)); this.geoHome(); });
+    $app.querySelectorAll('[data-map]').forEach(x => x.onclick = () => { o.map = x.dataset.map; this.geoSaveOpts(o); this.geoHome(); });
+    $app.querySelectorAll('[data-g] button').forEach(x => x.onclick = () => {
+      const g = x.parentNode.dataset.g; if (g === 'set') o.sets[o.map] = x.dataset.v; else o[g] = x.dataset.v;
+      this.geoSaveOpts(o); this.geoHome();
+    });
     document.getElementById('gplay').onclick = () => this.geoStart();
   },
   async geoStart(only){
-    const o = this.geoOpts();
+    const o = this.geoOpts(), S = o.S;
     loading();
-    try { await this.geoLoad(); } catch(e){ toast('Impossible de charger la carte'); return this.geoHome(); }
-    let list = only || shuffle(this.geoKeys(o.zone));
-    if (!only && o.len !== 'all') list = list.slice(0, +o.len);
+    try { await this.geoLoad(o.map); } catch(e){ toast('Impossible de charger la carte. Vérifie ta connexion.'); return this.geoHome(); }
+    let list = only || shuffle(S.k);
+    if (!only && o.len !== 'all' && S.k.length > 10) list = list.slice(0, +o.len);
     this.gm = { o, list, i: 0, tries: 0, ok: 0, res: {}, t0: Date.now(), lock: false, retry: !!only };
-    const explore = o.mode === 'explore';
+    const explore = o.how === 'explore';
     $app.innerHTML = '<div class="geo"><div class="quiz-top"><button class="icon-btn mute" id="quit" aria-label="Arrêter">' + I.x + '</button>' +
-      (explore ? '<div style="flex:1;font-weight:600;text-align:center">J’explore l’Europe</div><span class="counter"></span>' : '<div class="bar"><i id="gbar" style="width:0"></i></div><span class="counter" id="gcnt"></span>') + '</div>' +
+      (explore ? '<div style="flex:1;font-weight:600;text-align:center">' + esc(o.M.t) + ' · ' + esc(S.t) + '</div><span class="counter"></span>' : '<div class="bar"><i id="gbar" style="width:0"></i></div><span class="counter" id="gcnt"></span>') + '</div>' +
       (explore ? '' : '<div class="geo-ask" id="gask"></div>') + '<div class="geo-map" id="gmap"></div></div>';
     document.getElementById('quit').onclick = () => this.geoHome();
-    const M = this._gmap = this.geoMap(document.getElementById('gmap'), o.zone, k => explore ? this.geoInfo(k) : this.geoTap(k));
+    this._gsel = null;
+    this._gmap = this.geoMap(document.getElementById('gmap'), o.map, S, k => explore ? this.geoInfo(k) : o.how === 'tap' ? this.geoTap(k) : null);
     if (explore) return this.geoInfo(null);
-    M.home(); this.geoAsk();
+    this.geoAsk();
   },
+  geoItem(k){ return this.gm.o.M.items[k]; },
   geoAsk(){
-    const G = this.gm, t = G.list[G.i], cap = G.o.mode === 'cap';
+    const G = this.gm, o = G.o, S = o.S, t = G.list[G.i], it = this.geoItem(t), cap = o.ask === 'cap';
     document.getElementById('gbar').style.width = (G.i / G.list.length * 100) + '%';
     document.getElementById('gcnt').textContent = (G.i + 1) + '/' + G.list.length;
-    document.getElementById('gask').innerHTML = '<div class="q">' + (cap ? 'Touche le pays dont c’est la capitale :' : 'Touche ce pays sur la carte :') + '</div><div class="n">' + esc(GEO_EU[t][cap ? 1 : 0]) + '</div><div class="fb" id="gfb"></div>';
+    const ask = document.getElementById('gask');
+    if (o.how === 'write'){
+      const q = cap ? (S.cw.startsWith('la ') ? 'Quelle est ' : 'Quel est ') + S.cw + ' de ' + S.q + ' ?' : 'Comment s’appelle ' + (S.q || 'cet endroit') + ' ?';
+      ask.innerHTML = '<div class="q">' + q + '</div><form class="geo-write" id="gform" autocomplete="off"><input id="gans" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Écris ta réponse" aria-label="Ta réponse">' +
+        '<button class="btn small" id="gok">Valider</button></form><div class="fb" id="gfb"></div><button class="geo-skip" id="gskip">Je ne sais pas</button>';
+      this._gmap.set(t, 'sel'); this._gmap.focus(t, true); this._gmap.ring(t);
+      const inp = document.getElementById('gans');
+      document.getElementById('gform').onsubmit = e => { e.preventDefault(); this.geoWrite(inp.value); };
+      document.getElementById('gskip').onclick = () => this.geoWrite(null);
+      setTimeout(() => { try { inp.focus({ preventScroll: true }); } catch(e){} }, 120);
+    } else {
+      const q = cap ? 'Touche ' + S.w + ' dont c’est ' + S.cw + ' :' : 'Touche ' + (S.q ? S.q + ' ' : '') + 'sur la carte :';
+      ask.innerHTML = '<div class="q">' + q + '</div><div class="n">' + esc(cap ? it.c : it.n) + '</div><div class="fb" id="gfb"></div>';
+    }
   },
   geoFb(cls, txt){ const f = document.getElementById('gfb'); if (f){ f.className = 'fb ' + cls; f.textContent = txt; } },
+  geoCapOf(k){ const it = this.geoItem(k), S = this.gm.o.S; return it.c + ' est ' + S.cw + ' ' + geoDu(it.le) + '.'; },
   geoTap(k){
-    const G = this.gm, M = this._gmap, t = G.list[G.i], cap = G.o.mode === 'cap';
+    const G = this.gm, M = this._gmap, t = G.list[G.i], cap = G.o.ask === 'cap';
     if (G.lock || !k) return;
-    const capOf = x => GEO_EU[x][1] + ' est la capitale ' + geoDu(x) + '.';
     if (k === t){
       const first = !G.tries; G.lock = true; if (first) G.ok++;
-      G.res[t] = first ? 'ok' : 'ok2'; M.set(t, 'ok');
+      G.res[t] = first ? 'ok' : 'ok2'; M.set(t, 'ok'); M.clearFx();
       if (cap) M.cap(t);
-      this.geoFb('ok', (first ? ['Bravo !', 'Exact !', 'Parfait !'][G.i % 3] : 'Trouvé !') + (cap ? ' ' + capOf(t) : ''));
+      this.geoFb('ok', (first ? ['Bravo !', 'Exact !', 'Parfait !'][G.i % 3] : 'Trouvé !') + (cap ? ' ' + this.geoCapOf(t) : ''));
       setTimeout(() => this.geoNext(), cap ? 1600 : 900);
       return;
     }
+    const kit = this.geoItem(k); if (!kit) return;
     G.tries++; M.flash(k);
-    if (G.tries < 3) return this.geoFb('ko', 'Non, ça, c’est ' + geoLe(k) + (cap ? ' (capitale : ' + GEO_EU[k][1] + ')' : '') + '. Encore ' + (3 - G.tries) + ' essai' + (G.tries === 1 ? 's' : '') + '.');
+    if (G.tries < 3) return this.geoFb('ko', 'Non, ça, c’est ' + kit.le + (cap && kit.c ? ' (' + G.o.S.cw.replace(/^(la|le) /, '') + ' : ' + kit.c + ')' : '') + '. Encore ' + (3 - G.tries) + ' essai' + (G.tries === 1 ? 's' : '') + '.');
+    this.geoReveal(cap ? 'C’était ' + this.geoItem(t).le + ' : ' + this.geoCapOf(t) : 'Voici ' + this.geoItem(t).le + '.');
+  },
+  // Montre la bonne réponse après les essais ratés, puis attend « Suivant »
+  geoReveal(msg){
+    const G = this.gm, M = this._gmap, t = G.list[G.i];
     G.lock = true; G.res[t] = 'miss';
-    M.set(t, 'hint'); M.focus(t); M.ring(t); if (cap) M.cap(t);
-    this.geoFb('miss', cap ? 'C’était ' + geoLe(t) + ' : ' + capOf(t) : 'Voici ' + geoLe(t) + '.');
+    M.set(t, 'hint'); M.focus(t); M.clearFx(); M.ring(t); if (G.o.ask === 'cap') M.cap(t);
+    this.geoFb('miss', msg);
+    const sk = document.getElementById('gskip'); if (sk) sk.remove();
     const nx = document.createElement('button'); nx.className = 'btn geo-next'; nx.textContent = 'Suivant';
     nx.onclick = () => { nx.remove(); M.set(t, 'miss'); this.geoNext(); };
     document.getElementById('gmap').appendChild(nx);
+    setTimeout(() => nx.focus(), 50);
+  },
+  geoWrite(v){
+    const G = this.gm, M = this._gmap, t = G.list[G.i], it = this.geoItem(t), cap = G.o.ask === 'cap';
+    if (G.lock) return;
+    const good = cap ? it.c : it.n, alts = [good].concat(String((cap ? it.ca : it.a) || '').split('|').filter(Boolean));
+    const inp = document.getElementById('gans');
+    if (v != null && !String(v).trim()) return inp.focus();
+    const r = v == null ? null : geoMatch(v, alts);
+    if (r){
+      const first = !G.tries; G.lock = true; if (first) G.ok++;
+      G.res[t] = first ? 'ok' : 'ok2'; M.set(t, 'ok'); M.clearFx(); if (cap) M.cap(t);
+      inp.value = good; inp.readOnly = true; inp.classList.add('ok');
+      this.geoFb('ok', (r === 'near' ? 'Juste ! Attention à l’orthographe : ' + good + '.' : first ? ['Bravo !', 'Exact !', 'Parfait !'][G.i % 3] : 'Trouvé !') + (cap ? ' ' + this.geoCapOf(t) : ''));
+      setTimeout(() => this.geoNext(), r === 'near' || cap ? 1900 : 1000);
+      return;
+    }
+    G.tries++;
+    if (v != null && G.tries < 2){ inp.classList.add('ko'); setTimeout(() => inp.classList.remove('ko'), 600); inp.select(); return this.geoFb('ko', 'Ce n’est pas ça. Encore un essai.'); }
+    inp.value = good; inp.readOnly = true; inp.classList.add('miss');
+    const fo = document.getElementById('gok'); if (fo) fo.disabled = true;
+    this.geoReveal(cap ? this.geoCapOf(t) : 'C’était ' + it.le + '.');
   },
   geoNext(){
     const G = this.gm;
@@ -2001,73 +2176,91 @@ const Student = {
     this.geoAsk();
   },
   geoInfo(k){
-    const M = this._gmap, map = document.getElementById('gmap'), old = map.querySelector('.geo-info');
+    const M = this._gmap, o = this.gm.o, map = document.getElementById('gmap'), old = map.querySelector('.geo-info');
     if (old) old.remove();
     if (this._gsel) M.set(this._gsel, null);
     M.clearFx(); this._gsel = k;
     const box = document.createElement('div'); box.className = 'geo-info';
-    if (!k){ box.innerHTML = 'Touche un pays pour voir son nom et sa capitale.'; M.home(); }
+    const it = k && o.M.items[k];
+    if (!it){ box.innerHTML = 'Touche un endroit pour voir son nom' + (o.S.cap ? ' et ' + o.S.cw : '') + '.'; }
     else {
-      M.set(k, 'sel'); M.cap(k);
-      box.innerHTML = '<div style="display:flex;align-items:flex-start;gap:8px"><div style="flex:1"><b>' + esc(GEO_EU[k][0]) + '</b>Capitale : ' + esc(GEO_EU[k][1]) + '</div>' +
+      M.set(k, 'sel'); if (o.S.cap && it.c) M.cap(k);
+      const cw = o.S.cw ? o.S.cw.replace(/^(la|le) /, '') : '';
+      box.innerHTML = '<div style="display:flex;align-items:flex-start;gap:8px"><div style="flex:1;min-width:0"><b>' + esc(it.n) + '</b>' + (o.S.cap && it.c ? esc(cw.charAt(0).toUpperCase() + cw.slice(1)) + ' : ' + esc(it.c) : '') + '</div>' +
         (TTS.ok ? '<button class="icon-btn" id="gsay" aria-label="Écouter">' + I.speaker + '</button>' : '') + '</div>' +
-        '<div style="margin-top:6px">' + (GEO_EU[k][2] ? '<span class="pill blue">Membre de l’Union européenne</span>' : '<span class="pill">Hors de l’Union européenne</span>') + '</div>';
+        (it.i ? '<div style="margin-top:6px"><span class="pill ' + (it.ib || '') + '">' + esc(it.i) + '</span></div>' : '');
     }
     map.appendChild(box);
-    const say = document.getElementById('gsay'); if (say) say.onclick = () => TTS.speak(geoLe(k) + '. Capitale : ' + GEO_EU[k][1] + '.', say);
+    const say = document.getElementById('gsay'); if (say) say.onclick = () => TTS.speak(it.le.charAt(0).toUpperCase() + it.le.slice(1) + (o.S.cap && it.c ? '. ' + o.S.cw.charAt(0).toUpperCase() + o.S.cw.slice(1) + ' : ' + it.c : '') + '.', say);
   },
   geoDone(){
-    const G = this.gm, n = G.list.length, s = Math.round((Date.now() - G.t0) / 1000), cap = G.o.mode === 'cap';
+    const G = this.gm, o = G.o, n = G.list.length, s = Math.round((Date.now() - G.t0) / 1000), cap = o.ask === 'cap';
     const weak = G.list.filter(k => G.res[k] !== 'ok');
     let rec = false;
     if (!G.retry){
-      const best = this.geoBest(), bk = G.o.mode + ':' + G.o.zone + ':' + G.o.len, b = best[bk];
-      if (!b || G.ok > b.ok || (G.ok === b.ok && s < b.s)){ rec = !!b; best[bk] = { ok: G.ok, n, s }; store.set('exos_geo_best', JSON.stringify(best)); }
+      const best = this.geoBest(), bk = this.geoBestKey(o), b = best[bk];
+      if (!b || G.ok > b.ok || (G.ok === b.ok && s < b.s)){ rec = !!b; best[bk] = { ok: G.ok, n, s }; store.set('exos_geo_best2', JSON.stringify(best)); }
     }
+    if (this.code) sb.rpc('student_geo_save', { p_code: this.code, p_game: { map: o.map, set: o.set, ask: o.ask, how: o.how, n, ok: G.ok, s, weak, retry: G.retry } }).then(() => {}, () => {});
+    const cw = o.S.cw ? o.S.cw.replace(/^(la|le) /, '') : '';
     $app.innerHTML = '<div class="screen center result"><div class="app-icon" style="background:linear-gradient(160deg,#4cd964,#1f9e3d);box-shadow:none">' + I.globe + '</div>' +
-      '<h1>' + (cap ? 'Capitales' : 'Pays') + ' d’Europe</h1><div class="big-score">' + G.ok + ' / ' + n + '</div><p>trouvés du premier coup, en ' + fmtDuration(s) + '</p>' +
+      '<h1>' + esc(o.M.t) + ' · ' + esc(o.S.t) + '</h1><div class="big-score">' + G.ok + ' / ' + n + '</div><p>trouvés du premier coup, en ' + fmtDuration(s) + '</p>' +
       (rec ? '<p><span class="pill green">Nouveau record !</span></p>' : '') +
-      (weak.length ? '<div class="section-h">À revoir</div><div class="group">' + weak.map(k => '<div class="row"><div class="main"><div class="t">' + esc(GEO_EU[k][0]) + '</div><div class="s">Capitale : ' + esc(GEO_EU[k][1]) + '</div></div>' +
-          (G.res[k] === 'miss' ? '<span class="pill orange">Pas trouvé</span>' : '<span class="pill">Trouvé après une erreur</span>') + '</div>').join('') + '</div>'
+      (weak.length ? '<div class="section-h">À revoir</div><div class="group">' + weak.map(k => { const it = this.geoItem(k); return '<div class="row"><div class="main"><div class="t">' + esc(it.n) + '</div>' + (o.S.cap && it.c ? '<div class="s">' + esc(cw.charAt(0).toUpperCase() + cw.slice(1)) + ' : ' + esc(it.c) + '</div>' : '') + '</div>' +
+          (G.res[k] === 'miss' ? '<span class="pill orange">Pas trouvé</span>' : '<span class="pill">Trouvé après une erreur</span>') + '</div>'; }).join('') + '</div>'
         : '<p>Aucune erreur : bravo !</p>') +
       '<div class="stack mt2">' + (weak.length ? '<button class="btn" id="gerr">Rejouer ceux à revoir</button>' : '') +
-      '<button class="btn' + (weak.length ? ' tinted' : '') + '" id="gagain">Rejouer</button><button class="btn plain" id="gback">Retour à J’étudie</button></div></div>';
+      '<button class="btn' + (weak.length ? ' tinted' : '') + '" id="gagain">Rejouer</button><button class="btn plain" id="ghome">Changer de jeu</button></div></div>';
     window.scrollTo(0, 0);
     const ge = document.getElementById('gerr'); if (ge) ge.onclick = () => this.geoStart(shuffle(weak));
     document.getElementById('gagain').onclick = () => this.geoStart();
-    document.getElementById('gback').onclick = () => { this.stab = 'study'; this.renderList(); };
+    document.getElementById('ghome').onclick = () => this.geoHome();
   },
-  // Carte zoomable (pincer, molette, glisser) ; onTap reçoit la clé du pays touché
-  geoMap(el, zone, onTap){
-    const D = this._geo, W = D.w, H = D.h, NS = 'http://www.w3.org/2000/svg', inZone = new Set(this.geoKeys(zone));
-    el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Carte de l’Europe"><path class="geo-ctx" d="' + D.ctx + '"/>' +
-      Object.keys(D.c).map(k => '<path class="geo-c' + (inZone.has(k) ? '' : ' off') + '" data-k="' + k + '" d="' + D.c[k].d + '"/>').join('') +
-      Object.keys(D.c).filter(k => D.c[k].dot && inZone.has(k)).map(k => '<circle class="geo-dot" data-k="' + k + '" data-s="6" cx="' + D.c[k].dot[0] + '" cy="' + D.c[k].dot[1] + '"/>').join('') +
+  // Carte zoomable (pincer, molette, glisser) ; onTap reçoit la clé de l'endroit touché
+  geoMap(el, map, S, onTap){
+    const D = this._geo[map], W = D.w, H = D.h, NS = 'http://www.w3.org/2000/svg', inSet = new Set(S.k);
+    const item = (k, v) => {
+      const act = v.l === S.l, cls = act ? 'geo-c' + (inSet.has(k) ? '' : ' off') : 'geo-dec geo-dec-' + v.l, kind = v.line ? ' geo-line' : v.under ? ' geo-sea' : v.plain ? ' geo-plain' : v.l === 'relief' ? ' geo-mtn' : '';
+      const k_ = act ? ' data-k="' + k + '"' : '';
+      return (v.line && act ? '<path class="geo-hit"' + k_ + ' d="' + v.d + '"/>' : '') + '<path class="' + cls + kind + '"' + k_ + ' d="' + v.d + '"/>';
+    };
+    const its = Object.entries(D.it), base = D.base || [];
+    el.classList.toggle('out', D.bg === 'out');
+    el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Carte">' +
+      base.filter(b => b.under).map(b => '<path class="' + b.c + '" d="' + b.d + '"/>').join('') +
+      its.filter(([k, v]) => v.under).map(([k, v]) => item(k, v)).join('') +
+      base.filter(b => !b.under).map(b => '<path class="' + b.c + '" d="' + b.d + '"/>').join('') +
+      its.filter(([k, v]) => !v.under && !v.line && v.plain).map(([k, v]) => item(k, v)).join('') +
+      its.filter(([k, v]) => !v.under && !v.line && !v.plain).map(([k, v]) => item(k, v)).join('') +
+      its.filter(([k, v]) => v.line).map(([k, v]) => item(k, v)).join('') +
+      its.filter(([k, v]) => v.dot && v.l === S.l && inSet.has(k)).map(([k, v]) => '<circle class="geo-dot" data-k="' + k + '" data-s="6" cx="' + v.dot[0] + '" cy="' + v.dot[1] + '"/>').join('') +
+      (D.lbl || []).map(l => '<text class="geo-blbl" data-s="11" x="' + l[0] + '" y="' + l[1] + '" text-anchor="middle">' + esc(l[2]) + '</text>').join('') +
       '<g class="gfx"></g></svg><div class="geo-zoom"><button data-z="1" aria-label="Zoomer">+</button><button data-z="-1" aria-label="Dézoomer">−</button>' +
       '<button data-z="0" aria-label="Voir toute la carte"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>' +
       '<div class="geo-src">Fond de carte : Natural Earth</div>';
     const svg = el.querySelector('svg'), fx = svg.querySelector('.gfx'), vb = { x: 0, y: 0, w: W, h: H };
     const rect = () => svg.getBoundingClientRect();
-    const bbox = k => { const p = svg.querySelector('path[data-k="' + k + '"]').getBBox(), d = D.c[k].dot; return d ? { x: d[0] - 4, y: d[1] - 4, width: 8, height: 8 } : p; };
+    const node = k => svg.querySelector('[data-k="' + k + '"]:not(.geo-hit)') || svg.querySelector('[data-k="' + k + '"]');
+    const bbox = k => { const d = D.it[k] && D.it[k].dot; return d ? { x: d[0] - 4, y: d[1] - 4, width: 8, height: 8 } : node(k).getBBox(); };
     const apply = () => {
       const r = rect(), u = vb.w / (r.width || 1);
       vb.x = Math.min(Math.max(vb.x, -vb.w / 2), W - vb.w / 2); vb.y = Math.min(Math.max(vb.y, -vb.h / 2), H - vb.h / 2);
       svg.setAttribute('viewBox', vb.x + ' ' + vb.y + ' ' + vb.w + ' ' + vb.h);
-      svg.querySelectorAll('[data-s]').forEach(x => { const s = x.dataset.s * u; if (x.tagName === 'text'){ x.style.fontSize = s + 'px'; x.style.strokeWidth = (s / 3.7) + 'px'; x.setAttribute('dx', (x.getAttribute('text-anchor') === 'end' ? -7 : 7) * u); x.setAttribute('dy', 4.5 * u); } else x.setAttribute('r', s); });
+      svg.querySelectorAll('[data-s]').forEach(x => { const s = x.dataset.s * u; if (x.tagName === 'text'){ x.style.fontSize = s + 'px'; x.style.strokeWidth = (s / 3.7) + 'px'; if (x.classList.contains('geo-lbl')){ x.setAttribute('dx', (x.getAttribute('text-anchor') === 'end' ? -7 : 7) * u); x.setAttribute('dy', 4.5 * u); } } else x.setAttribute('r', s); });
     };
     const fit = b => {
       const r = rect(), ar = (r.width || 1) / (r.height || 1);
       let w = b.w, h = b.h; if (w / h > ar) h = w / ar; else w = h * ar;
       Object.assign(vb, { x: b.x + b.w / 2 - w / 2, y: b.y + b.h / 2 - h / 2, w, h }); apply();
     };
-    const home = () => fit(zone === 'ue' ? { x: 100, y: 230, w: 800, h: 650 } : { x: 0, y: 0, w: W, h: H });
+    const home = () => fit(S.home || { x: 0, y: 0, w: W, h: H });
     const zoomAt = (f, cx, cy) => {
-      const r = rect(), nw = Math.min(Math.max(vb.w * f, 50), Math.max(W, H * r.width / r.height) * 1.1), g = nw / vb.w;
+      const r = rect(), nw = Math.min(Math.max(vb.w * f, W / 20), Math.max(W, H * r.width / r.height) * 1.1), g = nw / vb.w;
       const sx = vb.x + (cx - r.left) * vb.w / r.width, sy = vb.y + (cy - r.top) * vb.h / r.height;
       vb.x = sx - (sx - vb.x) * g; vb.y = sy - (sy - vb.y) * g; vb.w = nw; vb.h *= g; apply();
     };
-    // Toucher : tolérance de quelques pixels pour les tout petits pays
-    const hit = (x, y) => { const t = document.elementFromPoint(x, y), n = t && t.closest && t.closest('[data-k]'); return n ? n.dataset.k : null; };
+    // Toucher : tolérance de quelques pixels pour les tout petits endroits
+    const hit = (x, y) => { const t = document.elementFromPoint(x, y), n = t && t.closest && t.closest('[data-k]'); return n && svg.contains(n) ? n.dataset.k : null; };
     const pick = (x, y) => {
       let k = hit(x, y); if (k) return k;
       const u = vb.w / rect().width;
@@ -2109,17 +2302,19 @@ const Student = {
       home,
       set(k, cls){ svg.querySelectorAll('[data-k="' + k + '"]').forEach(x => { x.classList.remove('ok', 'miss', 'ko', 'hint', 'sel'); if (cls) x.classList.add(cls); }); },
       flash(k){ svg.querySelectorAll('[data-k="' + k + '"]').forEach(x => { x.classList.add('ko'); setTimeout(() => x.classList.remove('ko'), 650); }); },
-      // Recadre si le pays est trop petit à l'écran ou hors de la vue
-      focus(k){
-        const b = bbox(k), [cx, cy] = centre(k), u = vb.w / rect().width;
-        if (Math.max(b.width, b.height) / u < 16) fit({ x: cx - 90, y: cy - 90, w: 180, h: 180 });
-        else if (cx < vb.x || cx > vb.x + vb.w || cy < vb.y || cy > vb.y + vb.h) fit({ x: b.x - 40, y: b.y - 40, w: b.width + 80, h: b.height + 80 });
+      // Recadre si l'endroit est trop petit à l'écran ou hors de la vue (always : toujours le centrer)
+      focus(k, always){
+        const b = bbox(k), [cx, cy] = centre(k), u = vb.w / rect().width, small = Math.max(b.width, b.height) / u < 16;
+        const out = cx < vb.x || cx > vb.x + vb.w || cy < vb.y || cy > vb.y + vb.h;
+        if (small) fit({ x: cx - W * .09, y: cy - W * .09, w: W * .18, h: W * .18 });
+        else if (out || always && (b.width > vb.w || b.height > vb.h || b.x < vb.x || b.y < vb.y || b.x + b.width > vb.x + vb.w || b.y + b.height > vb.y + vb.h)) fit({ x: b.x - W * .04, y: b.y - W * .04, w: b.width + W * .08, h: b.height + W * .08 });
       },
-      ring(k){ const b = bbox(k); if (Math.max(b.width, b.height) < 30){ const [cx, cy] = centre(k); add('circle', { class: 'geo-ring', cx, cy, 'data-s': 18 }); apply(); } },
+      ring(k){ const b = bbox(k); if (Math.max(b.width, b.height) < W * .03){ const [cx, cy] = centre(k); add('circle', { class: 'geo-ring', cx, cy, 'data-s': 18 }); apply(); } },
       cap(k){
-        const [x, y] = D.c[k].cap;
+        const v = D.it[k]; if (!v || !v.cap) return;
+        const [x, y] = v.cap;
         add('circle', { class: 'geo-cap', cx: x, cy: y, 'data-s': 4 });
-        add('text', { class: 'geo-lbl', x, y, 'data-s': 13, 'text-anchor': x > W - 120 ? 'end' : 'start' }).textContent = GEO_EU[k][1];
+        add('text', { class: 'geo-lbl', x, y, 'data-s': 13, 'text-anchor': x > W - 120 ? 'end' : 'start' }).textContent = GEO_MAPS[map].items[k].c;
         apply();
       },
       clearFx(){ fx.innerHTML = ''; }
@@ -4368,12 +4563,14 @@ const Prof = {
         return '<div class="section-h">Défi de la semaine</div><div class="group"><div class="inner-pad"><div class="seg">' + [0, 50, 100, 200, 300, 500].map(v => '<button data-ch="' + v + '" class="' + ((ch.target || 0) === v ? 'on' : '') + '">' + (v || 'Aucun') + '</button>').join('') + '</div></div>' +
           (ch.target ? '<div class="row"><div class="main"><div class="t">' + prog + ' / ' + ch.target + ' bonnes réponses</div><div class="bar"><i style="width:' + Math.min(100, prog / ch.target * 100) + '%;background:var(--purple)"></i></div></div></div>' : '') + '</div>' +
           '<p class="foot">Un objectif commun en bonnes réponses aux exercices, du lundi au dimanche. Les élèves voient la progression de la classe, jamais un classement.</p>' +
+          '<div class="section-h">Jeu de géographie</div><div class="group"><button class="row" id="geores"><div class="main"><div class="t">Résultats de la classe</div><div class="s">Parties jouées et endroits les plus ratés</div></div><span class="chev">' + I.chevR + '</span></button></div>' +
           '<div class="section-h">Outils de J\u2019étudie</div><div class="group"><button class="row" id="tools"><div class="main"><div class="t">Outils visibles par les élèves</div><div class="s">' + (n === STUDY_TOOLS.length ? 'Tous les outils (' + n + ')' : n + ' sur ' + STUDY_TOOLS.length) + '</div></div><span class="chev">' + I.chevR + '</span></button></div>'; })() +
       '<div class="group mt2"><button class="row center" id="ren">Renommer la classe</button><button class="row danger" id="delc">Supprimer la classe</button></div></div>';
     this.shell('classes', html);
     document.getElementById('adds').onclick = () => this.addStudentsSheet(c);
     document.getElementById('ren').onclick = () => this.classNameSheet(c);
     document.getElementById('tools').onclick = () => this.toolsSheet(c);
+    document.getElementById('geores').onclick = () => this.geoClassSheet(c);
     $app.querySelectorAll('[data-ch]').forEach(b => b.onclick = async () => {
       const v = +b.dataset.ch;
       const { error } = await sb.from('classes').update({ challenge: v ? { target: v } : null }).eq('id', c.id);
@@ -4415,6 +4612,48 @@ const Prof = {
         close(); await this.load(); this.renderClass(c.id); toast('Outils mis à jour');
       };
     });
+  },
+
+  /* ---------- Jeu de géographie : résultats ---------- */
+  async geoClassSheet(c){
+    const ids = c.students.map(s => s.id);
+    const { el } = openSheet('<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Fermer</button><h2>Jeu de géographie</h2><span style="min-width:60px"></span></div><div id="gcs"><div class="spinner" style="margin:40px auto"></div></div>');
+    const { data, error } = ids.length ? await sb.from('geo_games').select('student_id,map,set_key,ask,how,n,ok,seconds,weak,created_at').in('student_id', ids).order('created_at', { ascending: false }).limit(2000) : { data: [] };
+    const box = el.querySelector('#gcs');
+    if (error){ box.innerHTML = '<div class="empty">Impossible de charger les résultats. Réessaie dans un instant.</div>'; return; }
+    const games = data || [];
+    if (!games.length){ box.innerHTML = '<div class="empty"><b>Aucune partie pour l’instant</b>Les élèves trouvent le jeu dans l’onglet J’étudie de leur appli.</div>'; return; }
+    const pct = L => { const n = L.reduce((t, g) => t + g.n, 0); return n ? Math.round(L.reduce((t, g) => t + g.ok, 0) / n * 100) : 0; };
+    const groups = {};
+    games.forEach(g => { const k = g.map + ':' + g.set_key + ':' + g.ask; (groups[k] = groups[k] || []).push(g); });
+    const players = new Set(games.map(g => g.student_id));
+    box.innerHTML = '<div class="tiles"><div class="tile"><div class="n">' + games.length + '</div><div class="l">Parties</div></div>' +
+      '<div class="tile"><div class="n">' + players.size + ' / ' + c.students.length + '</div><div class="l">Élèves</div></div>' +
+      '<div class="tile"><div class="n">' + pct(games) + ' %</div><div class="l">Du premier coup</div></div></div>' +
+      Object.values(groups).sort((a, b) => b.length - a.length).map(L => {
+        const M = GEO_MAPS[L[0].map], cnt = {};
+        L.forEach(g => (g.weak || []).forEach(k => { cnt[k] = (cnt[k] || 0) + 1; }));
+        const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 8);
+        const name = k => { const it = M && M.items[k]; return it ? (L[0].ask === 'cap' && it.c ? it.c : it.n) : k; };
+        return '<div class="section-h">' + esc(geoGameLabel(L[0])) + '<span style="text-transform:none;white-space:nowrap;margin-left:8px">' + L.length + ' partie' + (L.length > 1 ? 's' : '') + ' · ' + pct(L) + ' %</span></div><div class="group">' +
+          (top.length ? top.map(([k, n]) => '<div class="row"><div class="main t">' + esc(name(k)) + '</div><span class="val">raté ' + n + ' fois</span></div>').join('') : '<div class="row"><div class="main t">Rien de raté : bravo à la classe !</div></div>') + '</div>';
+      }).join('') +
+      '<p class="foot">« Raté » compte les endroits pas trouvés du premier coup. Les plus souvent ratés sont en haut : c’est par eux qu’il faut commencer en classe.</p>' +
+      '<div class="section-h">Élèves</div><div class="group">' + c.students.map(s => {
+        const L = games.filter(g => g.student_id === s.id);
+        return '<div class="row"><div class="avatar">' + initials(s.first_name) + '</div><div class="main"><div class="t">' + esc(s.first_name) + '</div><div class="s">' +
+          (L.length ? L.length + ' partie' + (L.length > 1 ? 's' : '') + ' · dernière ' + fmtDateTime(L[0].created_at) : 'Pas encore joué') + '</div></div>' + (L.length ? '<span class="val">' + pct(L) + ' %</span>' : '') + '</div>';
+      }).join('') + '</div><p class="foot">Le pourcentage indique les réponses trouvées du premier coup.</p>';
+  },
+  async geoStudent(sid){
+    const box = document.getElementById('geostu'); if (!box) return;
+    const { data } = await sb.from('geo_games').select('map,set_key,ask,how,n,ok,seconds,weak,created_at').eq('student_id', sid).order('created_at', { ascending: false }).limit(15);
+    if (!data || !data.length || !document.body.contains(box)) return;
+    box.innerHTML = '<div class="section-h">Jeu de géographie</div><div class="group">' + data.map(g => {
+      const M = GEO_MAPS[g.map], miss = (g.weak || []).map(k => { const it = M && M.items[k]; return it ? (g.ask === 'cap' && it.c ? it.c : it.n) : k; });
+      return '<div class="row"><div class="main"><div class="t">' + esc(geoGameLabel(g)) + (g.how === 'write' ? ' · écrit' : '') + '</div><div class="s">' + fmtDateTime(g.created_at) + ' · ' + fmtDuration(g.seconds) +
+        (miss.length ? ' · à revoir : ' + esc(miss.slice(0, 6).join(', ')) + (miss.length > 6 ? '…' : '') : '') + '</div></div><span class="val">' + g.ok + ' / ' + g.n + '</span></div>';
+    }).join('') + '</div><p class="foot">Les 15 dernières parties. Le score compte les réponses trouvées du premier coup.</p>';
   },
 
   evalStatus(e){ return e.status === 'open' ? ['En cours', 'green'] : e.status === 'closed' ? ['Terminée', ''] : ['Brouillon', 'orange']; },
@@ -4843,6 +5082,7 @@ const Prof = {
       '<div class="row"><div class="main t">« Je n’ai pas compris »</div><span class="val">' + (this.flags || []).filter(f => f.student_id === sid).length + '</span></div></div>' +
       '<p class="foot">Le score moyen se calcule sur le meilleur essai de chaque série commencée.</p>' +
       this.copySection(sid, stu) +
+      '<div id="geostu"></div>' +
       '<div class="section-h">Séries (' + list.length + ')<button id="asgstu">Assigner des séries</button></div>' +
       (list.length ? '<div class="group">' + list.map(x => {
         const [lab, col] = ST[x.st.status];
@@ -4853,6 +5093,7 @@ const Prof = {
     this.shell('classes', html);
     document.getElementById('code').onclick = () => this.studentSheet(c, c.students.find(s => s.id === sid));
     document.getElementById('asgstu').onclick = () => this.assignSheet(null, { student: sid });
+    this.geoStudent(sid);
     $app.querySelectorAll('[data-a]').forEach(b => b.onclick = () => { const x = list.find(y => y.a.id === b.dataset.a); this.attemptSheet(x, x.set, true); });
   },
 
