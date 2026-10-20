@@ -612,6 +612,15 @@ a.cblock.row{display:flex;color:inherit;text-decoration:none}
 .geo-c.geo-sea.sel,.geo-c.geo-mtn.sel,.geo-c.geo-plain.sel{fill:color-mix(in srgb,var(--blue) 45%,var(--geo-land))}
 .geo-c.geo-sea.ok,.geo-c.geo-mtn.ok,.geo-c.geo-plain.ok{fill:var(--green)}.geo-c.geo-sea.miss,.geo-c.geo-mtn.miss,.geo-c.geo-plain.miss{fill:var(--orange)}.geo-c.geo-sea.ko,.geo-c.geo-mtn.ko,.geo-c.geo-plain.ko{fill:var(--red)}
 .geo-c.geo-sea.hint,.geo-c.geo-mtn.hint,.geo-c.geo-plain.hint{animation:geoPulse .9s ease-in-out infinite alternate}
+.seg.wrap{flex-wrap:wrap}.seg.wrap button{flex:1 1 40%}
+.geo-dec-ligne{display:none}
+.geo-map.lignes .geo-c.geo-line:not(.ok):not(.ko):not(.miss):not(.sel):not(.hint){stroke:var(--label2);stroke-width:2}
+.geo-map.coord .geo-dk-EQ,.geo-map.coord .geo-dk-GRW{display:inline;fill:none;stroke:var(--label2);stroke-width:1.3;opacity:.8}
+.geo-glbl{font-family:Inter,system-ui,sans-serif;font-weight:600;fill:var(--label2);paint-order:stroke;stroke:var(--geo-sea);pointer-events:none}
+.geo-pt{fill:var(--blue);stroke:var(--card);stroke-width:2;pointer-events:none}.geo-pt.ok{fill:var(--green)}.geo-pt.ko{fill:var(--red)}.geo-pt.hint{fill:var(--orange)}
+.geo-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:420px;margin:8px auto 0}
+.geo-opts button{min-height:42px;border-radius:10px;border:0;background:var(--card);color:var(--label);font-size:16px;font-weight:600;box-shadow:inset 0 0 0 1px var(--sep);font-variant-numeric:tabular-nums}
+.geo-opts button.ok{background:var(--green);color:#fff;box-shadow:none}.geo-opts button.ko{background:var(--red);color:#fff;box-shadow:none}.geo-opts button:disabled{opacity:1}
 @keyframes geoPulseL{from{stroke:var(--geo-river)}to{stroke:var(--orange)}}
 @media (hover:hover){.geo-hit:hover+.geo-line{stroke:var(--blue)}}
 @media (prefers-reduced-motion:reduce){.geo-c.hint,.geo-c.geo-line.hint,.geo-ring{animation:none}.geo-c.hint{fill:var(--orange)}.geo-c.geo-line.hint{stroke:var(--orange)}}
@@ -703,6 +712,15 @@ body.easy .f-txt{font-size:25px}
   .pcard svg{width:96px;height:96px;display:block;margin:0 auto}
   .pcard .pk{font:700 20px "SF Mono",Menlo,monospace;letter-spacing:.15em;margin-top:6px}
   .pcard .pu{font-size:9px;color:#444;margin-top:4px;word-break:break-all}
+  .gp-page{break-after:page;page-break-after:always}
+  .gp-page:last-child{break-after:auto;page-break-after:auto}
+  .gp-head{display:flex;justify-content:space-between;gap:10px;font-size:12px}
+  .gp-t{font-size:19px;font-weight:700;margin:6mm 0 1mm}
+  .gp-c{font-size:13px;color:#333;margin-bottom:3mm}
+  .gp-map svg{display:block;width:100%;height:auto;max-height:165mm;border:1px solid #999}
+  .gp-list{columns:3;column-gap:8mm;font-size:12.5px;margin-top:4mm}
+  .gp-list div{padding:2.6mm 0 .8mm;border-bottom:1px solid #999;break-inside:avoid;page-break-inside:avoid}
+  .gp-src{font-size:8px;color:#777;margin-top:3mm}
   @page{margin:10mm}
 }
 </style>
@@ -1001,9 +1019,15 @@ const GEO_MAPS = {
       EU: gi('Europe', 'l’Europe'), AS: gi('Asie', 'l’Asie'), AF: gi('Afrique', 'l’Afrique'), NA: gi('Amérique du Nord', 'l’Amérique du Nord'),
       SA: gi('Amérique du Sud', 'l’Amérique du Sud'), OC: gi('Océanie', 'l’Océanie'), AN: gi('Antarctique', 'l’Antarctique', { a: 'Antarctide|Antarctica' }),
       ATL: gi('Océan Atlantique', 'l’océan Atlantique'), PAC: gi('Océan Pacifique', 'l’océan Pacifique'), IND: gi('Océan Indien', 'l’océan Indien'),
-      ARC: gi('Océan Arctique', 'l’océan Arctique', { a: 'Océan glacial Arctique' }), AUS: gi('Océan Austral', 'l’océan Austral', { a: 'Océan Antarctique|Océan glacial Antarctique' })
+      ARC: gi('Océan Arctique', 'l’océan Arctique', { a: 'Océan glacial Arctique' }), AUS: gi('Océan Austral', 'l’océan Austral', { a: 'Océan Antarctique|Océan glacial Antarctique' }),
+      EQ: gi('Équateur', 'l’équateur', { i: 'Latitude 0°' }), TCN: gi('Tropique du Cancer', 'le tropique du Cancer', { a: 'Cancer', i: 'Latitude 23° 26′ nord' }),
+      TCP: gi('Tropique du Capricorne', 'le tropique du Capricorne', { a: 'Capricorne', i: 'Latitude 23° 26′ sud' }),
+      CPN: gi('Cercle polaire arctique', 'le cercle polaire arctique', { a: 'Cercle arctique|Cercle polaire nord', i: 'Latitude 66° 34′ nord' }),
+      CPS: gi('Cercle polaire antarctique', 'le cercle polaire antarctique', { a: 'Cercle antarctique|Cercle polaire sud', i: 'Latitude 66° 34′ sud' }),
+      GRW: gi('Méridien de Greenwich', 'le méridien de Greenwich', { a: 'Greenwich|Méridien d’origine|Méridien 0|Premier méridien', i: 'Longitude 0°' })
     },
-    sets: { cont: { t: 'Les continents', l: 'cont', k: ['EU', 'AS', 'AF', 'NA', 'SA', 'OC', 'AN'], q: 'ce continent' }, ocean: { t: 'Les océans', l: 'ocean', k: ['ATL', 'PAC', 'IND', 'ARC', 'AUS'], q: 'cet océan' } } },
+    sets: { cont: { t: 'Les continents', l: 'cont', k: ['EU', 'AS', 'AF', 'NA', 'SA', 'OC', 'AN'], q: 'ce continent' }, ocean: { t: 'Les océans', l: 'ocean', k: ['ATL', 'PAC', 'IND', 'ARC', 'AUS'], q: 'cet océan' },
+      ligne: { t: 'Lignes imaginaires', l: 'ligne', k: ['EQ', 'TCN', 'TCP', 'CPN', 'CPS', 'GRW'], q: 'cette ligne' }, coord: { t: 'Coordonnées', l: 'coord', k: [], coord: 1 } } },
   physique: { t: 'Europe physique', s: 'Mers, fleuves et reliefs', file: 'europe-physique', items: {
       ATL: gi('Océan Atlantique', 'l’océan Atlantique'), NOR: gi('Mer du Nord', 'la mer du Nord'), MAN: gi('Manche', 'la Manche'), BAL: gi('Mer Baltique', 'la mer Baltique'),
       NRV: gi('Mer de Norvège', 'la mer de Norvège'), GAS: gi('Golfe de Gascogne', 'le golfe de Gascogne'), IRL: gi('Mer d’Irlande', 'la mer d’Irlande'),
@@ -1037,6 +1061,31 @@ const geoMatch = (v, alts) => {
   let near = false;
   for (const a of alts){ const y = geoNorm(a); if (x === y) return 'ok'; if (geoLev(x, y) <= (y.length >= 9 ? 2 : y.length >= 5 ? 1 : 0)) near = true; }
   return near ? 'near' : null;
+};
+// Coordonnées : clé courte « 40N20E » (0 pour l'équateur ou Greenwich) ; projection Natural Earth reprise de data/monde.json
+const geoCoord = {
+  key: (la, lo) => (la ? Math.abs(la) + (la > 0 ? 'N' : 'S') : '0') + (lo ? Math.abs(lo) + (lo > 0 ? 'E' : 'O') : '0'),
+  parse(k){ const m = /^(?:(\d+)([NS])|0)(?:(\d+)([EO])|0)$/.exec(k); return m ? [m[1] ? (m[2] === 'S' ? -m[1] : +m[1]) : 0, m[3] ? (m[4] === 'O' ? -m[3] : +m[3]) : 0] : null; },
+  fmt: (la, lo) => (la ? Math.abs(la) + '° ' + (la > 0 ? 'N' : 'S') : '0°') + ' · ' + (lo ? Math.abs(lo) + '° ' + (lo > 0 ? 'E' : 'O') : '0°'),
+  label(k){ const c = geoCoord.parse(k); return c ? geoCoord.fmt(c[0], c[1]) : k; },
+  A: p => { const p2 = p * p, p4 = p2 * p2; return .8707 - .131979 * p2 + p4 * (-.013791 + p4 * (.003971 * p2 - .001529 * p4)); },
+  B: p => { const p2 = p * p, p4 = p2 * p2; return p * (1.007226 + p2 * (.015085 + p4 * (-.044475 + .028874 * p2 - .005916 * p4))); },
+  fwd(P, la, lo){ const l = ((lo - P.r + 540) % 360 - 180) * Math.PI / 180, p = la * Math.PI / 180; return [P.tx + P.k * l * geoCoord.A(p), P.ty - P.k * geoCoord.B(p)]; },
+  inv(P, x, y){
+    const Y = (P.ty - y) / P.k; let a = -Math.PI / 2, b = Math.PI / 2;
+    if (Y <= geoCoord.B(a) || Y >= geoCoord.B(b)) return null;
+    for (let i = 0; i < 40; i++){ const m = (a + b) / 2; if (geoCoord.B(m) < Y) a = m; else b = m; }
+    const p = (a + b) / 2, l = (x - P.tx) / P.k / geoCoord.A(p);
+    return Math.abs(l) > Math.PI ? null : [p * 180 / Math.PI, (l * 180 / Math.PI + P.r + 540) % 360 - 180];
+  },
+  // points tirés au hasard, de 10 en 10, entre 60° S et 70° N
+  random(n){ const s = new Set(); while (s.size < n) s.add(geoCoord.key((Math.floor(Math.random() * 14) - 6) * 10, (Math.floor(Math.random() * 35) - 16) * 10)); return [...s]; },
+  // trois propositions fausses mais plausibles (hémisphère inversé, voisin à 20°)
+  near(k){
+    const [la, lo] = geoCoord.parse(k), c = [[-la, lo], [la, -lo], [-la, -lo], [la + 20, lo], [la - 20, lo], [la, lo + 20], [la, lo - 20], [la + 10, lo - 30]]
+      .filter(([a, b]) => a >= -80 && a <= 80 && b > -180 && b <= 180).map(([a, b]) => geoCoord.key(a, b)).filter(x => x !== k);
+    return shuffle([...new Set(c)]).slice(0, 3);
+  }
 };
 const geoGameLabel = g => { const M = GEO_MAPS[g.map], S = M && M.sets[g.set_key]; if (!S) return 'Jeu de géographie';
   return M.t + ' · ' + S.t + (g.ask === 'cap' ? ' · ' + (S.cw === 'la capitale' ? 'capitales' : 'chefs-lieux') : ''); };
@@ -1419,7 +1468,8 @@ const Student = {
       if (!data){ store.del('exos_code'); return this.renderLogin('Ce code n\u2019est plus valide.'); }
       this.me = data;
     }
-    const [{ data, error }, cp, fw] = await Promise.all([sb.rpc('student_home', { p_code: this.code }), sb.rpc('student_copies', { p_code: this.code }), sb.rpc('student_worksheets', { p_code: this.code })]);
+    const [{ data, error }, cp, fw, gt] = await Promise.all([sb.rpc('student_home', { p_code: this.code }), sb.rpc('student_copies', { p_code: this.code }), sb.rpc('student_worksheets', { p_code: this.code }), sb.rpc('student_geo_tasks', { p_code: this.code })]);
+    this.geoTasks = gt.error ? (this.geoTasks || []) : (gt.data || []);
     this.fiches = fw.error ? (this.fiches || []) : (fw.data || []);
     if (error || !data) return this.offline();
     this.copies = cp.error ? (this.copies || []) : (cp.data || []);
@@ -1547,6 +1597,7 @@ const Student = {
           return '<div class="progress-card challenge"><div class="row1"><div style="font-weight:600;display:flex;align-items:center;gap:8px"><span style="color:var(--purple);display:flex">' + I.users.replace('width="22" height="22"', 'width="20" height="20"') + '</span>Défi de la classe</div><div style="font-variant-numeric:tabular-nums;font-weight:600;color:' + (ok ? 'var(--green)' : 'var(--label2)') + '">' + ch.done + ' / ' + ch.target + '</div></div>' +
             '<div class="bar" style="height:8px;margin-top:10px"><i style="width:' + pc + '%;background:' + (ok ? 'var(--green)' : 'var(--purple)') + '"></i></div><div style="font-size:14px;color:var(--label2);margin-top:8px">' + (ok ? 'Objectif atteint : bravo à toute la classe !' : 'Bonnes réponses de toute la classe cette semaine. Chacune compte !') + '</div></div>'; })() : '') +
         (rest.length ? '<div class="section-h">' + (top ? 'Ensuite' : 'À faire') + ' (' + rest.length + ')</div>' + grp(rest) : '') +
+        ((this.geoTasks || []).length ? '<div class="section-h">Jeux de géographie (' + this.geoTasks.length + ')</div><div class="group">' + this.geoTasks.map(t => this.geoTaskRow(t)).join('') + '</div>' : '') +
         (mis.length ? '<div class="section-h">Réviser</div><div class="group"><button class="row" id="mist"><div class="main"><div class="t">Mes erreurs</div><div class="s">' + mis.length + ' question' + (mis.length > 1 ? 's' : '') + ' ratée' + (mis.length > 1 ? 's' : '') + ' à retravailler</div></div><span class="pill orange">' + mis.length + '</span><span class="chev">' + I.chevR + '</span></button></div>' : '') +
         (waiting.length ? '<div class="section-h">En cours d\u2019ancrage (' + waiting.length + ')</div>' + grp(waiting) + '<p class="foot">Pour retenir durablement, chaque série se réussit 3 fois, à quelques jours d\u2019écart. L\u2019appli te dit quand revenir.</p>' : '') +
         (done.length ? '<div class="section-h">Acquises · tu peux les refaire pour réviser</div>' + grp(done) : '') +
@@ -1619,6 +1670,7 @@ const Student = {
     $app.querySelectorAll('[data-fiche]').forEach(b => b.onclick = () => this.openFiche(b.dataset.fiche));
     $app.querySelectorAll('[data-stab]').forEach(a => a.onclick = e => { e.preventDefault(); this.stab = a.dataset.stab; this.renderList(); window.scrollTo(0, 0); });
     $app.querySelectorAll('[data-id]').forEach(b => b.onclick = () => this.open(b.dataset.id));
+    $app.querySelectorAll('[data-geotask]').forEach(b => b.onclick = () => { const t = (this.geoTasks || []).find(x => x.id === b.dataset.geotask); if (t){ this._geoFrom = this.stab || 'ex'; this.geoStart(null, t); } });
     $app.querySelectorAll('[data-course]').forEach(b => b.onclick = () => this.openCourse(b.dataset.course));
     $app.querySelectorAll('[data-ev]').forEach(b => b.onclick = () => { const e = evals.find(x => x.id === b.dataset.ev); if (e.my_status === 'locked') this.startEval(e.id); else this.examRules(e); });
     const ts = document.getElementById('tostudy'); if (ts) ts.onclick = () => { this.stab = 'study'; this.renderList(); window.scrollTo(0, 0); };
@@ -2057,19 +2109,23 @@ const Student = {
     return this._geo[map];
   },
   geoHome(){
-    const o = this.geoOpts(), M = o.M, S = o.S, n = S.k.length, b = this.geoBest()[this.geoBestKey(o)], explore = o.how === 'explore';
-    const seg = (name, opts) => '<div class="seg" data-g="' + name + '">' + opts.map(([k, l]) => '<button data-v="' + k + '" class="' + (o[name] === k ? 'on' : '') + '">' + l + '</button>').join('') + '</div>';
+    const o = this.geoOpts(), M = o.M, S = o.S, n = S.coord ? 20 : S.k.length, b = this.geoBest()[this.geoBestKey(o)], explore = o.how === 'explore';
+    const tasks = this.geoTasks || [];
+    const seg = (name, opts, cls) => '<div class="seg' + (cls ? ' ' + cls : '') + '" data-g="' + name + '">' + opts.map(([k, l]) => '<button data-v="' + k + '" class="' + (o[name] === k ? 'on' : '') + '">' + l + '</button>').join('') + '</div>';
     const cw = S.cw ? S.cw.replace(/^(la|le) /, '') : '';
-    const help = explore ? 'Touche un endroit pour voir son nom' + (S.cap ? ' et ' + S.cw : '') + '. Idéal pour apprendre avant de jouer.'
+    const help = S.coord ? (explore ? 'Touche la carte pour lire la latitude et la longitude de cet endroit.' : o.how === 'write' ? 'Un point s’affiche sur la carte : choisis ses coordonnées parmi quatre propositions.' : 'Des coordonnées s’affichent : touche cet endroit sur la carte. Tu as trois essais.')
+      : explore ? 'Touche un endroit pour voir son nom' + (S.cap ? ' et ' + S.cw : '') + '. Idéal pour apprendre avant de jouer.'
       : o.how === 'write' ? 'Un endroit s’allume sur la carte : écris ' + (o.ask === 'cap' ? S.cw : 'son nom') + '. Les accents ne comptent pas. Tu as deux essais.'
       : (o.ask === 'cap' ? 'Le nom d’' + (cw === 'capitale' ? 'une capitale' : 'un chef-lieu') + ' s’affiche : touche ' + S.w + ' qui correspond.' : 'Un nom s’affiche : touche le bon endroit sur la carte.') + ' Tu as trois essais.';
     $app.innerHTML = '<div class="quiz"><div class="quiz-top"><button class="icon-btn mute" id="quit" aria-label="Retour">' + I.x + '</button><div style="flex:1;font-weight:600;text-align:center">Jeu de géographie</div><span class="counter"></span></div>' +
-      '<div class="quiz-body" style="padding-bottom:60px"><div class="section-h" style="margin-top:4px">Quelle carte ?</div><div class="geo-maps">' +
+      '<div class="quiz-body" style="padding-bottom:60px">' +
+      (tasks.length ? '<div class="section-h" style="margin-top:4px">Donné par ton professeur</div><div class="group">' + tasks.map(t => this.geoTaskRow(t)).join('') + '</div>' : '') +
+      '<div class="section-h"' + (tasks.length ? '' : ' style="margin-top:4px"') + '>Quelle carte ?</div><div class="geo-maps">' +
         Object.entries(GEO_MAPS).map(([k, m]) => '<button class="geo-mapbtn' + (o.map === k ? ' on' : '') + '" data-map="' + k + '"><b>' + m.t + '</b><span>' + m.s + '</span></button>').join('') + '</div>' +
-      '<div class="section-h">Quoi ?</div>' + seg('set', Object.entries(M.sets).map(([k, s]) => [k, s.t + ' (' + s.k.length + ')'])) +
+      '<div class="section-h">Quoi ?</div>' + seg('set', Object.entries(M.sets).map(([k, s]) => [k, s.t + (s.coord ? '' : ' (' + s.k.length + ')')]), Object.keys(M.sets).length > 2 ? 'wrap' : '') +
       (S.cap ? '<div class="section-h">Je joue avec</div>' + seg('ask', [['nom', 'Les noms'], ['cap', cw === 'capitale' ? 'Les capitales' : 'Les chefs-lieux']]) : '') +
-      '<div class="section-h">Comment ?</div>' + seg('how', [['tap', 'Je touche'], ['write', 'J’écris'], ['explore', 'J’explore']]) + '<p class="foot">' + help + '</p>' +
-      (explore || n <= 10 ? '' : '<div class="section-h">Combien de questions ?</div>' + seg('len', [['10', '10']].concat(n > 20 ? [['20', '20']] : []).concat([['all', 'Tous (' + n + ')']]))) +
+      '<div class="section-h">Comment ?</div>' + seg('how', [['tap', 'Je touche'], ['write', S.coord ? 'Je choisis' : 'J’écris'], ['explore', 'J’explore']]) + '<p class="foot">' + help + '</p>' +
+      (explore || n <= 10 ? '' : '<div class="section-h">Combien de questions ?</div>' + seg('len', S.coord ? [['10', '10'], ['20', '20']] : [['10', '10']].concat(n > 20 ? [['20', '20']] : []).concat([['all', 'Tous (' + n + ')']]))) +
       (!explore && b ? '<p class="foot">Ton record : ' + b.ok + ' / ' + b.n + ' du premier coup, en ' + fmtDuration(b.s) + '.</p>' : '') +
       '<button class="btn mt2" id="gplay">' + (explore ? 'Ouvrir la carte' : 'Jouer') + '</button></div></div>';
     window.scrollTo(0, 0);
@@ -2080,21 +2136,39 @@ const Student = {
       this.geoSaveOpts(o); this.geoHome();
     });
     document.getElementById('gplay').onclick = () => this.geoStart();
+    $app.querySelectorAll('[data-geotask]').forEach(x => x.onclick = () => { this._geoFrom = 'study'; this.geoStart(null, tasks.find(t => t.id === x.dataset.geotask)); });
   },
-  async geoStart(only){
-    const o = this.geoOpts(), S = o.S;
+  // Ligne d'un jeu donné par le professeur (onglet Exercices et accueil du jeu)
+  geoTaskRow(t){
+    const done = t.games > 0, today = todayLocal(), late = !done && t.kind !== 'liste' && t.due_date && t.due_date < today;
+    const kind = { liste: 'À travailler', devoir: 'Devoir', interro: 'Interro · une seule tentative' }[t.kind] || '';
+    const meta = [kind, t.due_date ? 'pour le ' + fmtDate(t.due_date) : null, t.best_n ? (t.kind === 'interro' ? 'score : ' : 'meilleur : ') + t.best_ok + ' / ' + t.best_n : null].filter(Boolean).join(' · ');
+    const [lab, col] = t.kind === 'liste' ? (done ? ['Joué ' + t.games + ' fois', 'green'] : ['À travailler', 'blue']) : done ? ['Fait', 'green'] : late ? ['En retard', 'red'] : ['À faire', ''];
+    return '<button class="row" data-geotask="' + t.id + '"><span style="color:var(--green);display:flex">' + I.globe + '</span><div class="main"><div class="t">' + esc(t.title) + '</div><div class="s">' + esc(meta) + '</div></div><span class="pill ' + col + '">' + lab + '</span></button>';
+  },
+  geoName(o, k){ if (o.S.coord) return geoCoord.label(k); const it = o.M.items[k]; return it ? (o.ask === 'cap' && it.c ? it.c : it.n) : k; },
+  async geoStart(only, task){
+    let o = this.geoOpts();
+    if (task){
+      const M = GEO_MAPS[task.map], base = M && M.sets[task.set];
+      if (!base) return toast('Ce jeu n’est plus disponible.');
+      if (task.kind === 'interro' && task.games > 0 && !only) return toast('Tu as déjà fait cette interro : ' + task.best_ok + ' / ' + task.best_n + '.');
+      const keys = (task.keys || []).filter(k => M.items[k]);
+      o = { map: task.map, set: task.set, ask: base.cap && task.ask === 'cap' ? 'cap' : 'nom', how: task.how === 'write' ? 'write' : 'tap', len: 'all', M, S: Object.assign({}, base, base.coord || !keys.length ? {} : { k: keys }) };
+    }
+    const S = o.S;
     loading();
     try { await this.geoLoad(o.map); } catch(e){ toast('Impossible de charger la carte. Vérifie ta connexion.'); return this.geoHome(); }
-    let list = only || shuffle(S.k);
-    if (!only && o.len !== 'all' && S.k.length > 10) list = list.slice(0, +o.len);
-    this.gm = { o, list, i: 0, tries: 0, ok: 0, res: {}, t0: Date.now(), lock: false, retry: !!only };
+    let list = only || (S.coord ? geoCoord.random(o.len === '20' ? 20 : 10) : shuffle(S.k));
+    if (!only && !S.coord && o.len !== 'all' && S.k.length > 10) list = list.slice(0, +o.len);
+    this.gm = { o, list, i: 0, tries: 0, ok: 0, res: {}, t0: Date.now(), lock: false, retry: !!only, task: task || null };
     const explore = o.how === 'explore';
     $app.innerHTML = '<div class="geo"><div class="quiz-top"><button class="icon-btn mute" id="quit" aria-label="Arrêter">' + I.x + '</button>' +
       (explore ? '<div style="flex:1;font-weight:600;text-align:center">' + esc(o.M.t) + ' · ' + esc(S.t) + '</div><span class="counter"></span>' : '<div class="bar"><i id="gbar" style="width:0"></i></div><span class="counter" id="gcnt"></span>') + '</div>' +
       (explore ? '' : '<div class="geo-ask" id="gask"></div>') + '<div class="geo-map" id="gmap"></div></div>';
     document.getElementById('quit').onclick = () => this.geoHome();
     this._gsel = null;
-    this._gmap = this.geoMap(document.getElementById('gmap'), o.map, S, k => explore ? this.geoInfo(k) : o.how === 'tap' ? this.geoTap(k) : null);
+    this._gmap = this.geoMap(document.getElementById('gmap'), o.map, S, (k, pt) => explore ? this.geoInfo(k, pt) : o.how !== 'tap' ? null : S.coord ? this.geoCoordTap(pt) : this.geoTap(k));
     if (explore) return this.geoInfo(null);
     this.geoAsk();
   },
@@ -2104,6 +2178,16 @@ const Student = {
     document.getElementById('gbar').style.width = (G.i / G.list.length * 100) + '%';
     document.getElementById('gcnt').textContent = (G.i + 1) + '/' + G.list.length;
     const ask = document.getElementById('gask');
+    if (S.coord){
+      if (o.how === 'write'){
+        const [lat, lon] = geoCoord.parse(t), [x, y] = geoCoord.fwd(this._geo.monde.proj, lat, lon);
+        this._gmap.mark(x, y, 'hint');
+        const opts = shuffle([t].concat(geoCoord.near(t)));
+        ask.innerHTML = '<div class="q">Quelles sont les coordonnées de ce point ?</div><div class="geo-opts">' + opts.map(k => '<button data-o="' + k + '">' + geoCoord.label(k) + '</button>').join('') + '</div><div class="fb" id="gfb"></div>';
+        ask.querySelectorAll('[data-o]').forEach(bt => bt.onclick = () => this.geoCoordPick(bt.dataset.o, bt));
+      } else ask.innerHTML = '<div class="q">Touche ce point sur la carte :</div><div class="n">' + geoCoord.label(t) + '</div><div class="fb" id="gfb"></div>';
+      return;
+    }
     if (o.how === 'write'){
       const q = cap ? (S.cw.startsWith('la ') ? 'Quelle est ' : 'Quel est ') + S.cw + ' de ' + S.q + ' ?' : 'Comment s’appelle ' + (S.q || 'cet endroit') + ' ?';
       ask.innerHTML = '<div class="q">' + q + '</div><form class="geo-write" id="gform" autocomplete="off"><input id="gans" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Écris ta réponse" aria-label="Ta réponse">' +
@@ -2140,13 +2224,49 @@ const Student = {
   geoReveal(msg){
     const G = this.gm, M = this._gmap, t = G.list[G.i];
     G.lock = true; G.res[t] = 'miss';
-    M.set(t, 'hint'); M.focus(t); M.clearFx(); M.ring(t); if (G.o.ask === 'cap') M.cap(t);
+    if (G.o.S.coord){ const [lat, lon] = geoCoord.parse(t), [x, y] = geoCoord.fwd(this._geo.monde.proj, lat, lon); if (G.o.how === 'tap') M.clearFx(); M.mark(x, y, 'hint', geoCoord.label(t)); }
+    else { M.set(t, 'hint'); M.focus(t); M.clearFx(); M.ring(t); if (G.o.ask === 'cap') M.cap(t); }
     this.geoFb('miss', msg);
     const sk = document.getElementById('gskip'); if (sk) sk.remove();
     const nx = document.createElement('button'); nx.className = 'btn geo-next'; nx.textContent = 'Suivant';
-    nx.onclick = () => { nx.remove(); M.set(t, 'miss'); this.geoNext(); };
+    nx.onclick = () => { nx.remove(); if (!G.o.S.coord) M.set(t, 'miss'); this.geoNext(); };
     document.getElementById('gmap').appendChild(nx);
     setTimeout(() => nx.focus(), 50);
+  },
+  // Coordonnées : l'élève touche la carte ; juste à environ 8° près, sinon on lui dit dans quelle direction il s'est trompé
+  geoCoordTap(pt){
+    const G = this.gm, M = this._gmap, t = G.list[G.i], P = this._geo.monde.proj;
+    if (G.lock || !pt) return;
+    const [lat, lon] = geoCoord.parse(t), [x, y] = geoCoord.fwd(P, lat, lon), c = geoCoord.inv(P, pt[0], pt[1]);
+    if (!c) return this.geoFb('ko', 'Touche à l’intérieur de la carte.');
+    M.clearFx();
+    if (Math.hypot(pt[0] - x, pt[1] - y) <= P.k * 8 * Math.PI / 180){
+      const first = !G.tries; G.lock = true; if (first) G.ok++;
+      G.res[t] = first ? 'ok' : 'ok2'; M.mark(x, y, 'ok', geoCoord.label(t));
+      this.geoFb('ok', first ? ['Bravo !', 'Exact !', 'Parfait !'][G.i % 3] : 'Trouvé !');
+      setTimeout(() => this.geoNext(), 1300);
+      return;
+    }
+    G.tries++; M.mark(pt[0], pt[1], 'ko');
+    const dl = ((c[1] - lon + 540) % 360) - 180, dir = [];
+    if (c[0] > lat + 4) dir.push('trop au nord'); else if (c[0] < lat - 4) dir.push('trop au sud');
+    if (dl > 4) dir.push('trop à l’est'); else if (dl < -4) dir.push('trop à l’ouest');
+    if (G.tries < 3) return this.geoFb('ko', 'Pas tout à fait : tu es ' + (dir.join(' et ') || 'un peu à côté') + '. Encore ' + (3 - G.tries) + ' essai' + (G.tries === 1 ? 's' : '') + '.');
+    this.geoReveal('Le point ' + geoCoord.label(t) + ' était ici.');
+  },
+  geoCoordPick(k, bt){
+    const G = this.gm, M = this._gmap, t = G.list[G.i];
+    if (G.lock) return;
+    const [lat, lon] = geoCoord.parse(t), [x, y] = geoCoord.fwd(this._geo.monde.proj, lat, lon);
+    document.querySelectorAll('.geo-opts button').forEach(b => { b.disabled = true; if (b.dataset.o === t) b.classList.add('ok'); });
+    if (k === t){
+      G.lock = true; G.ok++; G.res[t] = 'ok'; M.clearFx(); M.mark(x, y, 'ok', geoCoord.label(t));
+      this.geoFb('ok', ['Bravo !', 'Exact !', 'Parfait !'][G.i % 3]);
+      setTimeout(() => this.geoNext(), 1300);
+      return;
+    }
+    bt.classList.add('ko');
+    this.geoReveal('C’était ' + geoCoord.label(t) + '.');
   },
   geoWrite(v){
     const G = this.gm, M = this._gmap, t = G.list[G.i], it = this.geoItem(t), cap = G.o.ask === 'cap';
@@ -2175,8 +2295,23 @@ const Student = {
     if (G.i >= G.list.length) return this.geoDone();
     this.geoAsk();
   },
-  geoInfo(k){
+  geoInfo(k, pt){
     const M = this._gmap, o = this.gm.o, map = document.getElementById('gmap'), old = map.querySelector('.geo-info');
+    if (o.S.coord){
+      const c = pt && geoCoord.inv(this._geo.monde.proj, pt[0], pt[1]);
+      if (pt && !c) return;
+      if (old) old.remove();
+      const box = document.createElement('div'); box.className = 'geo-info';
+      if (!c) box.innerHTML = 'Touche la carte pour lire la latitude et la longitude de cet endroit.';
+      else {
+        const la = Math.round(c[0]), lo = Math.round(c[1]);
+        M.clearFx(); M.mark(pt[0], pt[1], 'sel');
+        box.innerHTML = '<b>' + geoCoord.fmt(la, lo) + '</b>Latitude : ' + (la ? Math.abs(la) + '° ' + (la > 0 ? 'nord' : 'sud') : '0° (équateur)') + '<br>Longitude : ' + (lo ? Math.abs(lo) + '° ' + (lo > 0 ? 'est' : 'ouest') : '0° (méridien de Greenwich)') +
+          '<div style="margin-top:6px"><span class="pill">' + (la >= 0 ? 'Hémisphère nord' : 'Hémisphère sud') + '</span></div>';
+      }
+      map.appendChild(box);
+      return;
+    }
     if (old) old.remove();
     if (this._gsel) M.set(this._gsel, null);
     M.clearFx(); this._gsel = k;
@@ -2201,31 +2336,36 @@ const Student = {
       const best = this.geoBest(), bk = this.geoBestKey(o), b = best[bk];
       if (!b || G.ok > b.ok || (G.ok === b.ok && s < b.s)){ rec = !!b; best[bk] = { ok: G.ok, n, s }; store.set('exos_geo_best2', JSON.stringify(best)); }
     }
-    if (this.code) sb.rpc('student_geo_save', { p_code: this.code, p_game: { map: o.map, set: o.set, ask: o.ask, how: o.how, n, ok: G.ok, s, weak, retry: G.retry } }).then(() => {}, () => {});
+    const T = G.task, interro = T && T.kind === 'interro';
+    if (this.code) sb.rpc('student_geo_save', { p_code: this.code, p_game: { map: o.map, set: o.set, ask: o.ask, how: o.how, n, ok: G.ok, s, weak, retry: G.retry, task: T ? T.id : null } }).then(() => {}, () => {});
+    if (T && !(interro && T.games)){ T.games = (T.games || 0) + 1; if (!G.retry && (T.best_ok == null || G.ok > T.best_ok)){ T.best_ok = G.ok; T.best_n = n; } }
     const cw = o.S.cw ? o.S.cw.replace(/^(la|le) /, '') : '';
     $app.innerHTML = '<div class="screen center result"><div class="app-icon" style="background:linear-gradient(160deg,#4cd964,#1f9e3d);box-shadow:none">' + I.globe + '</div>' +
-      '<h1>' + esc(o.M.t) + ' · ' + esc(o.S.t) + '</h1><div class="big-score">' + G.ok + ' / ' + n + '</div><p>trouvés du premier coup, en ' + fmtDuration(s) + '</p>' +
-      (rec ? '<p><span class="pill green">Nouveau record !</span></p>' : '') +
-      (weak.length ? '<div class="section-h">À revoir</div><div class="group">' + weak.map(k => { const it = this.geoItem(k); return '<div class="row"><div class="main"><div class="t">' + esc(it.n) + '</div>' + (o.S.cap && it.c ? '<div class="s">' + esc(cw.charAt(0).toUpperCase() + cw.slice(1)) + ' : ' + esc(it.c) + '</div>' : '') + '</div>' +
+      '<h1>' + esc(T ? T.title : o.M.t + ' · ' + o.S.t) + '</h1><div class="big-score">' + G.ok + ' / ' + n + '</div><p>trouvés du premier coup, en ' + fmtDuration(s) + '</p>' +
+      (rec && !T ? '<p><span class="pill green">Nouveau record !</span></p>' : '') + (T ? '<p>Ton professeur verra ton résultat.</p>' : '') +
+      (weak.length ? '<div class="section-h">À revoir</div><div class="group">' + weak.map(k => { const it = this.geoItem(k) || {}; return '<div class="row"><div class="main"><div class="t">' + esc(o.S.coord ? geoCoord.label(k) : it.n) + '</div>' + (o.S.cap && it.c ? '<div class="s">' + esc(cw.charAt(0).toUpperCase() + cw.slice(1)) + ' : ' + esc(it.c) + '</div>' : '') + '</div>' +
           (G.res[k] === 'miss' ? '<span class="pill orange">Pas trouvé</span>' : '<span class="pill">Trouvé après une erreur</span>') + '</div>'; }).join('') + '</div>'
         : '<p>Aucune erreur : bravo !</p>') +
-      '<div class="stack mt2">' + (weak.length ? '<button class="btn" id="gerr">Rejouer ceux à revoir</button>' : '') +
-      '<button class="btn' + (weak.length ? ' tinted' : '') + '" id="gagain">Rejouer</button><button class="btn plain" id="ghome">Changer de jeu</button></div></div>';
+      '<div class="stack mt2">' + (interro ? '<button class="btn" id="gback">Retour</button>' :
+        (weak.length ? '<button class="btn" id="gerr">Rejouer ceux à revoir</button>' : '') +
+        '<button class="btn' + (weak.length ? ' tinted' : '') + '" id="gagain">Rejouer</button>' + (T ? '<button class="btn plain" id="gback">Retour</button>' : '<button class="btn plain" id="ghome">Changer de jeu</button>')) + '</div></div>';
     window.scrollTo(0, 0);
-    const ge = document.getElementById('gerr'); if (ge) ge.onclick = () => this.geoStart(shuffle(weak));
-    document.getElementById('gagain').onclick = () => this.geoStart();
-    document.getElementById('ghome').onclick = () => this.geoHome();
+    const on = (id, f) => { const e = document.getElementById(id); if (e) e.onclick = f; };
+    on('gerr', () => this.geoStart(o.S.coord ? weak : shuffle(weak), T));
+    on('gagain', () => this.geoStart(null, T));
+    on('ghome', () => this.geoHome());
+    on('gback', () => { this.stab = this._geoFrom || 'study'; this.renderList(); window.scrollTo(0, 0); });
   },
   // Carte zoomable (pincer, molette, glisser) ; onTap reçoit la clé de l'endroit touché
   geoMap(el, map, S, onTap){
     const D = this._geo[map], W = D.w, H = D.h, NS = 'http://www.w3.org/2000/svg', inSet = new Set(S.k);
     const item = (k, v) => {
-      const act = v.l === S.l, cls = act ? 'geo-c' + (inSet.has(k) ? '' : ' off') : 'geo-dec geo-dec-' + v.l, kind = v.line ? ' geo-line' : v.under ? ' geo-sea' : v.plain ? ' geo-plain' : v.l === 'relief' ? ' geo-mtn' : '';
+      const act = v.l === S.l, cls = act ? 'geo-c' + (inSet.has(k) ? '' : ' off') : 'geo-dec geo-dec-' + v.l + ' geo-dk-' + k, kind = v.line ? ' geo-line' : v.under ? ' geo-sea' : v.plain ? ' geo-plain' : v.l === 'relief' ? ' geo-mtn' : '';
       const k_ = act ? ' data-k="' + k + '"' : '';
       return (v.line && act ? '<path class="geo-hit"' + k_ + ' d="' + v.d + '"/>' : '') + '<path class="' + cls + kind + '"' + k_ + ' d="' + v.d + '"/>';
     };
     const its = Object.entries(D.it), base = D.base || [];
-    el.classList.toggle('out', D.bg === 'out');
+    el.classList.toggle('out', D.bg === 'out'); el.classList.toggle('coord', !!S.coord); el.classList.toggle('lignes', S.l === 'ligne');
     el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Carte">' +
       base.filter(b => b.under).map(b => '<path class="' + b.c + '" d="' + b.d + '"/>').join('') +
       its.filter(([k, v]) => v.under).map(([k, v]) => item(k, v)).join('') +
@@ -2235,6 +2375,8 @@ const Student = {
       its.filter(([k, v]) => v.line).map(([k, v]) => item(k, v)).join('') +
       its.filter(([k, v]) => v.dot && v.l === S.l && inSet.has(k)).map(([k, v]) => '<circle class="geo-dot" data-k="' + k + '" data-s="6" cx="' + v.dot[0] + '" cy="' + v.dot[1] + '"/>').join('') +
       (D.lbl || []).map(l => '<text class="geo-blbl" data-s="11" x="' + l[0] + '" y="' + l[1] + '" text-anchor="middle">' + esc(l[2]) + '</text>').join('') +
+      (S.coord && D.proj ? [-60, -30, 0, 30, 60].map(la => { const [x, y] = geoCoord.fwd(D.proj, la, -167); return '<text class="geo-glbl" data-s="10" x="' + x + '" y="' + y + '" dy=".35em">' + (la ? Math.abs(la) + '° ' + (la > 0 ? 'N' : 'S') : '0°') + '</text>'; }).join('') +
+        [-120, -60, 0, 60, 120, 180].map(lo => { const [x, y] = geoCoord.fwd(D.proj, -50, lo); return '<text class="geo-glbl" data-s="10" text-anchor="middle" x="' + x + '" y="' + y + '">' + (lo ? Math.abs(lo) + '° ' + (lo > 0 ? 'E' : 'O') : '0°') + '</text>'; }).join('') : '') +
       '<g class="gfx"></g></svg><div class="geo-zoom"><button data-z="1" aria-label="Zoomer">+</button><button data-z="-1" aria-label="Dézoomer">−</button>' +
       '<button data-z="0" aria-label="Voir toute la carte"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>' +
       '<div class="geo-src">Fond de carte : Natural Earth</div>';
@@ -2289,7 +2431,7 @@ const Student = {
     });
     const up = e => {
       if (!pts.delete(e.pointerId)) return;
-      if (!pts.size && start && !start.multi && moved <= 6 && e.type === 'pointerup') onTap(pick(e.clientX, e.clientY));
+      if (!pts.size && start && !start.multi && moved <= 6 && e.type === 'pointerup'){ const r = rect(); onTap(pick(e.clientX, e.clientY), [vb.x + (e.clientX - r.left) * vb.w / r.width, vb.y + (e.clientY - r.top) * vb.h / r.height]); }
     };
     svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
     svg.addEventListener('wheel', e => { e.preventDefault(); zoomAt(Math.exp(e.deltaY * (e.ctrlKey ? .01 : .0015)), e.clientX, e.clientY); }, { passive: false });
@@ -2315,6 +2457,12 @@ const Student = {
         const [x, y] = v.cap;
         add('circle', { class: 'geo-cap', cx: x, cy: y, 'data-s': 4 });
         add('text', { class: 'geo-lbl', x, y, 'data-s': 13, 'text-anchor': x > W - 120 ? 'end' : 'start' }).textContent = GEO_MAPS[map].items[k].c;
+        apply();
+      },
+      // Point posé sur la carte (coordonnées), avec une étiquette facultative
+      mark(x, y, cls, label){
+        add('circle', { class: 'geo-pt ' + (cls || ''), cx: x, cy: y, 'data-s': 6 });
+        if (label) add('text', { class: 'geo-lbl', x, y, 'data-s': 13, 'text-anchor': x > W - 160 ? 'end' : 'start' }).textContent = label;
         apply();
       },
       clearFx(){ fx.innerHTML = ''; }
@@ -3623,6 +3771,7 @@ const Prof = {
 
   async load(){
     const wp = Promise.all([sb.from('worksheets').select('id,title,subject,zones,created_at,updated_at').order('updated_at', { ascending: false }), sb.from('worksheet_sends').select('*').order('created_at', { ascending: false }), sb.from('worksheet_copies').select('id,send_id,student_id,status,score,total,submitted_at,corrected_at,seen_at,updated_at')]);
+    const gtp = sb.from('geo_tasks').select('*').order('created_at', { ascending: false });
     const [ev, ea, co, fl, c, s, a, cp] = await Promise.all([
       sb.from('evaluations').select('*').order('created_at', { ascending: false }),
       sb.from('eval_attempts').select('*'),
@@ -3634,6 +3783,7 @@ const Prof = {
       sb.from('copies').select('id,student_id,title,copy_date,score,total,comments,published,published_at,seen_at,created_at').order('created_at', { ascending: false })
     ]);
     this.copies = cp.error ? [] : (cp.data || []);
+    { const g = await gtp; this.geoTasks = g.error ? [] : g.data || []; }
     { const [fw, fs, fc] = await wp; this.worksheets = fw.error ? [] : fw.data || []; this.wsends = fs.error ? [] : fs.data || []; this.wcopies = fc.error ? [] : fc.data || []; }
     const err = c.error || s.error || a.error || co.error || fl.error; if (err) throw err;
     if (ev.error || ea.error) throw (ev.error || ea.error);
@@ -4563,7 +4713,11 @@ const Prof = {
         return '<div class="section-h">Défi de la semaine</div><div class="group"><div class="inner-pad"><div class="seg">' + [0, 50, 100, 200, 300, 500].map(v => '<button data-ch="' + v + '" class="' + ((ch.target || 0) === v ? 'on' : '') + '">' + (v || 'Aucun') + '</button>').join('') + '</div></div>' +
           (ch.target ? '<div class="row"><div class="main"><div class="t">' + prog + ' / ' + ch.target + ' bonnes réponses</div><div class="bar"><i style="width:' + Math.min(100, prog / ch.target * 100) + '%;background:var(--purple)"></i></div></div></div>' : '') + '</div>' +
           '<p class="foot">Un objectif commun en bonnes réponses aux exercices, du lundi au dimanche. Les élèves voient la progression de la classe, jamais un classement.</p>' +
-          '<div class="section-h">Jeu de géographie</div><div class="group"><button class="row" id="geores"><div class="main"><div class="t">Résultats de la classe</div><div class="s">Parties jouées et endroits les plus ratés</div></div><span class="chev">' + I.chevR + '</span></button></div>' +
+          '<div class="section-h">Jeu de géographie</div><div class="group">' + (this.geoTasks || []).filter(t => t.class_id === c.id).map(t => '<button class="row" data-gtask="' + t.id + '"><span style="color:var(--green);display:flex">' + I.globe + '</span><div class="main"><div class="t">' + esc(t.title) + '</div><div class="s">' +
+            esc([{ liste: 'À travailler', devoir: 'Devoir', interro: 'Interro' }[t.kind], t.due_date ? 'pour le ' + fmtDate(t.due_date) : null].filter(Boolean).join(' · ')) + '</div></div><span class="chev">' + I.chevR + '</span></button>').join('') +
+            '<button class="row" id="geores"><div class="main"><div class="t">Résultats de la classe</div><div class="s">Toutes les parties et les endroits les plus ratés</div></div><span class="chev">' + I.chevR + '</span></button>' +
+            '<button class="row center" id="geonew">Donner un jeu à la classe</button><button class="row center" id="geoprint">Imprimer une carte muette</button></div>' +
+          '<p class="foot">Choisis une carte et la liste à travailler, comme entraînement, devoir ou interro. Les élèves le retrouvent dans leur appli.</p>' +
           '<div class="section-h">Outils de J\u2019étudie</div><div class="group"><button class="row" id="tools"><div class="main"><div class="t">Outils visibles par les élèves</div><div class="s">' + (n === STUDY_TOOLS.length ? 'Tous les outils (' + n + ')' : n + ' sur ' + STUDY_TOOLS.length) + '</div></div><span class="chev">' + I.chevR + '</span></button></div>'; })() +
       '<div class="group mt2"><button class="row center" id="ren">Renommer la classe</button><button class="row danger" id="delc">Supprimer la classe</button></div></div>';
     this.shell('classes', html);
@@ -4571,6 +4725,9 @@ const Prof = {
     document.getElementById('ren').onclick = () => this.classNameSheet(c);
     document.getElementById('tools').onclick = () => this.toolsSheet(c);
     document.getElementById('geores').onclick = () => this.geoClassSheet(c);
+    document.getElementById('geonew').onclick = () => this.geoTaskEditor(c, 'task');
+    document.getElementById('geoprint').onclick = () => this.geoTaskEditor(c, 'print');
+    $app.querySelectorAll('[data-gtask]').forEach(b => b.onclick = () => this.geoTaskSheet((this.geoTasks || []).find(t => t.id === b.dataset.gtask), c));
     $app.querySelectorAll('[data-ch]').forEach(b => b.onclick = async () => {
       const v = +b.dataset.ch;
       const { error } = await sb.from('classes').update({ challenge: v ? { target: v } : null }).eq('id', c.id);
@@ -4615,6 +4772,142 @@ const Prof = {
   },
 
   /* ---------- Jeu de géographie : résultats ---------- */
+  // Nom d'un endroit pour un jeu (point de coordonnées, capitale ou nom)
+  geoItemName(map, set, ask, k){ const M = GEO_MAPS[map], S = M && M.sets[set]; if (S && S.coord) return geoCoord.label(k); const it = M && M.items[k]; return it ? (ask === 'cap' && it.c ? it.c : it.n) : k; },
+  // Choisir une carte et une liste : pour donner un jeu à une classe (mode « task ») ou imprimer une carte muette (mode « print »)
+  geoTaskEditor(c, mode){
+    const pr = mode === 'print';
+    const st = { map: 'europe', set: 'ue', keys: null, ask: 'nom', how: 'tap', kind: 'liste', due: '', title: '', titleEdited: false, corr: true };
+    const sets = () => Object.entries(GEO_MAPS[st.map].sets).filter(([k, S]) => !(pr && S.coord));
+    const S = () => GEO_MAPS[st.map].sets[st.set];
+    const autoTitle = () => { const M = GEO_MAPS[st.map], s = S(), n = st.keys ? st.keys.size : 0;
+      return M.t + ' · ' + s.t + (s.coord ? '' : n && n < s.k.length ? ' (' + n + ')' : '') + (st.ask === 'cap' && s.cap ? ' · ' + (s.cw === 'la capitale' ? 'capitales' : 'chefs-lieux') : ''); };
+    const draw = el => {
+      const M = GEO_MAPS[st.map], s = S();
+      if (!st.keys) st.keys = new Set(s.k);
+      if (!s.cap) st.ask = 'nom';
+      if (!st.titleEdited) st.title = autoTitle();
+      const seg = (name, opts, cls) => '<div class="seg' + (cls ? ' ' + cls : '') + '" data-g="' + name + '">' + opts.map(([k, l]) => '<button data-v="' + k + '" class="' + (st[name] === k ? 'on' : '') + '">' + l + '</button>').join('') + '</div>';
+      el.querySelector('#gte').innerHTML =
+        '<div class="section-h" style="margin-top:4px">Carte</div>' + seg('map', Object.entries(GEO_MAPS).map(([k, m]) => [k, m.t]), 'wrap') +
+        '<div class="section-h">Quoi ?</div>' + seg('set', sets().map(([k, x]) => [k, x.t]), 'wrap') +
+        (s.coord ? '<p class="foot">Dix points tirés au hasard, de 10° en 10°, différents pour chaque élève.</p>' :
+          '<div class="section-h">' + (pr ? 'Endroits à numéroter' : 'Liste à travailler') + ' (' + st.keys.size + ' / ' + s.k.length + ')<span><button data-all="1">Tout</button> <button data-all="0">Aucun</button></span></div>' +
+          '<div class="group"><div class="chips multi">' + s.k.map(k => '<button class="chip' + (st.keys.has(k) ? ' on' : '') + '" data-it="' + k + '">' + esc(M.items[k].n) + '</button>').join('') + '</div></div>') +
+        (s.cap ? '<div class="section-h">' + (pr ? 'Les élèves écrivent' : 'Je joue avec') + '</div>' + seg('ask', [['nom', pr ? 'Le nom' : 'Les noms'], ['cap', s.cw === 'la capitale' ? (pr ? 'La capitale' : 'Les capitales') : (pr ? 'Le chef-lieu' : 'Les chefs-lieux')]]) : '') +
+        (pr ? '<div class="group mt"><label class="row" style="cursor:pointer"><div class="main t">Ajouter une page de correction</div><span class="switch"><input type="checkbox" id="gcorr"' + (st.corr ? ' checked' : '') + ' aria-label="Ajouter une page de correction"><span></span></span></label></div>' +
+            '<p class="foot">Chaque endroit reçoit un numéro sur la carte ; l’élève écrit les réponses sur les lignes en dessous.</p>'
+          : '<div class="section-h">Comment ?</div>' + seg('how', [['tap', s.coord ? 'Placer le point' : 'Toucher la carte'], ['write', s.coord ? 'Choisir les coordonnées' : 'Écrire le nom']]) +
+            '<div class="section-h">Type</div>' + seg('kind', [['liste', 'À travailler'], ['devoir', 'Devoir'], ['interro', 'Interro']]) +
+            '<p class="foot">' + { liste: 'Les élèves le trouvent en premier dans leur jeu et peuvent rejouer autant qu’ils veulent.', devoir: 'À faire pour une date ; tu vois qui l’a fait et le meilleur score.', interro: 'Une seule tentative, sans rejouer : tu vois le score obtenu.' }[st.kind] + '</p>' +
+            (st.kind !== 'liste' ? '<div class="group"><label class="row"><div class="main t">Pour le</div><input type="date" id="gdue" value="' + esc(st.due) + '" style="border:0;background:none;color:var(--blue);font-size:17px"></label></div>' : '') +
+            '<div class="section-h">Titre vu par les élèves</div><div class="group"><div class="inner-pad"><input id="gtitle" maxlength="80" value="' + esc(st.title) + '" style="width:100%;border:0;background:none;color:var(--label);font-size:17px" aria-label="Titre"></div></div>');
+      el.querySelectorAll('[data-g] button').forEach(b => b.onclick = () => {
+        const g = b.parentNode.dataset.g; st[g] = b.dataset.v;
+        if (g === 'map'){ st.set = sets()[0][0]; st.keys = null; }
+        if (g === 'set') st.keys = null;
+        draw(el);
+      });
+      el.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { const k = b.dataset.it; st.keys.has(k) ? st.keys.delete(k) : st.keys.add(k); draw(el); });
+      el.querySelectorAll('[data-all]').forEach(b => b.onclick = () => { st.keys = new Set(b.dataset.all === '1' ? S().k : []); draw(el); });
+      const ti = el.querySelector('#gtitle'); if (ti) ti.oninput = () => { st.title = ti.value; st.titleEdited = true; };
+      const du = el.querySelector('#gdue'); if (du) du.onchange = () => { st.due = du.value; };
+      const co = el.querySelector('#gcorr'); if (co) co.onchange = () => { st.corr = co.checked; };
+    };
+    openSheet('<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Annuler</button><h2>' + (pr ? 'Carte muette' : 'Donner un jeu') + '</h2><button class="nav-btn bold" id="ok">' + (pr ? 'Imprimer' : 'Donner') + '</button></div><div id="gte"></div>', (el, close) => {
+      draw(el);
+      el.querySelector('#ok').onclick = async () => {
+        const s = S(), keys = s.coord ? [] : s.k.filter(k => st.keys.has(k));
+        if (!s.coord && keys.length < (pr ? 1 : 2)) return toast(pr ? 'Choisis au moins un endroit' : 'Choisis au moins deux endroits');
+        if (pr){ close(); return this.geoPrint({ map: st.map, set: st.set, keys, ask: st.ask, title: autoTitle() }, st.corr); }
+        const title = (st.title || '').trim() || autoTitle();
+        const { data, error } = await sb.from('geo_tasks').insert({ class_id: c.id, title, map: st.map, set_key: st.set, keys, ask: st.ask, how: st.how, kind: st.kind, due_date: st.kind !== 'liste' && st.due ? st.due : null }).select().single();
+        if (error) return toast('Erreur : ' + esc(error.message));
+        this.geoTasks = [data].concat(this.geoTasks || []);
+        close(); this.renderClass(c.id); toast('Jeu donné à ' + esc(c.name));
+      };
+    });
+  },
+  async geoTaskSheet(t, c){
+    const kind = { liste: 'À travailler', devoir: 'Devoir', interro: 'Interro' }[t.kind];
+    const { el, close } = openSheet('<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Fermer</button><h2>' + kind + '</h2><span style="min-width:60px"></span></div><div id="gts"><div class="spinner" style="margin:40px auto"></div></div>');
+    const { data, error } = await sb.from('geo_games').select('student_id,n,ok,seconds,weak,retry,created_at').eq('task_id', t.id).order('created_at');
+    const box = el.querySelector('#gts');
+    if (error){ box.innerHTML = '<div class="empty">Impossible de charger les résultats. Réessaie dans un instant.</div>'; return; }
+    const games = data || [], firsts = {}, best = {};
+    games.forEach(g => { if (!firsts[g.student_id]) firsts[g.student_id] = g; if (!g.retry && (!best[g.student_id] || g.ok > best[g.student_id].ok)) best[g.student_id] = g; });
+    const pick = sid => t.kind === 'interro' ? firsts[sid] : best[sid] || firsts[sid];
+    const doneIds = c.students.filter(s => pick(s.id)).map(s => s.id);
+    const pc = g => Math.round(g.ok / g.n * 100);
+    const avg = doneIds.length ? Math.round(doneIds.reduce((x, sid) => x + pc(pick(sid)), 0) / doneIds.length) : null;
+    const cnt = {}; doneIds.forEach(sid => (pick(sid).weak || []).forEach(k => { cnt[k] = (cnt[k] || 0) + 1; }));
+    const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    const S = GEO_MAPS[t.map] && GEO_MAPS[t.map].sets[t.set_key];
+    box.innerHTML = '<h1 class="large" style="margin:4px 0 2px;font-size:24px">' + esc(t.title) + '</h1><p class="foot" style="margin:0 0 12px">' +
+        esc([geoGameLabel(t), t.how === 'write' ? (S && S.coord ? 'choisir les coordonnées' : 'écrire le nom') : (S && S.coord ? 'placer le point' : 'toucher la carte'), t.due_date ? 'pour le ' + fmtDate(t.due_date) : null].filter(Boolean).join(' · ')) + '</p>' +
+      '<div class="tiles"><div class="tile"><div class="n">' + doneIds.length + ' / ' + c.students.length + '</div><div class="l">Élèves</div></div>' +
+      '<div class="tile"><div class="n">' + (avg == null ? '—' : avg + ' %') + '</div><div class="l">' + (t.kind === 'interro' ? 'Moyenne' : 'Moyenne du meilleur') + '</div></div>' +
+      '<div class="tile"><div class="n">' + games.length + '</div><div class="l">Parties</div></div></div>' +
+      (top.length ? '<div class="section-h">Les plus ratés</div><div class="group">' + top.map(([k, n]) => '<div class="row"><div class="main t">' + esc(this.geoItemName(t.map, t.set_key, t.ask, k)) + '</div><span class="val">' + n + ' élève' + (n > 1 ? 's' : '') + '</span></div>').join('') + '</div>' : '') +
+      '<div class="section-h">Élèves</div><div class="group">' + c.students.map(s => { const g = pick(s.id), late = !g && t.kind !== 'liste' && t.due_date && t.due_date < todayLocal();
+        return '<div class="row"><div class="avatar">' + initials(s.first_name) + '</div><div class="main"><div class="t">' + esc(s.first_name) + '</div><div class="s">' +
+          (g ? fmtDateTime(g.created_at) + ' · ' + fmtDuration(g.seconds) + ((g.weak || []).length ? ' · à revoir : ' + esc(g.weak.slice(0, 5).map(k => this.geoItemName(t.map, t.set_key, t.ask, k)).join(', ')) + (g.weak.length > 5 ? '…' : '') : '') : 'Pas encore fait') + '</div></div>' +
+          (g ? '<span class="val">' + g.ok + ' / ' + g.n + '</span>' : late ? '<span class="pill red">En retard</span>' : '') + '</div>'; }).join('') + '</div>' +
+      '<p class="foot">' + (t.kind === 'interro' ? 'Le score est celui de l’unique tentative, en réponses trouvées du premier coup.' : 'Le score affiché est le meilleur, en réponses trouvées du premier coup.') + '</p>' +
+      '<div class="group mt2">' + (S && !S.coord ? '<button class="row center" id="gtprint">Imprimer la carte muette de ce jeu</button>' : '') + '<button class="row danger" id="gtdel">Supprimer ce jeu</button></div>';
+    const tp = box.querySelector('#gtprint'); if (tp) tp.onclick = () => this.geoPrint({ map: t.map, set: t.set_key, keys: t.keys, ask: t.ask, title: t.title }, true);
+    box.querySelector('#gtdel').onclick = async () => {
+      if (!await confirmDialog('Supprimer « ' + t.title + ' » ?', 'Les élèves ne le verront plus. Leurs parties restent dans les résultats de la classe.', 'Supprimer', true)) return;
+      const { error } = await sb.from('geo_tasks').delete().eq('id', t.id);
+      if (error) return toast('Erreur : ' + esc(error.message));
+      this.geoTasks = (this.geoTasks || []).filter(x => x.id !== t.id); close(); this.renderClass(c.id); toast('Jeu supprimé');
+    };
+  },
+  // Carte muette imprimable : numéros sur la carte, lignes de réponse, page de correction facultative
+  async geoPrint(cfg, corr){
+    let D; try { D = await Student.geoLoad(cfg.map); } catch(e){ return toast('Impossible de charger la carte. Vérifie ta connexion.'); }
+    const M = GEO_MAPS[cfg.map], S = M.sets[cfg.set], keys = (cfg.keys && cfg.keys.length ? cfg.keys : S.k).filter(k => D.it[k] && D.it[k].lp), inSet = new Set(keys);
+    // numérotation de haut en bas, par bandes, puis de gauche à droite
+    const band = D.w / 9, order = keys.slice().sort((a, b) => Math.floor(D.it[a].lp[1] / band) - Math.floor(D.it[b].lp[1] / band) || D.it[a].lp[0] - D.it[b].lp[0]);
+    const num = {}; order.forEach((k, i) => { num[k] = i + 1; });
+    // cadrage : les endroits numérotés, avec une marge
+    let x0 = Math.min(...keys.map(k => D.it[k].lp[0])), x1 = Math.max(...keys.map(k => D.it[k].lp[0])), y0 = Math.min(...keys.map(k => D.it[k].lp[1])), y1 = Math.max(...keys.map(k => D.it[k].lp[1]));
+    const m = D.w * .12; x0 -= m; x1 += m; y0 -= m; y1 += m;
+    const minW = D.w * .5; if (x1 - x0 < minW){ const cx = (x0 + x1) / 2; x0 = cx - minW / 2; x1 = cx + minW / 2; }
+    if (y1 - y0 < minW * .7){ const cy = (y0 + y1) / 2; y0 = cy - minW * .35; y1 = cy + minW * .35; }
+    x0 = Math.max(x0, 0); y0 = Math.max(y0, 0); x1 = Math.min(x1, D.w); y1 = Math.min(y1, D.h);
+    const vw = x1 - x0, r = vw * .016, fs = r * 1.15, sw = vw / 1000;
+    const pth = (d, at) => '<path d="' + d + '" ' + at + '/>';
+    const BASE = { 'geo-ctx': 'fill="#ececec" stroke="#9a9a9a"', 'geo-land': 'fill="#f4f4f4" stroke="#777"', 'geo-border': 'fill="none" stroke="#aaa" stroke-dasharray="' + 3 * sw + ' ' + 3 * sw + '"', 'geo-sphere': 'fill="#fff" stroke="#777"', 'geo-grat': 'fill="none" stroke="#ddd"' };
+    const item = (k, v) => {
+      if (v.l !== S.l){ if (v.l === 'fleuve') return pth(v.d, 'fill="none" stroke="#9cb4cc" stroke-width="' + 1.1 * sw + '"'); if (v.l === 'relief' && !v.plain) return pth(v.d, 'fill="#e2d6c4" stroke="none"'); if (v.l === 'cont' && S.l !== 'cont') return pth(v.d, 'fill="#f4f4f4" stroke="#777" stroke-width="' + .8 * sw + '"'); return ''; }
+      if (v.line) return pth(v.d, 'fill="none" stroke="' + (inSet.has(k) ? '#1f4f8a' : '#b8c8d8') + '" stroke-width="' + (inSet.has(k) ? 2.6 : 1.2) * sw + '" stroke-linecap="round"');
+      if (v.under) return pth(v.d, 'fill="#fff" stroke="#9a9a9a" stroke-dasharray="' + 4 * sw + ' ' + 3 * sw + '" stroke-width="' + .8 * sw + '"');
+      return pth(v.d, 'fill="' + (inSet.has(k) ? '#fff' : '#e4e4e4') + '" stroke="#444" stroke-width="' + .9 * sw + '"');
+    };
+    const its = Object.entries(D.it);
+    const svg = () => '<svg viewBox="' + [x0, y0, vw, y1 - y0].map(v => Math.round(v * 10) / 10).join(' ') + '" xmlns="http://www.w3.org/2000/svg" stroke-width="' + sw + '"><rect x="' + x0 + '" y="' + y0 + '" width="' + vw + '" height="' + (y1 - y0) + '" fill="' + (D.bg === 'out' ? '#fff' : '#dfeaf3') + '"/>' +
+      (D.base || []).filter(b => b.under).map(b => pth(b.d, BASE[b.c] || 'fill="none"')).join('') + its.filter(([k, v]) => v.under).map(([k, v]) => item(k, v)).join('') +
+      (D.base || []).filter(b => !b.under).map(b => pth(b.d, BASE[b.c] || 'fill="none"')).join('') +
+      its.filter(([k, v]) => !v.under && !v.line && v.plain).map(([k, v]) => item(k, v)).join('') + its.filter(([k, v]) => !v.under && !v.line && !v.plain).map(([k, v]) => item(k, v)).join('') +
+      its.filter(([k, v]) => v.line).map(([k, v]) => item(k, v)).join('') +
+      order.map(k => { const [x, y] = D.it[k].lp, [px, py] = pos[k], moved = Math.hypot(px - x, py - y) > r * .8;
+        return (D.it[k].dot || moved ? '<line x1="' + x + '" y1="' + y + '" x2="' + px + '" y2="' + py + '" stroke="#000" stroke-width="' + .8 * sw + '"/><circle cx="' + x + '" cy="' + y + '" r="' + r * .3 + '" fill="#000"/>' : '') +
+        '<g transform="translate(' + px + ' ' + py + ')"><circle r="' + r + '" fill="#fff" stroke="#000" stroke-width="' + 1.2 * sw + '"/><text text-anchor="middle" dy=".36em" font-size="' + fs + '" font-weight="700" font-family="Arial,sans-serif">' + num[k] + '</text></g>'; }).join('') + '</svg>';
+    const pos = {}; order.forEach(k => { const [x, y] = D.it[k].lp; pos[k] = D.it[k].dot ? [x + r * 1.3, y - r * 1.3] : [x, y]; });
+    for (let it = 0; it < 80; it++) for (let i = 0; i < order.length; i++) for (let j = i + 1; j < order.length; j++){
+      const a = pos[order[i]], b = pos[order[j]], dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || .01, need = r * 2.25;
+      if (d < need){ const push = (need - d) / 2, ux = d > .01 ? dx / d : 1, uy = d > .01 ? dy / d : 0; a[0] -= ux * push; a[1] -= uy * push; b[0] += ux * push; b[1] += uy * push; }
+    }
+    const what = S.coord ? '' : cfg.ask === 'cap' && S.cap ? S.cw.replace(/^(la|le) /, '') : 'nom';
+    const consigne = 'Écris ' + (what === 'nom' ? 'le nom de chaque endroit numéroté' : what === 'capitale' ? 'la capitale de chaque pays numéroté' : 'le chef-lieu de chaque province numérotée') + '.';
+    const ans = k => this.geoItemName(cfg.map, cfg.set, cfg.ask, k);
+    const page = c => '<div class="gp-page"><div class="gp-head"><span>Nom : ______________________</span><span>Classe : ________</span><span>Date : ____________</span></div>' +
+      '<div class="gp-t">' + esc(cfg.title) + (c ? ' · Correction' : '') + '</div><div class="gp-c">' + consigne + '</div><div class="gp-map">' + svg() + '</div>' +
+      '<div class="gp-list">' + order.map(k => '<div><b>' + num[k] + '.</b> ' + (c ? esc(ans(k)) : '') + '</div>').join('') + '</div><div class="gp-src">Fond de carte : Natural Earth</div></div>';
+    document.getElementById('print').innerHTML = page(false) + (corr ? page(true) : '');
+    setTimeout(() => window.print(), 150);
+  },
   async geoClassSheet(c){
     const ids = c.students.map(s => s.id);
     const { el } = openSheet('<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Fermer</button><h2>Jeu de géographie</h2><span style="min-width:60px"></span></div><div id="gcs"><div class="spinner" style="margin:40px auto"></div></div>');
@@ -4634,7 +4927,7 @@ const Prof = {
         const M = GEO_MAPS[L[0].map], cnt = {};
         L.forEach(g => (g.weak || []).forEach(k => { cnt[k] = (cnt[k] || 0) + 1; }));
         const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 8);
-        const name = k => { const it = M && M.items[k]; return it ? (L[0].ask === 'cap' && it.c ? it.c : it.n) : k; };
+        const name = k => this.geoItemName(L[0].map, L[0].set_key, L[0].ask, k);
         return '<div class="section-h">' + esc(geoGameLabel(L[0])) + '<span style="text-transform:none;white-space:nowrap;margin-left:8px">' + L.length + ' partie' + (L.length > 1 ? 's' : '') + ' · ' + pct(L) + ' %</span></div><div class="group">' +
           (top.length ? top.map(([k, n]) => '<div class="row"><div class="main t">' + esc(name(k)) + '</div><span class="val">raté ' + n + ' fois</span></div>').join('') : '<div class="row"><div class="main t">Rien de raté : bravo à la classe !</div></div>') + '</div>';
       }).join('') +
@@ -4650,7 +4943,7 @@ const Prof = {
     const { data } = await sb.from('geo_games').select('map,set_key,ask,how,n,ok,seconds,weak,created_at').eq('student_id', sid).order('created_at', { ascending: false }).limit(15);
     if (!data || !data.length || !document.body.contains(box)) return;
     box.innerHTML = '<div class="section-h">Jeu de géographie</div><div class="group">' + data.map(g => {
-      const M = GEO_MAPS[g.map], miss = (g.weak || []).map(k => { const it = M && M.items[k]; return it ? (g.ask === 'cap' && it.c ? it.c : it.n) : k; });
+      const miss = (g.weak || []).map(k => this.geoItemName(g.map, g.set_key, g.ask, k));
       return '<div class="row"><div class="main"><div class="t">' + esc(geoGameLabel(g)) + (g.how === 'write' ? ' · écrit' : '') + '</div><div class="s">' + fmtDateTime(g.created_at) + ' · ' + fmtDuration(g.seconds) +
         (miss.length ? ' · à revoir : ' + esc(miss.slice(0, 6).join(', ')) + (miss.length > 6 ? '…' : '') : '') + '</div></div><span class="val">' + g.ok + ' / ' + g.n + '</span></div>';
     }).join('') + '</div><p class="foot">Les 15 dernières parties. Le score compte les réponses trouvées du premier coup.</p>';
