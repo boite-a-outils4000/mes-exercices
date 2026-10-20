@@ -926,6 +926,11 @@ I.phone = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="c
 I.hi = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V5.5a1.5 1.5 0 013 0V11M11 10.5V4a1.5 1.5 0 013 0v6.5M14 10.5V5.5a1.5 1.5 0 013 0V14a7 7 0 01-7 7h-.5a6.5 6.5 0 01-5.3-2.8L2.5 15.4a1.5 1.5 0 012.3-1.9L8 16"/></svg>';
 I.users = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18.5 14.4c1.8.8 3 2.7 3 5.6"/></svg>';
 I.gauge = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 17a8 8 0 1116 0"/><path d="M12 17l4-5"/><circle cx="12" cy="17" r="1.4" fill="currentColor"/></svg>';
+I.jFrise = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><rect x="4" y="4" width="6" height="8" rx="1.2"/><rect x="14" y="12" width="6" height="8" rx="1.2"/></svg>';
+I.jMusee = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-5 9 5z"/><path d="M5.5 11v7M10 11v7M14 11v7M18.5 11v7M3 20.5h18"/></svg>';
+I.jCrit = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6v18h6"/><path d="M14 3l4 4v3"/><circle cx="16" cy="15.5" r="3.5"/><path d="M18.6 18.1l3 3"/></svg>';
+I.jPays = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 19l6-8 4 5 3-4 7 7z"/><circle cx="17" cy="6.5" r="2.5"/></svg>';
+I.jClim = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13.5V5a2 2 0 0 1 4 0v8.5a4 4 0 1 1-4 0z"/><path d="M12 9v7"/></svg>';
 I.dice = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.2" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.2" fill="currentColor"/></svg>';
 I.globe = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg>';
 I.map = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>';
@@ -970,7 +975,9 @@ const CONSIGNES = [
   { c: 'Localise Liège sur la carte en plaçant une croix.', v: ['localise'], m: 'Localiser, c’est montrer où se trouve un lieu.', k: ['doc'],
     a: [['Je place une croix sur Liège, à l’est de la Belgique.', ''], ['J’écris « Liège » dans la marge de la carte.', 'La consigne demande une croix sur la carte, à l’endroit de Liège.'], ['Liège est une ville de Wallonie.', 'Rien n’est placé sur la carte.']] }
 ];
-const STUDY_TOOLS = [['week', 'test', 'Quiz de la semaine'], ['cards', 'test', 'Cartes mémoire'], ['recall', 'test', 'Vide ta tête'], ['conf', 'test', 'Sûr de toi ?'], ['maps', 'test', 'Cartes muettes'], ['geo', 'test', 'Jeu de géographie'], ['jeux', 'test', 'Jeux d’histoire-géo'], ['pre', 'test', 'Avant le cours'], ['err', 'test', 'Trouve l’erreur'],
+// Familles : test = se tester, train = s'entraîner, jeux = jouer, review = revoir
+const STUDY_TOOLS = [['geo', 'jeux', 'Jeu de géographie'], ['j_frise', 'jeux', 'Le jeu de la frise'], ['j_musee', 'jeux', 'Le tri du musée'], ['j_critique', 'jeux', 'Critiquer une source'], ['j_paysage', 'jeux', 'Lire un paysage'], ['j_climat', 'jeux', 'Les climats'],
+  ['week', 'test', 'Quiz de la semaine'], ['cards', 'test', 'Cartes mémoire'], ['recall', 'test', 'Vide ta tête'], ['conf', 'test', 'Sûr de toi ?'], ['maps', 'test', 'Cartes muettes'], ['pre', 'test', 'Avant le cours'], ['err', 'test', 'Trouve l’erreur'],
   ['cons', 'train', 'Lire les consignes'], ['free', 'train', 'Entraînement libre'], ['mist', 'train', 'Mes erreurs'], ['scale', 'train', 'Échelles'], ['clim', 'train', 'Climatogrammes'], ['doc', 'train', 'Analyser un document'],
   ['recaps', 'review', 'Fiches « Je retiens »'], ['timer', 'review', 'Minuteur']];
 // Jeu de géographie. Fonds de carte dans data/*.json (Natural Earth, domaine public ; Crimée rattachée à l'Ukraine).
@@ -1652,15 +1659,13 @@ const Student = {
         const nMap = (this.study.sets || []).reduce((t, x) => t + (x.questions || []).filter(q => q.type === 'image').reduce((u, q) => u + (q.points || []).length, 0), 0);
         const day = Math.floor(Date.now() / 864e5), w = this.weekState(), wDone = w.weeks[this.weekKey()], nd = this.docList().length;
         const hidden = new Set((this.study.hidden_tools) || []);
-        const FAM = { test: ['Se tester', 'blue'], train: ['S’entraîner', 'green'], review: ['Revoir', 'purple'] };
+        const FAM = { test: ['Se tester', 'blue'], train: ['S’entraîner', 'green'], jeux: ['Jouer', 'orange'], review: ['Revoir', 'purple'] };
         const TOOLS = [
           ['week', 'test', I.week, 'Quiz de la semaine', wDone ? 'Fait : ' + wDone.score + ' / ' + wDone.total : '5 questions, nouveau le lundi'],
           ['cards', 'test', I.cards, 'Cartes mémoire', c.all.length ? (c.today ? c.today + ' à revoir aujourd’hui' : 'Rien à revoir aujourd’hui') : 'Pas encore de cartes', c.all.length ? '<div class="bar"><i style="width:' + (c.mastered / c.all.length * 100) + '%"></i></div>' : ''],
           ['recall', 'test', I.write, 'Vide ta tête', 'Écris tout ce que tu sais'],
           ['conf', 'test', I.gauge, 'Sûr de toi ?', 'Dis si tu es sûr, puis vérifie'],
           ['maps', 'test', I.map, 'Cartes muettes', nMap ? nMap + ' repères à placer' : 'Pas encore de carte'],
-          ['geo', 'test', I.globe, 'Jeu de géographie', 'Pays, provinces, fleuves… sur la carte'],
-          ['jeux', 'test', I.dice, 'Jeux d’histoire-géo', 'Frise, musée, sources, paysages, climats'],
           ['pre', 'test', I.pre, 'Avant le cours', 'Teste-toi avant d’étudier'],
           ['err', 'test', I.bug, 'Trouve l’erreur', 'Repère les phrases fausses'],
           ['cons', 'train', I.consigne, 'Lire les consignes', 'Comprends ce qu’on te demande'],
@@ -1669,11 +1674,17 @@ const Student = {
           ['scale', 'train', I.steps, 'Échelles', 'Calculer une distance réelle'],
           ['clim', 'train', I.clim, 'Climatogrammes', 'Lire un climatogramme'],
           ['doc', 'train', I.docu, 'Analyser un document', nd ? nd + ' document' + (nd > 1 ? 's' : '') : 'Pas encore de document'],
+          ['geo', 'jeux', I.globe, 'Jeu de géographie', 'Pays, provinces, fleuves… sur la carte'],
+          ['j_frise', 'jeux', I.jFrise, 'Le jeu de la frise', 'Remets les événements dans l’ordre'],
+          ['j_musee', 'jeux', I.jMusee, 'Le tri du musée', 'Trace du passé, nature, genre'],
+          ['j_critique', 'jeux', I.jCrit, 'Critiquer une source', 'Qui ? Quand ? Pourquoi ? Fiable ?'],
+          ['j_paysage', 'jeux', I.jPays, 'Lire un paysage', 'Plans, naturel ou humain, fonctions'],
+          ['j_climat', 'jeux', I.jClim, 'Les climats', 'Reconnaître le climat d’une ville'],
           ['recaps', 'review', I.book, 'Fiches « Je retiens »', nRecap ? nRecap + ' fiche' + (nRecap > 1 ? 's' : '') : 'Pas encore de fiche'],
           ['timer', 'review', I.timer, 'Minuteur', 'Travaille, puis fais une pause']
         ].filter(t => !hidden.has(t[0]));
         const has = k => TOOLS.some(t => t[0] === k);
-        const COL = { week: 'red', cards: 'blue', recall: 'pink', conf: 'indigo', maps: 'teal', geo: 'green', jeux: 'orange', pre: 'purple', err: 'red', cons: 'orange', free: 'green', mist: 'orange', scale: 'indigo', clim: 'blue', doc: 'pink', recaps: 'purple', timer: 'teal' };
+        const COL = { week: 'red', cards: 'blue', recall: 'pink', conf: 'indigo', maps: 'teal', geo: 'green', j_frise: 'purple', j_musee: 'indigo', j_critique: 'red', j_paysage: 'teal', j_climat: 'orange', pre: 'purple', err: 'red', cons: 'orange', free: 'green', mist: 'orange', scale: 'indigo', clim: 'blue', doc: 'pink', recaps: 'purple', timer: 'teal' };
         const tile = t => '<button class="stile" data-study="' + t[0] + '"><span class="ic" style="background:var(--' + COL[t[0]] + ')">' + t[2] + '</span><span class="tt">' + t[3] + '</span><span class="ss">' + t[4] + '</span>' + (t[5] || '') + '</button>';
         const sugg = [];
         if (has('cards') && c.today) sugg.push(['cards', 'Revois tes cartes', c.today + ' carte' + (c.today > 1 ? 's' : '') + ' t’attend' + (c.today > 1 ? 'ent' : '') + ' · 5 min', 'test']);
@@ -1690,7 +1701,7 @@ const Student = {
             '<p class="foot" style="margin:0 0 6px">' + (sc === 'act' ? 'Les outils utilisent tes séries en cours.' : sc === 'arch' ? 'Les outils utilisent tes séries archivées : idéal pour ne pas oublier.' : 'Les outils utilisent toutes tes séries.') + '</p>' : '') +
           (sugg.length ? '<div class="section-h">Pour toi aujourd’hui</div><div class="group">' + sugg.slice(0, 3).map(x => '<button class="row todo-row" data-study="' + x[0] + '"><span class="ic" style="background:var(--' + COL[x[0]] + ')">' + ico(x[0]) + '</span><div class="main"><div class="t">' + x[1] + '</div><div class="s">' + x[2] + '</div></div><span class="chev">' + I.chevR + '</span></button>').join('') + '</div>' : '') +
           (TOOLS.length > 6 ? '<button class="tools-toggle" id="ttog"><b>Tous les outils</b><span>' + (open ? 'Masquer' : 'Afficher (' + TOOLS.length + ')') + '</span></button>' : '<div class="section-h">Mes outils</div>') +
-          '<div id="tools"' + (open ? '' : ' hidden') + '>' + ['test', 'train', 'review'].map(f => { const L = TOOLS.filter(t => t[1] === f); return L.length ? '<div class="study-h">' + FAM[f][0] + '</div><div class="study-grid">' + L.map(tile).join('') + '</div>' : ''; }).join('') + '</div>' +
+          '<div id="tools"' + (open ? '' : ' hidden') + '>' + ['test', 'train', 'jeux', 'review'].map(f => { const L = TOOLS.filter(t => t[1] === f); return L.length ? '<div class="study-h">' + FAM[f][0] + '</div><div class="study-grid">' + L.map(tile).join('') + '</div>' : ''; }).join('') + '</div>' +
           '<div class="tip"><b>Le conseil du jour</b>' + nb(esc(STUDY_TIPS[day % STUDY_TIPS.length])) + '</div>' +
           '<button class="why-link" data-study="why">' + I.info + ' Pourquoi ces méthodes marchent</button>';
       }
@@ -1739,7 +1750,7 @@ const Student = {
       if (k === 'doc') return this.docLab();
       if (k === 'maps') return this.mapDrill();
       if (k === 'geo') return this.geoHome();
-      if (k === 'jeux') return this.jeuxHome();
+      if (k.startsWith('j_')) return this.jeuOpen(k.slice(2));
       if (k === 'scale') return this.scaleLab();
       if (k === 'why') return this.whySheet();
     });
@@ -2189,19 +2200,6 @@ const Student = {
     return '<button class="row" data-geotask="' + t.id + '"><span style="color:var(--' + (JEUX[t.map] ? 'orange' : 'green') + ');display:flex">' + (JEUX[t.map] ? I.dice : I.globe) + '</span><div class="main"><div class="t">' + esc(t.title) + '</div><div class="s">' + esc(meta) + '</div></div><span class="pill ' + col + '">' + lab + '</span></button>';
   },
   /* ---------- Jeux d'histoire-géo : pages jeux/*.html ouvertes en plein écran ; elles renvoient le score par message ---------- */
-  jeuxHome(){
-    const tasks = (this.geoTasks || []).filter(t => JEUX[t.map]);
-    const row = k => { const J = JEUX[k]; return '<button class="row todo-row" data-jeu="' + k + '"><span class="ic" style="background:var(--' + (J.h === 'Histoire' ? 'purple' : 'green') + ')">' + I.dice + '</span><div class="main"><div class="t">' + J.t + '</div><div class="s">' + J.s + '</div></div><span class="chev">' + I.chevR + '</span></button>'; };
-    $app.innerHTML = '<div class="quiz"><div class="quiz-top"><button class="icon-btn mute" id="quit" aria-label="Retour">' + I.x + '</button><div style="flex:1;font-weight:600;text-align:center">Jeux d’histoire-géo</div><span class="counter"></span></div>' +
-      '<div class="quiz-body" style="padding-bottom:60px">' +
-      (tasks.length ? '<div class="section-h" style="margin-top:4px">Donné par ton professeur</div><div class="group">' + tasks.map(t => this.geoTaskRow(t)).join('') + '</div>' : '') +
-      ['Histoire', 'Géographie'].map((h, i) => '<div class="section-h"' + (!i && !tasks.length ? ' style="margin-top:4px"' : '') + '>' + h + '</div><div class="group">' + Object.keys(JEUX).filter(k => JEUX[k].h === h).map(row).join('') + '</div>').join('') +
-      '<p class="foot">Les pays, les fleuves et les coordonnées sur la carte sont dans le « Jeu de géographie ».</p></div></div>';
-    window.scrollTo(0, 0);
-    document.getElementById('quit').onclick = () => { this.stab = 'study'; this.renderList(); };
-    $app.querySelectorAll('[data-jeu]').forEach(b => b.onclick = () => this.jeuOpen(b.dataset.jeu));
-    $app.querySelectorAll('[data-geotask]').forEach(x => x.onclick = () => { this._geoFrom = 'jeux'; this.jeuOpen(null, tasks.find(t => t.id === x.dataset.geotask)); });
-  },
   jeuOpen(game, task){
     if (task) game = task.map;
     const J = JEUX[game]; if (!J) return toast('Ce jeu n’est plus disponible.');
@@ -2215,7 +2213,7 @@ const Student = {
     const on = e => {
       if (e.origin !== location.origin || !e.data || e.data.src !== 'jeux') return;
       if (e.data.type === 'end') this.jeuSave(game, e.data, task);
-      if (e.data.type === 'quit'){ off(); if (task && this._geoFrom !== 'jeux'){ this.stab = this._geoFrom || 'ex'; this.renderList(); } else this.jeuxHome(); }
+      if (e.data.type === 'quit'){ off(); this.stab = task ? this._geoFrom || 'ex' : 'study'; this.renderList(); }
     };
     this._jeuOff = off;
     window.addEventListener('message', on);
@@ -4838,7 +4836,7 @@ const Prof = {
     const hid = new Set(c.hidden_tools || []);
     const draw = el => {
       el.querySelector('#tb').innerHTML = '<div class="group"><button class="row" data-preset="simple"><div class="main"><div class="t">Version simple</div><div class="s">Quiz de la semaine, cartes mémoire, consignes, mes erreurs</div></div></button><button class="row" data-preset="all"><div class="main"><div class="t">Tous les outils</div></div></button></div>' +
-        ['test', 'train', 'review'].map(f => '<div class="section-h">' + ({ test: 'Se tester', train: 'S’entraîner', review: 'Revoir' })[f] + '</div><div class="group">' + STUDY_TOOLS.filter(t => t[1] === f).map(t => '<label class="row" style="cursor:pointer"><div class="main t">' + t[2] + '</div><span class="switch"><input type="checkbox" data-tool="' + t[0] + '" ' + (hid.has(t[0]) ? '' : 'checked') + ' aria-label="' + t[2] + '"><span></span></span></label>').join('') + '</div>').join('') +
+        ['test', 'train', 'jeux', 'review'].map(f => '<div class="section-h">' + ({ test: 'Se tester', train: 'S’entraîner', jeux: 'Jouer', review: 'Revoir' })[f] + '</div><div class="group">' + STUDY_TOOLS.filter(t => t[1] === f).map(t => '<label class="row" style="cursor:pointer"><div class="main t">' + t[2] + '</div><span class="switch"><input type="checkbox" data-tool="' + t[0] + '" ' + (hid.has(t[0]) ? '' : 'checked') + ' aria-label="' + t[2] + '"><span></span></span></label>').join('') + '</div>').join('') +
         '<p class="foot">Pour commencer, la version simple suffit. Tu pourras ouvrir d’autres outils plus tard. Les choix s’appliquent à tous les élèves de ' + esc(c.name) + '.</p>';
       el.querySelectorAll('[data-tool]').forEach(i => i.onchange = () => { i.checked ? hid.delete(i.dataset.tool) : hid.add(i.dataset.tool); });
       el.querySelectorAll('[data-preset]').forEach(b => b.onclick = () => { hid.clear(); if (b.dataset.preset === 'simple') STUDY_TOOLS.forEach(t => { if (!['week', 'cards', 'cons', 'mist'].includes(t[0])) hid.add(t[0]); }); draw(el); });
