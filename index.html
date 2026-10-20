@@ -1136,7 +1136,7 @@ const JEUX = {
       mois: 'Trouver un mois sur le climatogramme', amp: 'Amplitude thermique', pluie: 'Lire les précipitations', temp: 'Lire les températures', hemi: 'Hémisphère nord ou sud' } }
 };
 // version des pages de jeux : à changer à chaque mise à jour, pour que le navigateur ne garde pas l'ancienne en mémoire
-const JEUX_V = '7';
+const JEUX_V = '8';
 const jeuMode = (map, set) => { const J = JEUX[map]; if (!J) return ''; const [m, d, l] = String(set || '').split('+'); return [J.modes[m] || m, J.decks && J.decks[d], J.levels && J.levels[l]].filter(Boolean).join(' · '); };
 const geoGameLabel = g => { if (JEUX[g.map]) return JEUX[g.map].t + ' · ' + jeuMode(g.map, g.set_key); const M = GEO_MAPS[g.map], S = M && geoSet(g.map, g.set_key); if (!S) return 'Jeu de géographie';
   return M.t + ' · ' + S.t + (g.ask === 'cap' ? ' · ' + (S.cw === 'la capitale' ? 'capitales' : 'chefs-lieux') : ''); };
