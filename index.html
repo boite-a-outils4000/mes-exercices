@@ -4734,8 +4734,7 @@ const Prof = {
         return '<div class="section-h">Défi de la semaine</div><div class="group"><div class="inner-pad"><div class="seg">' + [0, 50, 100, 200, 300, 500].map(v => '<button data-ch="' + v + '" class="' + ((ch.target || 0) === v ? 'on' : '') + '">' + (v || 'Aucun') + '</button>').join('') + '</div></div>' +
           (ch.target ? '<div class="row"><div class="main"><div class="t">' + prog + ' / ' + ch.target + ' bonnes réponses</div><div class="bar"><i style="width:' + Math.min(100, prog / ch.target * 100) + '%;background:var(--purple)"></i></div></div></div>' : '') + '</div>' +
           '<p class="foot">Un objectif commun en bonnes réponses aux exercices, du lundi au dimanche. Les élèves voient la progression de la classe, jamais un classement.</p>' +
-          '<div class="section-h">Jeu de géographie</div><div class="group">' + (this.geoTasks || []).filter(t => t.class_id === c.id).map(t => '<button class="row" data-gtask="' + t.id + '"><span style="color:var(--green);display:flex">' + I.globe + '</span><div class="main"><div class="t">' + esc(t.title) + '</div><div class="s">' +
-            esc([{ liste: 'À travailler', devoir: 'Devoir', interro: 'Interro' }[t.kind], t.due_date ? 'pour le ' + fmtDate(t.due_date) : null].filter(Boolean).join(' · ')) + '</div></div><span class="chev">' + I.chevR + '</span></button>').join('') +
+          '<div class="section-h">Jeu de géographie</div><div class="group">' + (this.geoTasks || []).filter(t => t.class_id === c.id).map(t => this.geoTaskRowProf(t, false)).join('') +
             '<button class="row" id="geores"><div class="main"><div class="t">Résultats de la classe</div><div class="s">Toutes les parties et les endroits les plus ratés</div></div><span class="chev">' + I.chevR + '</span></button>' +
             '</div><p class="foot">Pour donner un nouveau jeu ou imprimer une carte muette, va dans l’onglet Exercices.</p>' +
           '<div class="section-h">Outils de J\u2019étudie</div><div class="group"><button class="row" id="tools"><div class="main"><div class="t">Outils visibles par les élèves</div><div class="s">' + (n === STUDY_TOOLS.length ? 'Tous les outils (' + n + ')' : n + ' sur ' + STUDY_TOOLS.length) + '</div></div><span class="chev">' + I.chevR + '</span></button></div>'; })() +
@@ -4791,10 +4790,15 @@ const Prof = {
 
   /* ---------- Jeu de géographie : résultats ---------- */
   // Onglet Exercices : les jeux de géographie donnés, toutes classes confondues
+  geoWho(t){
+    if (!t.student_ids || !t.student_ids.length) return null;
+    const n = t.student_ids.map(id => (this.studentById[id] || {}).first_name).filter(Boolean);
+    return n.length <= 2 ? n.join(' et ') : n.length + ' élèves';
+  },
   geoTaskRowProf(t, withClass){
-    const c = this.classes.find(x => x.id === t.class_id);
+    const c = this.classes.find(x => x.id === t.class_id), who = this.geoWho(t);
     return '<button class="row" data-gtask="' + t.id + '"><span style="color:var(--green);display:flex">' + I.globe + '</span><div class="main"><div class="t">' + esc(t.title) + '</div><div class="s">' +
-      esc([withClass && c ? c.name : null, { liste: 'À travailler', devoir: 'Devoir', interro: 'Interro' }[t.kind], t.due_date ? 'pour le ' + fmtDate(t.due_date) : null].filter(Boolean).join(' · ')) + '</div></div><span class="chev">' + I.chevR + '</span></button>';
+      esc([withClass && c ? c.name + (who ? ' (' + who + ')' : '') : who, { liste: 'À travailler', devoir: 'Devoir', interro: 'Interro' }[t.kind], t.due_date ? 'pour le ' + fmtDate(t.due_date) : null].filter(Boolean).join(' · ')) + '</div></div><span class="chev">' + I.chevR + '</span></button>';
   },
   geoSetsSection(){
     const L = (this.geoTasks || []).filter(t => this.classes.some(c => c.id === t.class_id));
@@ -4815,6 +4819,7 @@ const Prof = {
   geoTaskEditor(c, mode){
     const pr = mode === 'print';
     const st = { map: 'europe', set: 'ue', keys: null, ask: 'nom', how: 'tap', kind: 'liste', due: '', title: '', titleEdited: false, corr: true,
+      who: 'all', stu: new Set(),
       cls: new Set([c ? c.id : this.classFilter !== 'all' && this.classes.some(x => x.id === this.classFilter) ? this.classFilter : (this.classes[0] || {}).id].filter(Boolean)) };
     const sets = () => Object.entries(GEO_MAPS[st.map].sets).filter(([k, S]) => !(pr && S.coord));
     const S = () => geoSet(st.map, st.set);
@@ -4828,7 +4833,11 @@ const Prof = {
       const seg = (name, opts, cls) => '<div class="seg' + (cls ? ' ' + cls : '') + '" data-g="' + name + '">' + opts.map(([k, l]) => '<button data-v="' + k + '" class="' + (st[name] === k ? 'on' : '') + '">' + l + '</button>').join('') + '</div>';
       el.querySelector('#gte').innerHTML =
         (!pr && !c ? '<div class="section-h" style="margin-top:4px">Pour quelle classe ?</div><div class="group"><div class="chips multi">' + this.classes.map(x => '<button class="chip' + (st.cls.has(x.id) ? ' on' : '') + '" data-cl="' + x.id + '">' + esc(x.name) + '</button>').join('') + '</div></div>' : '') +
-        '<div class="section-h"' + (!pr && !c ? '' : ' style="margin-top:4px"') + '>Carte</div>' + seg('map', Object.entries(GEO_MAPS).map(([k, m]) => [k, m.t]), 'wrap') +
+        (!pr ? '<div class="section-h"' + (c ? ' style="margin-top:4px"' : '') + '>Pour qui ?</div>' + seg('who', [['all', st.cls.size > 1 ? 'Toutes les classes choisies' : 'Toute la classe'], ['some', 'Certains élèves']]) +
+          (st.who === 'some' ? this.classes.filter(x => st.cls.has(x.id)).map(x => (st.cls.size > 1 ? '<div class="section-h">' + esc(x.name) + '</div>' : '') +
+            '<div class="group' + (st.cls.size > 1 ? '' : ' mt') + '"><div class="chips multi">' + (x.students.length ? x.students.map(u => '<button class="chip' + (st.stu.has(u.id) ? ' on' : '') + '" data-stu="' + u.id + '">' + esc(u.first_name) + '</button>').join('') : '<span class="foot" style="margin:0">Aucun élève dans cette classe.</span>') + '</div></div>').join('') +
+            '<p class="foot">Seuls les élèves choisis verront ce jeu.</p>' : '') : '') +
+        '<div class="section-h"' + (!pr && !c ? '' : pr ? ' style="margin-top:4px"' : '') + '>Carte</div>' + seg('map', Object.entries(GEO_MAPS).map(([k, m]) => [k, m.t]), 'wrap') +
         '<div class="section-h">Quoi ?</div><div class="seg wrap" data-g="set">' + sets().map(([k, x]) => '<button data-v="' + k + '" class="' + (st.set.split('+').includes(k) ? 'on' : '') + '">' + x.t + '</button>').join('') + '</div>' +
         (M.combo ? '<p class="foot">Coche plusieurs séries pour les mélanger dans un même jeu.</p>' : '') +
         (s.coord ? '<p class="foot">Dix points tirés au hasard, de 10° en 10°, différents pour chaque élève.</p>' :
@@ -4848,6 +4857,7 @@ const Prof = {
         if (g === 'set') st.keys = null;
         draw(el);
       });
+      el.querySelectorAll('[data-stu]').forEach(b => b.onclick = () => { const k = b.dataset.stu; st.stu.has(k) ? st.stu.delete(k) : st.stu.add(k); draw(el); });
       el.querySelectorAll('[data-cl]').forEach(b => b.onclick = () => { const k = b.dataset.cl; st.cls.has(k) ? st.cls.delete(k) : st.cls.add(k); draw(el); });
       el.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { const k = b.dataset.it; st.keys.has(k) ? st.keys.delete(k) : st.keys.add(k); draw(el); });
       el.querySelectorAll('[data-all]').forEach(b => b.onclick = () => { st.keys = new Set(b.dataset.all === '1' ? S().k : []); draw(el); });
@@ -4862,18 +4872,21 @@ const Prof = {
         if (!s.coord && keys.length < (pr ? 1 : 2)) return toast(pr ? 'Choisis au moins un endroit' : 'Choisis au moins deux endroits');
         if (pr){ close(); return this.geoPrint({ map: st.map, set: st.set, keys, ask: st.ask, title: autoTitle() }, st.corr); }
         const title = (st.title || '').trim() || autoTitle();
-        const ids = [...st.cls].filter(id => this.classes.some(x => x.id === id));
+        let ids = [...st.cls].filter(id => this.classes.some(x => x.id === id));
         if (!ids.length) return toast('Choisis au moins une classe');
-        const { data, error } = await sb.from('geo_tasks').insert(ids.map(id => ({ class_id: id, title, map: st.map, set_key: st.set, keys, ask: st.ask, how: st.how, kind: st.kind, due_date: st.kind !== 'liste' && st.due ? st.due : null }))).select();
+        const pick = id => st.who === 'some' ? this.classes.find(x => x.id === id).students.filter(u => st.stu.has(u.id)).map(u => u.id) : null;
+        if (st.who === 'some'){ ids = ids.filter(id => pick(id).length); if (!ids.length) return toast('Choisis au moins un élève'); }
+        const { data, error } = await sb.from('geo_tasks').insert(ids.map(id => ({ class_id: id, student_ids: pick(id), title, map: st.map, set_key: st.set, keys, ask: st.ask, how: st.how, kind: st.kind, due_date: st.kind !== 'liste' && st.due ? st.due : null }))).select();
         if (error) return toast('Erreur : ' + esc(error.message));
         this.geoTasks = (data || []).concat(this.geoTasks || []);
-        const names = ids.map(id => this.classes.find(x => x.id === id).name);
+        const names = st.who === 'some' ? this.classes.filter(x => ids.includes(x.id)).flatMap(x => x.students.filter(u => st.stu.has(u.id)).map(u => u.first_name)) : ids.map(id => this.classes.find(x => x.id === id).name);
         close(); this.geoRefresh(); toast('Jeu donné à ' + esc(names.join(', ')));
       };
     });
   },
   async geoTaskSheet(t, c){
-    const kind = { liste: 'À travailler', devoir: 'Devoir', interro: 'Interro' }[t.kind];
+    const kind = { liste: 'À travailler', devoir: 'Devoir', interro: 'Interro' }[t.kind], who = this.geoWho(t);
+    const studs = t.student_ids && t.student_ids.length ? c.students.filter(u => t.student_ids.includes(u.id)) : c.students;
     const { el, close } = openSheet('<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Fermer</button><h2>' + kind + '</h2><span style="min-width:60px"></span></div><div id="gts"><div class="spinner" style="margin:40px auto"></div></div>');
     const { data, error } = await sb.from('geo_games').select('student_id,n,ok,seconds,weak,retry,created_at').eq('task_id', t.id).order('created_at');
     const box = el.querySelector('#gts');
@@ -4881,19 +4894,19 @@ const Prof = {
     const games = data || [], firsts = {}, best = {};
     games.forEach(g => { if (!firsts[g.student_id]) firsts[g.student_id] = g; if (!g.retry && (!best[g.student_id] || g.ok > best[g.student_id].ok)) best[g.student_id] = g; });
     const pick = sid => t.kind === 'interro' ? firsts[sid] : best[sid] || firsts[sid];
-    const doneIds = c.students.filter(s => pick(s.id)).map(s => s.id);
+    const doneIds = studs.filter(s => pick(s.id)).map(s => s.id);
     const pc = g => Math.round(g.ok / g.n * 100);
     const avg = doneIds.length ? Math.round(doneIds.reduce((x, sid) => x + pc(pick(sid)), 0) / doneIds.length) : null;
     const cnt = {}; doneIds.forEach(sid => (pick(sid).weak || []).forEach(k => { cnt[k] = (cnt[k] || 0) + 1; }));
     const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 8);
     const S = geoSet(t.map, t.set_key);
     box.innerHTML = '<h1 class="large" style="margin:4px 0 2px;font-size:24px">' + esc(t.title) + '</h1><p class="foot" style="margin:0 0 12px">' +
-        esc([geoGameLabel(t), t.how === 'write' ? (S && S.coord ? 'choisir les coordonnées' : 'écrire le nom') : (S && S.coord ? 'placer le point' : 'toucher la carte'), t.due_date ? 'pour le ' + fmtDate(t.due_date) : null].filter(Boolean).join(' · ')) + '</p>' +
-      '<div class="tiles"><div class="tile"><div class="n">' + doneIds.length + ' / ' + c.students.length + '</div><div class="l">Élèves</div></div>' +
+        esc([geoGameLabel(t), t.how === 'write' ? (S && S.coord ? 'choisir les coordonnées' : 'écrire le nom') : (S && S.coord ? 'placer le point' : 'toucher la carte'), t.due_date ? 'pour le ' + fmtDate(t.due_date) : null].filter(Boolean).join(' · ')) + '<br>' + esc(c.name + (who ? ' · seulement ' + studs.map(u => u.first_name).join(', ') : ' · toute la classe')) + '</p>' +
+      '<div class="tiles"><div class="tile"><div class="n">' + doneIds.length + ' / ' + studs.length + '</div><div class="l">Élèves</div></div>' +
       '<div class="tile"><div class="n">' + (avg == null ? '—' : avg + ' %') + '</div><div class="l">' + (t.kind === 'interro' ? 'Moyenne' : 'Moyenne du meilleur') + '</div></div>' +
       '<div class="tile"><div class="n">' + games.length + '</div><div class="l">Parties</div></div></div>' +
       (top.length ? '<div class="section-h">Les plus ratés</div><div class="group">' + top.map(([k, n]) => '<div class="row"><div class="main t">' + esc(this.geoItemName(t.map, t.set_key, t.ask, k)) + '</div><span class="val">' + n + ' élève' + (n > 1 ? 's' : '') + '</span></div>').join('') + '</div>' : '') +
-      '<div class="section-h">Élèves</div><div class="group">' + c.students.map(s => { const g = pick(s.id), late = !g && t.kind !== 'liste' && t.due_date && t.due_date < todayLocal();
+      '<div class="section-h">Élèves</div><div class="group">' + studs.map(s => { const g = pick(s.id), late = !g && t.kind !== 'liste' && t.due_date && t.due_date < todayLocal();
         return '<div class="row"><div class="avatar">' + initials(s.first_name) + '</div><div class="main"><div class="t">' + esc(s.first_name) + '</div><div class="s">' +
           (g ? fmtDateTime(g.created_at) + ' · ' + fmtDuration(g.seconds) + ((g.weak || []).length ? ' · à revoir : ' + esc(g.weak.slice(0, 5).map(k => this.geoItemName(t.map, t.set_key, t.ask, k)).join(', ')) + (g.weak.length > 5 ? '…' : '') : '') : 'Pas encore fait') + '</div></div>' +
           (g ? '<span class="val">' + g.ok + ' / ' + g.n + '</span>' : late ? '<span class="pill red">En retard</span>' : '') + '</div>'; }).join('') + '</div>' +
