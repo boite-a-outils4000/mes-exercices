@@ -129,6 +129,11 @@ canvas.fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
 .btn2.plain{background:none;color:var(--gold)}
 @media (max-width:560px){h1{font-size:29px}.card{width:116px;height:184px}.card .era{top:192px}.card .eral{top:202px}.slot{height:184px}.slot span{height:156px}.track::before{top:calc(50% + 64px)}
   .hand{height:226px}.hand .card{width:132px;height:196px}.card .nm{font-size:12.5px}.card .top{height:50px}}
+@media (max-width:560px){.card .top.img{height:90px}.hand .card .top.img{height:98px}}
+/* grand écran : cartes plus grandes, pour mieux voir les images */
+@media (min-width:760px) and (min-height:640px){.card{width:152px;height:236px}.card .era{top:244px}.card .eral{top:254px}.slot{height:236px}.slot span{height:206px}.track::before{top:calc(50% + 84px)}
+  .card .top.img{height:128px}.card .top.img~.nm{font-size:13.5px}.card .top.img~.pr{font-size:12px}
+  .hand{height:280px}.hand .card{width:164px;height:252px}.hand .card .top.img{height:140px}.hand .card .top.img~.nm{font-size:15px}}
 @media (prefers-reduced-motion:reduce){.hand .card{animation:none}.card .in{transition:none}.card.shake{animation:none}.stars .on{animation:none}.track{scroll-behavior:auto}}
 /* modes, niveaux, défi */
 .modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
