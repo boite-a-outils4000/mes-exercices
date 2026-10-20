@@ -839,6 +839,7 @@ const I = {
   down:'<svg width="20" height="20" viewBox="0 0 24 24"><path d="M6 10l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   pencil:'<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"/></svg>',
   tabChart:'<svg width="27" height="25" viewBox="0 0 28 26" fill="currentColor"><rect x="3" y="13" width="5" height="10" rx="1.5"/><rect x="11.5" y="7" width="5" height="16" rx="1.5"/><rect x="20" y="2" width="5" height="21" rx="1.5"/></svg>',
+  tabGame:'<svg width="27" height="25" viewBox="0 0 28 26" fill="currentColor"><path d="M8.2 6.5h11.6c3.4 0 5.8 2.6 6.4 6.3l.9 5.6c.4 2.6-1.5 4.6-3.7 4.6-1.4 0-2.5-.8-3.3-2l-1.2-1.9h-9.8L7.9 21c-.8 1.2-1.9 2-3.3 2-2.2 0-4.1-2-3.7-4.6l.9-5.6c.6-3.7 3-6.3 6.4-6.3z" opacity=".95"/><rect x="6.2" y="10.6" width="1.9" height="6" rx=".95" fill="var(--card)"/><rect x="4.15" y="12.65" width="6" height="1.9" rx=".95" fill="var(--card)"/><circle cx="19.6" cy="11.9" r="1.25" fill="var(--card)"/><circle cx="22.2" cy="14.5" r="1.25" fill="var(--card)"/></svg>',
   tabDoc:'<svg width="27" height="25" viewBox="0 0 28 26" fill="currentColor"><path d="M7 1h9l7 7v14.5A2.5 2.5 0 0120.5 25h-13A2.5 2.5 0 015 22.5v-19A2.5 2.5 0 017 1zm8 1.8V8.5a1 1 0 001 1h5.6z" opacity=".95"/><rect x="9" y="13" width="10" height="1.8" rx=".9" fill="var(--card)"/><rect x="9" y="17.5" width="7" height="1.8" rx=".9" fill="var(--card)"/></svg>',
   tabPeople:'<svg width="30" height="25" viewBox="0 0 32 26" fill="currentColor"><circle cx="12" cy="8" r="5"/><path d="M2 22.5C2 17.5 6.5 14.5 12 14.5s10 3 10 8a1.5 1.5 0 01-1.5 1.5h-17A1.5 1.5 0 012 22.5z"/><circle cx="23" cy="9" r="3.8" opacity=".6"/><path d="M24.5 15.5c3.3.5 5.5 2.8 5.5 6.2a1.3 1.3 0 01-1.3 1.3H24c.3-2.9-.4-5.4-2.3-7.3.9-.2 1.8-.3 2.8-.2z" opacity=".6"/></svg>',
   qcm:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="6" r="2"/><circle cx="5" cy="12" r="2" fill="currentColor"/><circle cx="5" cy="18" r="2"/><path d="M10 6h10M10 12h10M10 18h10"/></svg>',
@@ -1159,7 +1160,7 @@ const JEUX = {
       mois: 'Trouver un mois sur le climatogramme', amp: 'Amplitude thermique', pluie: 'Lire les précipitations', temp: 'Lire les températures', hemi: 'Hémisphère nord ou sud' } }
 };
 // version des pages de jeux : à changer à chaque mise à jour, pour que le navigateur ne garde pas l'ancienne en mémoire
-const JEUX_V = '9';
+const JEUX_V = '10';
 const jeuMode = (map, set) => { const J = JEUX[map]; if (!J) return ''; const [m, d, l] = String(set || '').split('+'); return [J.modes[m] || m, J.decks && J.decks[d], J.levels && J.levels[l]].filter(Boolean).join(' · '); };
 const geoGameLabel = g => { if (JEUX[g.map]) return JEUX[g.map].t + ' · ' + jeuMode(g.map, g.set_key); const M = GEO_MAPS[g.map], S = M && geoSet(g.map, g.set_key); if (!S) return 'Jeu de géographie';
   return M.t + ' · ' + S.t + (g.ask === 'cap' ? ' · ' + (S.cw === 'la capitale' ? 'capitales' : 'chefs-lieux') : ''); };
@@ -2289,7 +2290,7 @@ const Student = {
     document.getElementById('gplay').onclick = () => this.geoStart();
     $app.querySelectorAll('[data-geotask]').forEach(x => x.onclick = () => { this._geoFrom = 'study'; this.geoStart(null, tasks.find(t => t.id === x.dataset.geotask)); });
   },
-  // Ligne d'un jeu donné par le professeur (onglet Exercices et accueil du jeu)
+  // Ligne d'un jeu donné par le professeur (onglet Exercices de l'élève et accueil du jeu)
   geoTaskRow(t){
     const done = t.games > 0, today = todayLocal(), late = !done && t.kind !== 'liste' && t.due_date && t.due_date < today;
     const kind = { liste: 'À travailler', devoir: 'Devoir', interro: 'Interro · une seule tentative' }[t.kind] || '';
@@ -4006,7 +4007,7 @@ const Prof = {
 
   shell(active, html){
     const tab = (k, label, icon) => '<a href="#/prof/' + k + '" class="' + (active === k ? 'on' : '') + '">' + icon + '<span>' + label + '</span></a>';
-    $app.innerHTML = html + '<nav class="tabbar">' + tab('suivi', 'Suivi', I.tabChart) + tab('exercices', 'Exercices', I.tabDoc) + tab('cours', 'Cours', I.tabBook) + tab('evals', 'Évaluations', I.tabEval) + tab('classes', 'Classes', I.tabPeople) + '</nav>';
+    $app.innerHTML = html + '<nav class="tabbar">' + tab('suivi', 'Suivi', I.tabChart) + tab('exercices', 'Exercices', I.tabDoc) + tab('cours', 'Cours', I.tabBook) + tab('jeux', 'Jeux', I.tabGame) + tab('evals', 'Évaluations', I.tabEval) + tab('classes', 'Classes', I.tabPeople) + '</nav>';
     window.scrollTo(0, 0);
   },
 
@@ -4371,7 +4372,6 @@ const Prof = {
       '<div class="wrap"><h1 class="large">Exercices</h1>' +
       (this.sets.length ? body + '<div class="group" style="margin-top:14px"><button class="row center" id="newfold">Nouveau dossier</button></div>'
         : '<div class="empty"><b>Aucune série</b>Crée ta première série avec le bouton +, ou importe une série préparée par Claude.</div>') +
-      this.geoSetsSection() +
       '<p class="foot" style="margin-top:14px">' + (this.sets.length ? 'Range tes séries dans des dossiers (par chapitre, par classe…) pour garder la liste claire. Les élèves ne voient pas les dossiers. ' : '') +
       'Astuce : demande à Claude « crée une série d\u2019exercices sur… pour mon appli ». Il peut l\u2019ajouter directement ici ou te donner un texte à importer.</p></div>';
     this.shell('exercices', html);
@@ -4379,7 +4379,6 @@ const Prof = {
     document.getElementById('imp').onclick = () => this.importSheet();
     const nf = document.getElementById('newfold'); if (nf) nf.onclick = () => this.folderSheet(null);
     const am = document.getElementById('asgm'); if (am) am.onclick = () => this.assignSheet(null);
-    this.geoSetsBind();
     $app.querySelectorAll('[data-fold]').forEach(b => b.onclick = e => {
       const f = groups[+b.dataset.fold][0];
       if (e.target.closest('[data-fmore]')) return this.folderSheet(f);
@@ -4904,7 +4903,7 @@ const Prof = {
           '<p class="foot">Un objectif commun en bonnes réponses aux exercices, du lundi au dimanche. Les élèves voient la progression de la classe, jamais un classement.</p>' +
           '<div class="section-h">Jeux</div><div class="group">' + (this.geoTasks || []).filter(t => t.class_id === c.id).map(t => this.geoTaskRowProf(t, false)).join('') +
             '<button class="row" id="geores"><div class="main"><div class="t">Résultats de la classe</div><div class="s">Toutes les parties et ce qui est le plus raté</div></div><span class="chev">' + I.chevR + '</span></button>' +
-            '</div><p class="foot">Pour donner un nouveau jeu ou imprimer une carte muette, va dans l’onglet Exercices.</p>' +
+            '</div><p class="foot">Pour donner un nouveau jeu, modifier les jeux ou imprimer une carte muette, va dans l’onglet Jeux.</p>' +
           '<div class="section-h">Outils de J\u2019étudie</div><div class="group"><button class="row" id="tools"><div class="main"><div class="t">Outils visibles par les élèves</div><div class="s">' + (n === STUDY_TOOLS.length ? 'Tous les outils (' + n + ')' : n + ' sur ' + STUDY_TOOLS.length) + '</div></div><span class="chev">' + I.chevR + '</span></button></div>'; })() +
       '<div class="group mt2"><button class="row center" id="ren">Renommer la classe</button><button class="row danger" id="delc">Supprimer la classe</button></div></div>';
     this.shell('classes', html);
@@ -4968,20 +4967,8 @@ const Prof = {
     return '<button class="row" data-gtask="' + t.id + '"><span style="color:var(--' + (JEUX[t.map] ? 'orange' : 'green') + ');display:flex">' + (JEUX[t.map] ? I.dice : I.globe) + '</span><div class="main"><div class="t">' + esc(t.title) + '</div><div class="s">' +
       esc([withClass && c ? c.name + (who ? ' (' + who + ')' : '') : who, { liste: 'À travailler', devoir: 'Devoir', interro: 'Interro' }[t.kind], t.due_date ? 'pour le ' + fmtDate(t.due_date) : null].filter(Boolean).join(' · ')) + '</div></div><span class="chev">' + I.chevR + '</span></button>';
   },
-  geoSetsSection(){
-    const L = (this.geoTasks || []).filter(t => this.classes.some(c => c.id === t.class_id));
-    return '<div class="section-h">Jeux</div><div class="group">' + L.map(t => this.geoTaskRowProf(t, true)).join('') +
-      '<button class="row center" id="geonew">Donner un jeu de géographie</button><button class="row center" id="jeunew">Donner un jeu d’histoire-géo</button><a class="row center" href="#/prof/jeux">Modifier le contenu des jeux</a><button class="row center" id="geoprint">Imprimer une carte muette</button></div>' +
-      '<p class="foot">Jeu de géographie : pays, provinces, fleuves, coordonnées. Jeux d’histoire-géo : frise, tri du musée, critique de source, paysage, climats. Comme entraînement, devoir ou interro : les élèves les trouvent dans leur onglet Exercices.</p>';
-  },
-  geoSetsBind(){
-    const nw = document.getElementById('geonew'); if (nw) nw.onclick = () => this.classes.length ? this.geoTaskEditor(null, 'task') : toast('Crée d’abord une classe dans l’onglet Classes');
-    const pr = document.getElementById('geoprint'); if (pr) pr.onclick = () => this.geoTaskEditor(null, 'print');
-    const jn = document.getElementById('jeunew'); if (jn) jn.onclick = () => this.classes.length ? this.jeuTaskEditor() : toast('Crée d’abord une classe dans l’onglet Classes');
-    $app.querySelectorAll('[data-gtask]').forEach(b => b.onclick = () => { const t = (this.geoTasks || []).find(x => x.id === b.dataset.gtask); if (t) this.geoTaskSheet(t, this.classes.find(c => c.id === t.class_id)); });
-  },
-  // Réaffiche la page d'où l'on vient (classe ou onglet Exercices)
-  geoRefresh(){ const m = /#\/prof\/classes\/([^/]+)/.exec(location.hash); if (m) this.renderClass(m[1]); else if (/#\/prof\/exercices\/?$/.test(location.hash)) this.renderSets(); },
+  // Réaffiche la page d'où l'on vient (classe ou onglet Jeux)
+  geoRefresh(){ const m = /#\/prof\/classes\/([^/]+)/.exec(location.hash); if (m) this.renderClass(m[1]); else if (/#\/prof\/jeux\/?$/.test(location.hash)) this.renderJeux(); },
   // Nom d'un endroit pour un jeu (point de coordonnées, capitale ou nom)
   geoItemName(map, set, ask, k){ if (JEUX[map]) return (JEUX[map].weak || {})[k] || k; const M = GEO_MAPS[map], S = M && geoSet(map, set); if (S && S.coord) return geoCoord.label(k); const it = M && M.items[k]; return it ? (ask === 'cap' && it.c ? it.c : it.n) : k; },
   // Choisir une carte et une liste : pour donner un jeu à une classe (mode « task ») ou imprimer une carte muette (mode « print »)
@@ -5116,12 +5103,23 @@ const Prof = {
   renderJeux(){
     const sum = { frise: d => d.cards.length + ' cartes · ' + d.decks.length + ' paquets', musee: d => d.sources.length + ' documents', critique: d => d.docs.length + ' documents',
       climat: d => d.villes.length + ' villes', anachro: d => d.scenes.length + ' scènes', paysage: d => d.scenes.length + ' paysages' };
-    const html = nav(backBtn('#/prof/exercices', 'Exercices')) + '<div class="wrap"><h1 class="large">Contenu des jeux</h1>' +
-      '<p class="subtitle">Modifie, ajoute ou supprime ce que tes élèves voient dans chaque jeu.</p>' +
-      ['Histoire', 'Géographie'].map(h => '<div class="section-h">' + h + '</div><div class="group">' + JEU_EDIT.filter(g => JEUX[g].h === h).map(g => '<a class="row" href="#/prof/jeux/' + g + '"><span class="ic jic" style="background:var(--' + JEU_COL[g] + ')">' + JEU_ICO[g]() + '</span><div class="main"><div class="t">' + JEUX[g].t + '</div><div class="s" id="js-' + g + '">' +
-        (this.gameContent[g] ? 'Modifié le ' + fmtDate(String(this.gameContentAt[g] || '').slice(0, 10)) : 'Contenu d’origine') + '</div></div><span class="chev">' + I.chevR + '</span></a>').join('') + '</div>').join('') +
-      '<p class="foot">Tes modifications valent pour toutes tes classes. Tu peux toujours revenir au contenu d’origine. Le jeu de géographie (cartes) ne se modifie pas ici.</p></div>';
-    this.shell('exercices', html);
+    const L = (this.geoTasks || []).filter(t => this.classes.some(c => c.id === t.class_id));
+    const html = nav('', this.classes.length ? '<button class="nav-btn" id="jgive" aria-label="Donner un jeu">' + I.plus + '</button>' : '') + '<div class="wrap"><h1 class="large">Jeux</h1>' +
+      '<div class="section-h">Donnés à mes classes' + (L.length ? ' (' + L.length + ')' : '') + '</div><div class="group">' + L.map(t => this.geoTaskRowProf(t, true)).join('') +
+      '<button class="row center" id="geonew">Donner un jeu de géographie</button><button class="row center" id="jeunew">Donner un jeu d’histoire-géo</button><button class="row center" id="geoprint">Imprimer une carte muette</button></div>' +
+      '<p class="foot">Comme entraînement, devoir ou interro, à toute une classe ou à certains élèves. Les élèves les trouvent dans leur onglet Exercices. Touche un jeu donné pour voir les résultats.</p>' +
+      (this.classes.length ? '<div class="section-h">Résultats par classe</div><div class="group">' + this.classes.map(c => '<button class="row" data-jres="' + c.id + '"><div class="main"><div class="t">' + esc(c.name) + '</div><div class="s">Toutes les parties et ce qui est le plus raté</div></div><span class="chev">' + I.chevR + '</span></button>').join('') + '</div>' : '') +
+      '<div class="section-h">Contenu des jeux</div><div class="group">' + JEU_EDIT.map(g => '<a class="row" href="#/prof/jeux/' + g + '"><span class="ic jic" style="background:var(--' + JEU_COL[g] + ')">' + JEU_ICO[g]() + '</span><div class="main"><div class="t">' + JEUX[g].t + '</div><div class="s" id="js-' + g + '">' +
+        (this.gameContent[g] ? 'Modifié le ' + fmtDate(String(this.gameContentAt[g] || '').slice(0, 10)) : 'Contenu d’origine') + '</div></div><span class="chev">' + I.chevR + '</span></a>').join('') + '</div>' +
+      '<p class="foot">Modifie, ajoute ou supprime les cartes, documents et scènes que voient tes élèves. Tes modifications valent pour toutes tes classes, et tu peux toujours revenir au contenu d’origine.</p></div>';
+    this.shell('jeux', html);
+    const give = () => this.classes.length ? actionSheet('Donner un jeu', [{ label: 'Jeu de géographie (carte)', run: () => this.geoTaskEditor(null, 'task') }, { label: 'Jeu d’histoire-géo', run: () => this.jeuTaskEditor() }]) : toast('Crée d’abord une classe dans l’onglet Classes');
+    const jg = document.getElementById('jgive'); if (jg) jg.onclick = give;
+    document.getElementById('geonew').onclick = () => this.classes.length ? this.geoTaskEditor(null, 'task') : toast('Crée d’abord une classe dans l’onglet Classes');
+    document.getElementById('jeunew').onclick = () => this.classes.length ? this.jeuTaskEditor() : toast('Crée d’abord une classe dans l’onglet Classes');
+    document.getElementById('geoprint').onclick = () => this.geoTaskEditor(null, 'print');
+    $app.querySelectorAll('[data-gtask]').forEach(b => b.onclick = () => { const t = (this.geoTasks || []).find(x => x.id === b.dataset.gtask); if (t) this.geoTaskSheet(t, this.classes.find(c => c.id === t.class_id)); });
+    $app.querySelectorAll('[data-jres]').forEach(b => b.onclick = () => this.geoClassSheet(this.classes.find(c => c.id === b.dataset.jres)));
     JEU_EDIT.forEach(async g => { try { const d = await this.jeuData(g), e = document.getElementById('js-' + g); if (e) e.textContent = sum[g](d) + ' · ' + e.textContent; } catch(err){} });
   },
   async renderJeuEditor(game, sub){
@@ -5170,7 +5168,7 @@ const Prof = {
     const html = this.edHead(game) + '<div class="section-h">' + C.many.charAt(0).toUpperCase() + C.many.slice(1) + ' (' + L.length + ')</div><div class="group">' +
       L.map((o, i) => '<button class="row" data-i="' + i + '"><div class="main"><div class="t">' + esc(C.title(o)) + '</div><div class="s">' + esc(C.sub(o)) + '</div></div><span class="chev">' + I.chevR + '</span></button>').join('') +
       '<button class="row center" id="jnew">Ajouter un ' + C.one + '</button></div><p class="foot">' + C.foot + '</p>' + this.edFoot(game) + '</div>';
-    this.shell('exercices', html); this.edBind(game);
+    this.shell('jeux', html); this.edBind(game);
     $app.querySelectorAll('[data-i]').forEach(b => b.onclick = () => this.edItem(game, d, +b.dataset.i));
     document.getElementById('jnew').onclick = () => this.edItem(game, d, -1);
   },
@@ -5205,7 +5203,7 @@ const Prof = {
       '<div class="group">' + cards.map(c => '<button class="row" data-card="' + c.id + '">' + (c.img ? '<img class="jthumb" src="' + esc(this.jeuImg(c.img)) + '" alt="" loading="lazy">' : '<span class="jthumb none">' + esc(fmtYear(c)) + '</span>') +
         '<div class="main"><div class="t">' + esc(c.n) + '</div><div class="s">' + esc(fmtYear(c)) + (decksOf(c.id).length ? ' · ' + esc(decksOf(c.id).join(', ')) : ' · dans aucun paquet') + '</div></div><span class="chev">' + I.chevR + '</span></button>').join('') +
       '<button class="row center" id="jcard">Nouvelle carte</button></div>' + this.edFoot('frise') + '</div>';
-    this.shell('exercices', html); this.edBind('frise');
+    this.shell('jeux', html); this.edBind('frise');
     const jq = document.getElementById('jq'); jq.oninput = () => { this._friseQ = jq.value; clearTimeout(this._fq); this._fq = setTimeout(() => { const p = jq.selectionStart; this.edFrise(d); const n = document.getElementById('jq'); n.focus(); n.setSelectionRange(p, p); window.scrollTo(0, n.getBoundingClientRect().top + scrollY - 120); }, 250); };
     $app.querySelectorAll('[data-card]').forEach(b => b.onclick = () => this.edCard(d, byId[b.dataset.card]));
     $app.querySelectorAll('[data-deck]').forEach(b => b.onclick = () => this.edDeck(d, d.decks[+b.dataset.deck]));
@@ -5291,7 +5289,7 @@ const Prof = {
           '<div class="main"><div class="t">' + esc(A ? s.t : PTYPE_L[s.type] || s.type) + '</div><div class="s">' + esc(A ? s.p + ' · ' + st.filter(o => o.k === 'A').length + ' intrus, ' + st.filter(o => o.k === 'P').length + ' pièges' : s.els.length + ' éléments' + (s.img ? ' · photo' : ' · dessin')) + '</div></div><span class="chev">' + I.chevR + '</span></a>'; }).join('') +
       '<button class="row center" id="jnew">' + (A ? 'Nouvelle scène' : 'Nouveau paysage') + '</button></div>' +
       '<p class="foot">' + (A ? 'Une scène = un texte, une image et des objets à trouver : les intrus (anachronismes) et les pièges (objets bien d’époque).' : 'Un paysage = une image (photo ou dessin) et ses éléments, avec leur plan, leur nature et leur fonction.') + '</p>' + this.edFoot(game) + '</div>';
-    this.shell('exercices', html); this.edBind(game);
+    this.shell('jeux', html); this.edBind(game);
     document.getElementById('jnew').onclick = async () => {
       const id = 's' + Math.random().toString(36).replace(/[^a-z]/g, '').slice(0, 7);
       d.scenes.push(A ? { id, t: 'Nouvelle scène', p: '', c: '#8a5ad1', x: '' } : { id, type: 'rural', expl: '', els: [] });
@@ -5318,7 +5316,7 @@ const Prof = {
       '<button class="row center" id="jobj">Ajouter un objet</button></div><p class="foot">Intrus : n’existait pas encore à cette époque. Piège : semble suspect mais existait bel et bien.</p>' +
       '<div class="section-h">Image et zones à toucher</div><div id="jze"></div>' +
       (isNew ? '' : '<div class="group mt2"><button class="row danger" id="jdel">Supprimer la scène</button></div>') + '</div></div>';
-    this.shell('exercices', html);
+    this.shell('jeux', html);
     const readTop = () => { this.edRead($app, [{ k: 't' }, { k: 'p' }], S); st.text = document.getElementById('jtext').value; };
     $app.querySelectorAll('[data-col]').forEach(b => b.onclick = () => { S.c = b.dataset.col; $app.querySelectorAll('[data-col]').forEach(x => x.classList.toggle('on', x === b)); });
     $app.querySelectorAll('[data-o]').forEach(b => b.onclick = () => { readTop(); this.edAnaObj(st, +b.dataset.o, () => this.edAnaScene(d0, id)); });
@@ -5381,7 +5379,7 @@ const Prof = {
       '<div class="section-h">Image et zones à toucher</div><div id="jze"></div>' +
       (S.svg && !S.img ? '<p class="foot">C’est un dessin d’origine : ses éléments sont déjà cliquables. Trace une zone seulement pour un élément que tu ajoutes.</p>' : '') +
       (isNew ? '' : '<div class="group mt2"><button class="row danger" id="jdel">Supprimer ce paysage</button></div>') + '</div></div>';
-    this.shell('exercices', html);
+    this.shell('jeux', html);
     const readTop = () => this.edRead($app, [{ k: 'type', type: 'seg' }, { k: 'expl' }], S);
     this.edBindSeg($app);
     $app.querySelectorAll('[data-e]').forEach(b => b.onclick = () => { readTop(); this.edPaysEl(st, +b.dataset.e, () => this.edPaysScene(d0, id)); });
