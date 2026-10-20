@@ -4203,6 +4203,7 @@ const Prof = {
       '<div class="wrap"><h1 class="large">Exercices</h1>' +
       (this.sets.length ? body + '<div class="group" style="margin-top:14px"><button class="row center" id="newfold">Nouveau dossier</button></div>'
         : '<div class="empty"><b>Aucune série</b>Crée ta première série avec le bouton +, ou importe une série préparée par Claude.</div>') +
+      this.geoSetsSection() +
       '<p class="foot" style="margin-top:14px">' + (this.sets.length ? 'Range tes séries dans des dossiers (par chapitre, par classe…) pour garder la liste claire. Les élèves ne voient pas les dossiers. ' : '') +
       'Astuce : demande à Claude « crée une série d\u2019exercices sur… pour mon appli ». Il peut l\u2019ajouter directement ici ou te donner un texte à importer.</p></div>';
     this.shell('exercices', html);
@@ -4210,6 +4211,7 @@ const Prof = {
     document.getElementById('imp').onclick = () => this.importSheet();
     const nf = document.getElementById('newfold'); if (nf) nf.onclick = () => this.folderSheet(null);
     const am = document.getElementById('asgm'); if (am) am.onclick = () => this.assignSheet(null);
+    this.geoSetsBind();
     $app.querySelectorAll('[data-fold]').forEach(b => b.onclick = e => {
       const f = groups[+b.dataset.fold][0];
       if (e.target.closest('[data-fmore]')) return this.folderSheet(f);
@@ -4735,8 +4737,7 @@ const Prof = {
           '<div class="section-h">Jeu de géographie</div><div class="group">' + (this.geoTasks || []).filter(t => t.class_id === c.id).map(t => '<button class="row" data-gtask="' + t.id + '"><span style="color:var(--green);display:flex">' + I.globe + '</span><div class="main"><div class="t">' + esc(t.title) + '</div><div class="s">' +
             esc([{ liste: 'À travailler', devoir: 'Devoir', interro: 'Interro' }[t.kind], t.due_date ? 'pour le ' + fmtDate(t.due_date) : null].filter(Boolean).join(' · ')) + '</div></div><span class="chev">' + I.chevR + '</span></button>').join('') +
             '<button class="row" id="geores"><div class="main"><div class="t">Résultats de la classe</div><div class="s">Toutes les parties et les endroits les plus ratés</div></div><span class="chev">' + I.chevR + '</span></button>' +
-            '<button class="row center" id="geonew">Donner un jeu à la classe</button><button class="row center" id="geoprint">Imprimer une carte muette</button></div>' +
-          '<p class="foot">Choisis une carte et la liste à travailler, comme entraînement, devoir ou interro. Les élèves le retrouvent dans leur appli.</p>' +
+            '</div><p class="foot">Pour donner un nouveau jeu ou imprimer une carte muette, va dans l’onglet Exercices.</p>' +
           '<div class="section-h">Outils de J\u2019étudie</div><div class="group"><button class="row" id="tools"><div class="main"><div class="t">Outils visibles par les élèves</div><div class="s">' + (n === STUDY_TOOLS.length ? 'Tous les outils (' + n + ')' : n + ' sur ' + STUDY_TOOLS.length) + '</div></div><span class="chev">' + I.chevR + '</span></button></div>'; })() +
       '<div class="group mt2"><button class="row center" id="ren">Renommer la classe</button><button class="row danger" id="delc">Supprimer la classe</button></div></div>';
     this.shell('classes', html);
@@ -4744,8 +4745,6 @@ const Prof = {
     document.getElementById('ren').onclick = () => this.classNameSheet(c);
     document.getElementById('tools').onclick = () => this.toolsSheet(c);
     document.getElementById('geores').onclick = () => this.geoClassSheet(c);
-    document.getElementById('geonew').onclick = () => this.geoTaskEditor(c, 'task');
-    document.getElementById('geoprint').onclick = () => this.geoTaskEditor(c, 'print');
     $app.querySelectorAll('[data-gtask]').forEach(b => b.onclick = () => this.geoTaskSheet((this.geoTasks || []).find(t => t.id === b.dataset.gtask), c));
     $app.querySelectorAll('[data-ch]').forEach(b => b.onclick = async () => {
       const v = +b.dataset.ch;
@@ -4791,12 +4790,32 @@ const Prof = {
   },
 
   /* ---------- Jeu de géographie : résultats ---------- */
+  // Onglet Exercices : les jeux de géographie donnés, toutes classes confondues
+  geoTaskRowProf(t, withClass){
+    const c = this.classes.find(x => x.id === t.class_id);
+    return '<button class="row" data-gtask="' + t.id + '"><span style="color:var(--green);display:flex">' + I.globe + '</span><div class="main"><div class="t">' + esc(t.title) + '</div><div class="s">' +
+      esc([withClass && c ? c.name : null, { liste: 'À travailler', devoir: 'Devoir', interro: 'Interro' }[t.kind], t.due_date ? 'pour le ' + fmtDate(t.due_date) : null].filter(Boolean).join(' · ')) + '</div></div><span class="chev">' + I.chevR + '</span></button>';
+  },
+  geoSetsSection(){
+    const L = (this.geoTasks || []).filter(t => this.classes.some(c => c.id === t.class_id));
+    return '<div class="section-h">Jeux de géographie</div><div class="group">' + L.map(t => this.geoTaskRowProf(t, true)).join('') +
+      '<button class="row center" id="geonew">Donner un jeu de géographie</button><button class="row center" id="geoprint">Imprimer une carte muette</button></div>' +
+      '<p class="foot">Pays, provinces, fleuves, coordonnées… Choisis la carte et la liste, comme entraînement, devoir ou interro. Les élèves le trouvent dans leur onglet Exercices.</p>';
+  },
+  geoSetsBind(){
+    const nw = document.getElementById('geonew'); if (nw) nw.onclick = () => this.classes.length ? this.geoTaskEditor(null, 'task') : toast('Crée d’abord une classe dans l’onglet Classes');
+    const pr = document.getElementById('geoprint'); if (pr) pr.onclick = () => this.geoTaskEditor(null, 'print');
+    $app.querySelectorAll('[data-gtask]').forEach(b => b.onclick = () => { const t = (this.geoTasks || []).find(x => x.id === b.dataset.gtask); if (t) this.geoTaskSheet(t, this.classes.find(c => c.id === t.class_id)); });
+  },
+  // Réaffiche la page d'où l'on vient (classe ou onglet Exercices)
+  geoRefresh(){ const m = /#\/prof\/classes\/([^/]+)/.exec(location.hash); if (m) this.renderClass(m[1]); else if (/#\/prof\/exercices\/?$/.test(location.hash)) this.renderSets(); },
   // Nom d'un endroit pour un jeu (point de coordonnées, capitale ou nom)
   geoItemName(map, set, ask, k){ const M = GEO_MAPS[map], S = M && geoSet(map, set); if (S && S.coord) return geoCoord.label(k); const it = M && M.items[k]; return it ? (ask === 'cap' && it.c ? it.c : it.n) : k; },
   // Choisir une carte et une liste : pour donner un jeu à une classe (mode « task ») ou imprimer une carte muette (mode « print »)
   geoTaskEditor(c, mode){
     const pr = mode === 'print';
-    const st = { map: 'europe', set: 'ue', keys: null, ask: 'nom', how: 'tap', kind: 'liste', due: '', title: '', titleEdited: false, corr: true };
+    const st = { map: 'europe', set: 'ue', keys: null, ask: 'nom', how: 'tap', kind: 'liste', due: '', title: '', titleEdited: false, corr: true,
+      cls: new Set([c ? c.id : this.classFilter !== 'all' && this.classes.some(x => x.id === this.classFilter) ? this.classFilter : (this.classes[0] || {}).id].filter(Boolean)) };
     const sets = () => Object.entries(GEO_MAPS[st.map].sets).filter(([k, S]) => !(pr && S.coord));
     const S = () => geoSet(st.map, st.set);
     const autoTitle = () => { const M = GEO_MAPS[st.map], s = S(), n = st.keys ? st.keys.size : 0;
@@ -4808,7 +4827,8 @@ const Prof = {
       if (!st.titleEdited) st.title = autoTitle();
       const seg = (name, opts, cls) => '<div class="seg' + (cls ? ' ' + cls : '') + '" data-g="' + name + '">' + opts.map(([k, l]) => '<button data-v="' + k + '" class="' + (st[name] === k ? 'on' : '') + '">' + l + '</button>').join('') + '</div>';
       el.querySelector('#gte').innerHTML =
-        '<div class="section-h" style="margin-top:4px">Carte</div>' + seg('map', Object.entries(GEO_MAPS).map(([k, m]) => [k, m.t]), 'wrap') +
+        (!pr && !c ? '<div class="section-h" style="margin-top:4px">Pour quelle classe ?</div><div class="group"><div class="chips multi">' + this.classes.map(x => '<button class="chip' + (st.cls.has(x.id) ? ' on' : '') + '" data-cl="' + x.id + '">' + esc(x.name) + '</button>').join('') + '</div></div>' : '') +
+        '<div class="section-h"' + (!pr && !c ? '' : ' style="margin-top:4px"') + '>Carte</div>' + seg('map', Object.entries(GEO_MAPS).map(([k, m]) => [k, m.t]), 'wrap') +
         '<div class="section-h">Quoi ?</div><div class="seg wrap" data-g="set">' + sets().map(([k, x]) => '<button data-v="' + k + '" class="' + (st.set.split('+').includes(k) ? 'on' : '') + '">' + x.t + '</button>').join('') + '</div>' +
         (M.combo ? '<p class="foot">Coche plusieurs séries pour les mélanger dans un même jeu.</p>' : '') +
         (s.coord ? '<p class="foot">Dix points tirés au hasard, de 10° en 10°, différents pour chaque élève.</p>' :
@@ -4828,6 +4848,7 @@ const Prof = {
         if (g === 'set') st.keys = null;
         draw(el);
       });
+      el.querySelectorAll('[data-cl]').forEach(b => b.onclick = () => { const k = b.dataset.cl; st.cls.has(k) ? st.cls.delete(k) : st.cls.add(k); draw(el); });
       el.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { const k = b.dataset.it; st.keys.has(k) ? st.keys.delete(k) : st.keys.add(k); draw(el); });
       el.querySelectorAll('[data-all]').forEach(b => b.onclick = () => { st.keys = new Set(b.dataset.all === '1' ? S().k : []); draw(el); });
       const ti = el.querySelector('#gtitle'); if (ti) ti.oninput = () => { st.title = ti.value; st.titleEdited = true; };
@@ -4841,10 +4862,13 @@ const Prof = {
         if (!s.coord && keys.length < (pr ? 1 : 2)) return toast(pr ? 'Choisis au moins un endroit' : 'Choisis au moins deux endroits');
         if (pr){ close(); return this.geoPrint({ map: st.map, set: st.set, keys, ask: st.ask, title: autoTitle() }, st.corr); }
         const title = (st.title || '').trim() || autoTitle();
-        const { data, error } = await sb.from('geo_tasks').insert({ class_id: c.id, title, map: st.map, set_key: st.set, keys, ask: st.ask, how: st.how, kind: st.kind, due_date: st.kind !== 'liste' && st.due ? st.due : null }).select().single();
+        const ids = [...st.cls].filter(id => this.classes.some(x => x.id === id));
+        if (!ids.length) return toast('Choisis au moins une classe');
+        const { data, error } = await sb.from('geo_tasks').insert(ids.map(id => ({ class_id: id, title, map: st.map, set_key: st.set, keys, ask: st.ask, how: st.how, kind: st.kind, due_date: st.kind !== 'liste' && st.due ? st.due : null }))).select();
         if (error) return toast('Erreur : ' + esc(error.message));
-        this.geoTasks = [data].concat(this.geoTasks || []);
-        close(); this.renderClass(c.id); toast('Jeu donné à ' + esc(c.name));
+        this.geoTasks = (data || []).concat(this.geoTasks || []);
+        const names = ids.map(id => this.classes.find(x => x.id === id).name);
+        close(); this.geoRefresh(); toast('Jeu donné à ' + esc(names.join(', ')));
       };
     });
   },
@@ -4880,7 +4904,7 @@ const Prof = {
       if (!await confirmDialog('Supprimer « ' + t.title + ' » ?', 'Les élèves ne le verront plus. Leurs parties restent dans les résultats de la classe.', 'Supprimer', true)) return;
       const { error } = await sb.from('geo_tasks').delete().eq('id', t.id);
       if (error) return toast('Erreur : ' + esc(error.message));
-      this.geoTasks = (this.geoTasks || []).filter(x => x.id !== t.id); close(); this.renderClass(c.id); toast('Jeu supprimé');
+      this.geoTasks = (this.geoTasks || []).filter(x => x.id !== t.id); close(); this.geoRefresh(); toast('Jeu supprimé');
     };
   },
   // Carte muette imprimable : numéros sur la carte, lignes de réponse, page de correction facultative
