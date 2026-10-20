@@ -1015,7 +1015,7 @@ const GEO_MAPS = {
       reg: { t: 'Les régions', l: 'reg', k: ['VLG', 'WAL', 'BRU'], q: 'cette région', home: { x: 130, y: 70, w: 780, h: 720 } },
       prov: { t: 'Les provinces', l: 'prov', k: ['ANT', 'LIM', 'OVL', 'WVL', 'VBR', 'WBR', 'HAI', 'NAM', 'LIE', 'LUX'], cap: 1, q: 'cette province', w: 'la province', cw: 'le chef-lieu', home: { x: 130, y: 70, w: 780, h: 720 } }
     } },
-  monde: { t: 'Monde', s: 'Continents et océans', items: {
+  monde: { t: 'Monde', s: 'Continents et océans', combo: 1, items: {
       EU: gi('Europe', 'l’Europe'), AS: gi('Asie', 'l’Asie'), AF: gi('Afrique', 'l’Afrique'), NA: gi('Amérique du Nord', 'l’Amérique du Nord'),
       SA: gi('Amérique du Sud', 'l’Amérique du Sud'), OC: gi('Océanie', 'l’Océanie'), AN: gi('Antarctique', 'l’Antarctique', { a: 'Antarctide|Antarctica' }),
       ATL: gi('Océan Atlantique', 'l’océan Atlantique'), PAC: gi('Océan Pacifique', 'l’océan Pacifique'), IND: gi('Océan Indien', 'l’océan Indien'),
@@ -1028,7 +1028,7 @@ const GEO_MAPS = {
     },
     sets: { cont: { t: 'Les continents', l: 'cont', k: ['EU', 'AS', 'AF', 'NA', 'SA', 'OC', 'AN'], q: 'ce continent' }, ocean: { t: 'Les océans', l: 'ocean', k: ['ATL', 'PAC', 'IND', 'ARC', 'AUS'], q: 'cet océan' },
       ligne: { t: 'Lignes imaginaires', l: 'ligne', k: ['EQ', 'TCN', 'TCP', 'CPN', 'CPS', 'GRW'], q: 'cette ligne' }, coord: { t: 'Coordonnées', l: 'coord', k: [], coord: 1 } } },
-  physique: { t: 'Europe physique', s: 'Mers, fleuves et reliefs', file: 'europe-physique', items: {
+  physique: { t: 'Europe physique', s: 'Mers, fleuves et reliefs', file: 'europe-physique', combo: 1, items: {
       ATL: gi('Océan Atlantique', 'l’océan Atlantique'), NOR: gi('Mer du Nord', 'la mer du Nord'), MAN: gi('Manche', 'la Manche'), BAL: gi('Mer Baltique', 'la mer Baltique'),
       NRV: gi('Mer de Norvège', 'la mer de Norvège'), GAS: gi('Golfe de Gascogne', 'le golfe de Gascogne'), IRL: gi('Mer d’Irlande', 'la mer d’Irlande'),
       MED: gi('Mer Méditerranée', 'la mer Méditerranée'), ADR: gi('Mer Adriatique', 'la mer Adriatique'), EGE: gi('Mer Égée', 'la mer Égée'),
@@ -1087,7 +1087,22 @@ const geoCoord = {
     return shuffle([...new Set(c)]).slice(0, 3);
   }
 };
-const geoGameLabel = g => { const M = GEO_MAPS[g.map], S = M && M.sets[g.set_key]; if (!S) return 'Jeu de géographie';
+// Série d'une carte ; « cont+ocean » assemble plusieurs séries (cartes « combo » seulement, sans les coordonnées)
+const geoSet = (map, key) => {
+  const M = GEO_MAPS[map]; if (!M) return null; if (M.sets[key]) return M.sets[key];
+  const L = M.combo ? String(key || '').split('+').filter(p => M.sets[p] && !M.sets[p].coord).map(p => M.sets[p]) : [];
+  if (L.length < 2) return L[0] || null;
+  return { t: L.map((x, i) => i ? x.t.charAt(0).toLowerCase() + x.t.slice(1) : x.t).join(' + '), l: L.map(x => x.l), k: [].concat(...L.map(x => x.k)), combo: 1, qOf: k => (L.find(x => x.k.includes(k)) || {}).q };
+};
+// Cocher ou décocher une série (plusieurs à la fois sur les cartes « combo »)
+const geoToggleSet = (map, cur, k) => {
+  const M = GEO_MAPS[map]; if (!M.combo || M.sets[k].coord) return k;
+  const on = String(cur || '').split('+').filter(p => M.sets[p] && !M.sets[p].coord);
+  const next = on.includes(k) ? on.filter(p => p !== k) : on.concat(k);
+  return next.length ? Object.keys(M.sets).filter(p => next.includes(p)).join('+') : cur;
+};
+const geoInL = (S, l) => Array.isArray(S.l) ? S.l.includes(l) : S.l === l;
+const geoGameLabel = g => { const M = GEO_MAPS[g.map], S = M && geoSet(g.map, g.set_key); if (!S) return 'Jeu de géographie';
   return M.t + ' · ' + S.t + (g.ask === 'cap' ? ' · ' + (S.cw === 'la capitale' ? 'capitales' : 'chefs-lieux') : ''); };
 const STUDY_TIPS = [
   'Teste-toi au lieu de relire : essayer de retrouver la réponse dans ta tête, c’est ce qui fait le plus retenir.',
@@ -2095,8 +2110,8 @@ const Student = {
     let o = {}; try { o = JSON.parse(store.get('exos_geo2') || '{}') || {}; } catch(e){}
     o = Object.assign({ map: 'europe', sets: {}, ask: 'nom', how: 'tap', len: '10' }, o);
     const M = GEO_MAPS[o.map] || GEO_MAPS.europe; if (!GEO_MAPS[o.map]) o.map = 'europe';
-    if (!M.sets[o.sets[o.map]]) o.sets[o.map] = Object.keys(M.sets)[0];
-    o.set = o.sets[o.map]; o.M = M; o.S = M.sets[o.set];
+    if (!geoSet(o.map, o.sets[o.map])) o.sets[o.map] = Object.keys(M.sets)[0];
+    o.set = o.sets[o.map]; o.M = M; o.S = geoSet(o.map, o.set);
     if (!o.S.cap) o.ask = 'nom';
     return o;
   },
@@ -2122,7 +2137,8 @@ const Student = {
       (tasks.length ? '<div class="section-h" style="margin-top:4px">Donné par ton professeur</div><div class="group">' + tasks.map(t => this.geoTaskRow(t)).join('') + '</div>' : '') +
       '<div class="section-h"' + (tasks.length ? '' : ' style="margin-top:4px"') + '>Quelle carte ?</div><div class="geo-maps">' +
         Object.entries(GEO_MAPS).map(([k, m]) => '<button class="geo-mapbtn' + (o.map === k ? ' on' : '') + '" data-map="' + k + '"><b>' + m.t + '</b><span>' + m.s + '</span></button>').join('') + '</div>' +
-      '<div class="section-h">Quoi ?</div>' + seg('set', Object.entries(M.sets).map(([k, s]) => [k, s.t + (s.coord ? '' : ' (' + s.k.length + ')')]), Object.keys(M.sets).length > 2 ? 'wrap' : '') +
+      '<div class="section-h">Quoi ?</div><div class="seg' + (Object.keys(M.sets).length > 2 ? ' wrap' : '') + '" data-g="set">' + Object.entries(M.sets).map(([k, x]) => '<button data-v="' + k + '" class="' + (o.set.split('+').includes(k) ? 'on' : '') + '">' + x.t + (x.coord ? '' : ' (' + x.k.length + ')') + '</button>').join('') + '</div>' +
+        (M.combo ? '<p class="foot">Tu peux en cocher plusieurs pour tout mélanger' + (Object.values(M.sets).some(x => x.coord) ? ' (sauf les coordonnées, qui se jouent seules)' : '') + '.</p>' : '') +
       (S.cap ? '<div class="section-h">Je joue avec</div>' + seg('ask', [['nom', 'Les noms'], ['cap', cw === 'capitale' ? 'Les capitales' : 'Les chefs-lieux']]) : '') +
       '<div class="section-h">Comment ?</div>' + seg('how', [['tap', 'Je touche'], ['write', S.coord ? 'Je choisis' : 'J’écris'], ['explore', 'J’explore']]) + '<p class="foot">' + help + '</p>' +
       (explore || n <= 10 ? '' : '<div class="section-h">Combien de questions ?</div>' + seg('len', S.coord ? [['10', '10'], ['20', '20']] : [['10', '10']].concat(n > 20 ? [['20', '20']] : []).concat([['all', 'Tous (' + n + ')']]))) +
@@ -2132,7 +2148,7 @@ const Student = {
     document.getElementById('quit').onclick = () => { this.stab = 'study'; this.renderList(); };
     $app.querySelectorAll('[data-map]').forEach(x => x.onclick = () => { o.map = x.dataset.map; this.geoSaveOpts(o); this.geoHome(); });
     $app.querySelectorAll('[data-g] button').forEach(x => x.onclick = () => {
-      const g = x.parentNode.dataset.g; if (g === 'set') o.sets[o.map] = x.dataset.v; else o[g] = x.dataset.v;
+      const g = x.parentNode.dataset.g; if (g === 'set') o.sets[o.map] = geoToggleSet(o.map, o.set, x.dataset.v); else o[g] = x.dataset.v;
       this.geoSaveOpts(o); this.geoHome();
     });
     document.getElementById('gplay').onclick = () => this.geoStart();
@@ -2150,7 +2166,7 @@ const Student = {
   async geoStart(only, task){
     let o = this.geoOpts();
     if (task){
-      const M = GEO_MAPS[task.map], base = M && M.sets[task.set];
+      const M = GEO_MAPS[task.map], base = M && geoSet(task.map, task.set);
       if (!base) return toast('Ce jeu n’est plus disponible.');
       if (task.kind === 'interro' && task.games > 0 && !only) return toast('Tu as déjà fait cette interro : ' + task.best_ok + ' / ' + task.best_n + '.');
       const keys = (task.keys || []).filter(k => M.items[k]);
@@ -2168,7 +2184,7 @@ const Student = {
       (explore ? '' : '<div class="geo-ask" id="gask"></div>') + '<div class="geo-map" id="gmap"></div></div>';
     document.getElementById('quit').onclick = () => this.geoHome();
     this._gsel = null;
-    this._gmap = this.geoMap(document.getElementById('gmap'), o.map, S, (k, pt) => explore ? this.geoInfo(k, pt) : o.how !== 'tap' ? null : S.coord ? this.geoCoordTap(pt) : this.geoTap(k));
+    this._gmap = this.geoMap(document.getElementById('gmap'), o.map, S, (k, pt) => explore ? this.geoInfo(k, pt) : o.how !== 'tap' ? null : S.coord ? this.geoCoordTap(pt) : this.geoTap(k), () => this.gm && !this.gm.lock && this.gm.o.how === 'tap' ? this.gm.list[this.gm.i] : null);
     if (explore) return this.geoInfo(null);
     this.geoAsk();
   },
@@ -2189,7 +2205,7 @@ const Student = {
       return;
     }
     if (o.how === 'write'){
-      const q = cap ? (S.cw.startsWith('la ') ? 'Quelle est ' : 'Quel est ') + S.cw + ' de ' + S.q + ' ?' : 'Comment s’appelle ' + (S.q || 'cet endroit') + ' ?';
+      const q0 = S.qOf ? S.qOf(t) : S.q, q = cap ? (S.cw.startsWith('la ') ? 'Quelle est ' : 'Quel est ') + S.cw + ' de ' + q0 + ' ?' : 'Comment s’appelle ' + (q0 || 'cet endroit') + ' ?';
       ask.innerHTML = '<div class="q">' + q + '</div><form class="geo-write" id="gform" autocomplete="off"><input id="gans" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Écris ta réponse" aria-label="Ta réponse">' +
         '<button class="btn small" id="gok">Valider</button></form><div class="fb" id="gfb"></div><button class="geo-skip" id="gskip">Je ne sais pas</button>';
       this._gmap.set(t, 'sel'); this._gmap.focus(t, true); this._gmap.ring(t);
@@ -2198,7 +2214,7 @@ const Student = {
       document.getElementById('gskip').onclick = () => this.geoWrite(null);
       setTimeout(() => { try { inp.focus({ preventScroll: true }); } catch(e){} }, 120);
     } else {
-      const q = cap ? 'Touche ' + S.w + ' dont c’est ' + S.cw + ' :' : 'Touche ' + (S.q ? S.q + ' ' : '') + 'sur la carte :';
+      const q0 = S.qOf ? S.qOf(t) : S.q, q = cap ? 'Touche ' + S.w + ' dont c’est ' + S.cw + ' :' : 'Touche ' + (q0 ? q0 + ' ' : '') + 'sur la carte :';
       ask.innerHTML = '<div class="q">' + q + '</div><div class="n">' + esc(cap ? it.c : it.n) + '</div><div class="fb" id="gfb"></div>';
     }
   },
@@ -2357,15 +2373,15 @@ const Student = {
     on('gback', () => { this.stab = this._geoFrom || 'study'; this.renderList(); window.scrollTo(0, 0); });
   },
   // Carte zoomable (pincer, molette, glisser) ; onTap reçoit la clé de l'endroit touché
-  geoMap(el, map, S, onTap){
+  geoMap(el, map, S, onTap, prefer){
     const D = this._geo[map], W = D.w, H = D.h, NS = 'http://www.w3.org/2000/svg', inSet = new Set(S.k);
     const item = (k, v) => {
-      const act = v.l === S.l, cls = act ? 'geo-c' + (inSet.has(k) ? '' : ' off') : 'geo-dec geo-dec-' + v.l + ' geo-dk-' + k, kind = v.line ? ' geo-line' : v.under ? ' geo-sea' : v.plain ? ' geo-plain' : v.l === 'relief' ? ' geo-mtn' : '';
+      const act = geoInL(S, v.l), cls = act ? 'geo-c' + (inSet.has(k) ? '' : ' off') : 'geo-dec geo-dec-' + v.l + ' geo-dk-' + k, kind = v.line ? ' geo-line' : v.under ? ' geo-sea' : v.plain ? ' geo-plain' : v.l === 'relief' ? ' geo-mtn' : '';
       const k_ = act ? ' data-k="' + k + '"' : '';
       return (v.line && act ? '<path class="geo-hit"' + k_ + ' d="' + v.d + '"/>' : '') + '<path class="' + cls + kind + '"' + k_ + ' d="' + v.d + '"/>';
     };
     const its = Object.entries(D.it), base = D.base || [];
-    el.classList.toggle('out', D.bg === 'out'); el.classList.toggle('coord', !!S.coord); el.classList.toggle('lignes', S.l === 'ligne');
+    el.classList.toggle('out', D.bg === 'out'); el.classList.toggle('coord', !!S.coord); el.classList.toggle('lignes', geoInL(S, 'ligne'));
     el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Carte">' +
       base.filter(b => b.under).map(b => '<path class="' + b.c + '" d="' + b.d + '"/>').join('') +
       its.filter(([k, v]) => v.under).map(([k, v]) => item(k, v)).join('') +
@@ -2373,7 +2389,7 @@ const Student = {
       its.filter(([k, v]) => !v.under && !v.line && v.plain).map(([k, v]) => item(k, v)).join('') +
       its.filter(([k, v]) => !v.under && !v.line && !v.plain).map(([k, v]) => item(k, v)).join('') +
       its.filter(([k, v]) => v.line).map(([k, v]) => item(k, v)).join('') +
-      its.filter(([k, v]) => v.dot && v.l === S.l && inSet.has(k)).map(([k, v]) => '<circle class="geo-dot" data-k="' + k + '" data-s="6" cx="' + v.dot[0] + '" cy="' + v.dot[1] + '"/>').join('') +
+      its.filter(([k, v]) => v.dot && geoInL(S, v.l) && inSet.has(k)).map(([k, v]) => '<circle class="geo-dot" data-k="' + k + '" data-s="6" cx="' + v.dot[0] + '" cy="' + v.dot[1] + '"/>').join('') +
       (D.lbl || []).map(l => '<text class="geo-blbl" data-s="11" x="' + l[0] + '" y="' + l[1] + '" text-anchor="middle">' + esc(l[2]) + '</text>').join('') +
       (S.coord && D.proj ? [-60, -30, 0, 30, 60].map(la => { const [x, y] = geoCoord.fwd(D.proj, la, -167); return '<text class="geo-glbl" data-s="10" x="' + x + '" y="' + y + '" dy=".35em">' + (la ? Math.abs(la) + '° ' + (la > 0 ? 'N' : 'S') : '0°') + '</text>'; }).join('') +
         [-120, -60, 0, 60, 120, 180].map(lo => { const [x, y] = geoCoord.fwd(D.proj, -50, lo); return '<text class="geo-glbl" data-s="10" text-anchor="middle" x="' + x + '" y="' + y + '">' + (lo ? Math.abs(lo) + '° ' + (lo > 0 ? 'E' : 'O') : '0°') + '</text>'; }).join('') : '') +
@@ -2402,7 +2418,10 @@ const Student = {
       vb.x = sx - (sx - vb.x) * g; vb.y = sy - (sy - vb.y) * g; vb.w = nw; vb.h *= g; apply();
     };
     // Toucher : tolérance de quelques pixels pour les tout petits endroits
-    const hit = (x, y) => { const t = document.elementFromPoint(x, y), n = t && t.closest && t.closest('[data-k]'); return n && svg.contains(n) ? n.dataset.k : null; };
+    const hit = (x, y) => {
+      const ks = document.elementsFromPoint(x, y).map(t => t.closest && t.closest('[data-k]')).filter(n => n && svg.contains(n)).map(n => n.dataset.k);
+      const want = prefer && prefer(); return want && ks.includes(want) ? want : ks[0] || null;
+    };
     const pick = (x, y) => {
       let k = hit(x, y); if (k) return k;
       const u = vb.w / rect().width;
@@ -4773,13 +4792,13 @@ const Prof = {
 
   /* ---------- Jeu de géographie : résultats ---------- */
   // Nom d'un endroit pour un jeu (point de coordonnées, capitale ou nom)
-  geoItemName(map, set, ask, k){ const M = GEO_MAPS[map], S = M && M.sets[set]; if (S && S.coord) return geoCoord.label(k); const it = M && M.items[k]; return it ? (ask === 'cap' && it.c ? it.c : it.n) : k; },
+  geoItemName(map, set, ask, k){ const M = GEO_MAPS[map], S = M && geoSet(map, set); if (S && S.coord) return geoCoord.label(k); const it = M && M.items[k]; return it ? (ask === 'cap' && it.c ? it.c : it.n) : k; },
   // Choisir une carte et une liste : pour donner un jeu à une classe (mode « task ») ou imprimer une carte muette (mode « print »)
   geoTaskEditor(c, mode){
     const pr = mode === 'print';
     const st = { map: 'europe', set: 'ue', keys: null, ask: 'nom', how: 'tap', kind: 'liste', due: '', title: '', titleEdited: false, corr: true };
     const sets = () => Object.entries(GEO_MAPS[st.map].sets).filter(([k, S]) => !(pr && S.coord));
-    const S = () => GEO_MAPS[st.map].sets[st.set];
+    const S = () => geoSet(st.map, st.set);
     const autoTitle = () => { const M = GEO_MAPS[st.map], s = S(), n = st.keys ? st.keys.size : 0;
       return M.t + ' · ' + s.t + (s.coord ? '' : n && n < s.k.length ? ' (' + n + ')' : '') + (st.ask === 'cap' && s.cap ? ' · ' + (s.cw === 'la capitale' ? 'capitales' : 'chefs-lieux') : ''); };
     const draw = el => {
@@ -4790,7 +4809,8 @@ const Prof = {
       const seg = (name, opts, cls) => '<div class="seg' + (cls ? ' ' + cls : '') + '" data-g="' + name + '">' + opts.map(([k, l]) => '<button data-v="' + k + '" class="' + (st[name] === k ? 'on' : '') + '">' + l + '</button>').join('') + '</div>';
       el.querySelector('#gte').innerHTML =
         '<div class="section-h" style="margin-top:4px">Carte</div>' + seg('map', Object.entries(GEO_MAPS).map(([k, m]) => [k, m.t]), 'wrap') +
-        '<div class="section-h">Quoi ?</div>' + seg('set', sets().map(([k, x]) => [k, x.t]), 'wrap') +
+        '<div class="section-h">Quoi ?</div><div class="seg wrap" data-g="set">' + sets().map(([k, x]) => '<button data-v="' + k + '" class="' + (st.set.split('+').includes(k) ? 'on' : '') + '">' + x.t + '</button>').join('') + '</div>' +
+        (M.combo ? '<p class="foot">Coche plusieurs séries pour les mélanger dans un même jeu.</p>' : '') +
         (s.coord ? '<p class="foot">Dix points tirés au hasard, de 10° en 10°, différents pour chaque élève.</p>' :
           '<div class="section-h">' + (pr ? 'Endroits à numéroter' : 'Liste à travailler') + ' (' + st.keys.size + ' / ' + s.k.length + ')<span><button data-all="1">Tout</button> <button data-all="0">Aucun</button></span></div>' +
           '<div class="group"><div class="chips multi">' + s.k.map(k => '<button class="chip' + (st.keys.has(k) ? ' on' : '') + '" data-it="' + k + '">' + esc(M.items[k].n) + '</button>').join('') + '</div></div>') +
@@ -4803,7 +4823,7 @@ const Prof = {
             (st.kind !== 'liste' ? '<div class="group"><label class="row"><div class="main t">Pour le</div><input type="date" id="gdue" value="' + esc(st.due) + '" style="border:0;background:none;color:var(--blue);font-size:17px"></label></div>' : '') +
             '<div class="section-h">Titre vu par les élèves</div><div class="group"><div class="inner-pad"><input id="gtitle" maxlength="80" value="' + esc(st.title) + '" style="width:100%;border:0;background:none;color:var(--label);font-size:17px" aria-label="Titre"></div></div>');
       el.querySelectorAll('[data-g] button').forEach(b => b.onclick = () => {
-        const g = b.parentNode.dataset.g; st[g] = b.dataset.v;
+        const g = b.parentNode.dataset.g; st[g] = g === 'set' ? geoToggleSet(st.map, st.set, b.dataset.v) : b.dataset.v;
         if (g === 'map'){ st.set = sets()[0][0]; st.keys = null; }
         if (g === 'set') st.keys = null;
         draw(el);
@@ -4842,7 +4862,7 @@ const Prof = {
     const avg = doneIds.length ? Math.round(doneIds.reduce((x, sid) => x + pc(pick(sid)), 0) / doneIds.length) : null;
     const cnt = {}; doneIds.forEach(sid => (pick(sid).weak || []).forEach(k => { cnt[k] = (cnt[k] || 0) + 1; }));
     const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 8);
-    const S = GEO_MAPS[t.map] && GEO_MAPS[t.map].sets[t.set_key];
+    const S = geoSet(t.map, t.set_key);
     box.innerHTML = '<h1 class="large" style="margin:4px 0 2px;font-size:24px">' + esc(t.title) + '</h1><p class="foot" style="margin:0 0 12px">' +
         esc([geoGameLabel(t), t.how === 'write' ? (S && S.coord ? 'choisir les coordonnées' : 'écrire le nom') : (S && S.coord ? 'placer le point' : 'toucher la carte'), t.due_date ? 'pour le ' + fmtDate(t.due_date) : null].filter(Boolean).join(' · ')) + '</p>' +
       '<div class="tiles"><div class="tile"><div class="n">' + doneIds.length + ' / ' + c.students.length + '</div><div class="l">Élèves</div></div>' +
@@ -4866,7 +4886,7 @@ const Prof = {
   // Carte muette imprimable : numéros sur la carte, lignes de réponse, page de correction facultative
   async geoPrint(cfg, corr){
     let D; try { D = await Student.geoLoad(cfg.map); } catch(e){ return toast('Impossible de charger la carte. Vérifie ta connexion.'); }
-    const M = GEO_MAPS[cfg.map], S = M.sets[cfg.set], keys = (cfg.keys && cfg.keys.length ? cfg.keys : S.k).filter(k => D.it[k] && D.it[k].lp), inSet = new Set(keys);
+    const M = GEO_MAPS[cfg.map], S = geoSet(cfg.map, cfg.set), keys = (cfg.keys && cfg.keys.length ? cfg.keys : S.k).filter(k => D.it[k] && D.it[k].lp), inSet = new Set(keys);
     // numérotation de haut en bas, par bandes, puis de gauche à droite
     const band = D.w / 9, order = keys.slice().sort((a, b) => Math.floor(D.it[a].lp[1] / band) - Math.floor(D.it[b].lp[1] / band) || D.it[a].lp[0] - D.it[b].lp[0]);
     const num = {}; order.forEach((k, i) => { num[k] = i + 1; });
@@ -4880,7 +4900,7 @@ const Prof = {
     const pth = (d, at) => '<path d="' + d + '" ' + at + '/>';
     const BASE = { 'geo-ctx': 'fill="#ececec" stroke="#9a9a9a"', 'geo-land': 'fill="#f4f4f4" stroke="#777"', 'geo-border': 'fill="none" stroke="#aaa" stroke-dasharray="' + 3 * sw + ' ' + 3 * sw + '"', 'geo-sphere': 'fill="#fff" stroke="#777"', 'geo-grat': 'fill="none" stroke="#ddd"' };
     const item = (k, v) => {
-      if (v.l !== S.l){ if (v.l === 'fleuve') return pth(v.d, 'fill="none" stroke="#9cb4cc" stroke-width="' + 1.1 * sw + '"'); if (v.l === 'relief' && !v.plain) return pth(v.d, 'fill="#e2d6c4" stroke="none"'); if (v.l === 'cont' && S.l !== 'cont') return pth(v.d, 'fill="#f4f4f4" stroke="#777" stroke-width="' + .8 * sw + '"'); return ''; }
+      if (!geoInL(S, v.l)){ if (v.l === 'fleuve') return pth(v.d, 'fill="none" stroke="#9cb4cc" stroke-width="' + 1.1 * sw + '"'); if (v.l === 'relief' && !v.plain) return pth(v.d, 'fill="#e2d6c4" stroke="none"'); if (v.l === 'cont' && !geoInL(S, 'cont')) return pth(v.d, 'fill="#f4f4f4" stroke="#777" stroke-width="' + .8 * sw + '"'); return ''; }
       if (v.line) return pth(v.d, 'fill="none" stroke="' + (inSet.has(k) ? '#1f4f8a' : '#b8c8d8') + '" stroke-width="' + (inSet.has(k) ? 2.6 : 1.2) * sw + '" stroke-linecap="round"');
       if (v.under) return pth(v.d, 'fill="#fff" stroke="#9a9a9a" stroke-dasharray="' + 4 * sw + ' ' + 3 * sw + '" stroke-width="' + .8 * sw + '"');
       return pth(v.d, 'fill="' + (inSet.has(k) ? '#fff' : '#e4e4e4') + '" stroke="#444" stroke-width="' + .9 * sw + '"');
