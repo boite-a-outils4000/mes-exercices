@@ -749,7 +749,8 @@ function musStart(){
   const steps = MUS_MODES[musOpt.mode][1];
   // on veut au moins un document « les deux » quand on trie écrit / non écrit
   let deck = shuffle(SOURCES).slice(0, steps.length > 1 ? 10 : 12);
-  if (steps.includes('en') && !deck.some(s => s[2] === 'both')) deck[deck.length - 1] = shuffle(SOURCES.filter(s => s[2] === 'both'))[0];
+  const both = SOURCES.filter(s => s[2] === 'both'); // le professeur peut n'avoir aucun « les deux »
+  if (steps.includes('en') && both.length && !deck.some(s => s[2] === 'both')) deck[deck.length - 1] = shuffle(both)[0];
   U = { t0: Date.now(), deck: shuffle(deck), i: 0, steps, si: 0, ok: 0, n: 0, streak: 0, best: 0, errs: [], wait: false };
   musRender();
 }
@@ -910,8 +911,8 @@ const pick = a => a[Math.floor(Math.random() * a.length)];
 const PL = { 1: 'Premier plan', 2: 'Plan moyen', 3: 'Arrière-plan' };
 const PL_S = { 1: 'tout près, en bas', 2: 'au milieu', 3: 'au loin, en haut' };
 const FN = { hab: 'Habiter', prod: 'Travailler, produire', circ: 'Circuler, transporter', det: 'Se détendre, loisirs' };
-const PTYPE = { rural: 'Rural', urbain: 'Urbain', industriel: 'Industriel', littoral: 'Littoral', montagnard: 'Montagnard' };
-const PTYPE_S = { rural: 'la campagne', urbain: 'la ville', industriel: 'usines, mines', littoral: 'le bord de mer', montagnard: 'la montagne' };
+const PTYPE = { rural: 'Rural', urbain: 'Urbain', industriel: 'Industriel', littoral: 'Littoral', montagnard: 'Montagnard', periurbain: 'Périurbain', touristique: 'Touristique' };
+const PTYPE_S = { rural: 'la campagne', urbain: 'la ville', industriel: 'usines, mines', littoral: 'le bord de mer', montagnard: 'la montagne', periurbain: 'autour de la ville', touristique: 'vacances, loisirs' };
 const lsky = (a, b) => '<defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + a + '"/><stop offset="1" stop-color="' + b + '"/></linearGradient>' +
   '<pattern id="win" width="8" height="9" patternUnits="userSpaceOnUse"><rect x="2" y="2" width="4" height="4.5" fill="#5d7387" opacity=".55"/></pattern></defs><rect width="480" height="300" fill="url(#sk)"/>';
 const lg = (k, inner) => '<g data-k="' + k + '">' + inner + '</g>';
@@ -995,7 +996,7 @@ const PAYS = [
       lg('canal', '<rect y="250" width="480" height="26" fill="#5b8ca6"/><path d="M0 250H480M0 276H480" stroke="#8a8a80" stroke-width="3"/><path d="M110 256H262L254 272H118Z" fill="#2b2b2b"/><rect x="226" y="248" width="22" height="9" fill="#e9e1cf"/><rect x="130" y="252" width="80" height="5" fill="#6b4a2c"/>') +
       '<rect y="277" width="480" height="23" fill="#8f8f86"/>' }
 ];
-const paySvg = p => '<svg viewBox="0 0 480 300" role="img" aria-label="Paysage à observer">' + p.svg() + '</svg>';
+const paySvg = p => '<svg viewBox="0 0 480 ' + (p.vh || 300) + '" role="img" aria-label="Paysage à observer">' + p.svg() + payZones(p) + '</svg>';
 const payIs = { n: e => e[2] === 'n', h: e => e[2] === 'h', p1: e => e[1] === 1, p2: e => e[1] === 2, p3: e => e[1] === 3, circ: e => e[3] === 'circ', hab: e => e[3] === 'hab', prod: e => e[3] === 'prod', det: e => e[3] === 'det' };
 const payIsT = { n: 'un élément naturel', h: 'un élément humain', p1: 'un élément du premier plan', p2: 'un élément du plan moyen', p3: 'un élément de l’arrière-plan', circ: 'un élément qui sert à circuler', hab: 'un élément qui sert à habiter', prod: 'un élément qui sert à travailler ou produire', det: 'un élément qui sert aux loisirs' };
 const natExpl = (e) => e[4] || (e[2] === 'n' ? 'Il n’a pas été construit par l’homme : c’est un élément naturel.' : 'Il a été construit ou aménagé par l’homme : c’est un élément humain.');
@@ -1051,7 +1052,10 @@ const PAY = {
     }
     return items;
   },
-  after(it, vis){ if (it.ring && vis){ const svg = vis.querySelector('svg'); qzRing(svg, svg.querySelector('[data-k="' + it.ring + '"]')); } },
+  after(it, vis){
+    if (vis) vis.querySelectorAll('[data-k]').forEach(e => { if (!PAYS[it.pi].els[e.getAttribute('data-k')]) e.removeAttribute('data-k'); });
+    if (it.ring && vis){ const svg = vis.querySelector('svg'); qzRing(svg, svg.querySelector('[data-k="' + it.ring + '"]')); }
+  },
   mark(it, k, ok, vis){
     if (!it.tap || !vis) return;
     const svg = vis.querySelector('svg'), el = svg.querySelector('[data-k="' + k + '"]');
@@ -1253,8 +1257,46 @@ const CRI = {
 };
 
 // Démarrage : dans l'appli, on ouvre directement le jeu demandé (et le mode imposé par le professeur)
+/* ---------- Contenu du professeur ----------
+   L'appli envoie le contenu modifié (ou rien) ; il remplace le contenu d'origine. Zones : x, y, w, h entre 0 et 1. */
+const PAY_SVG0 = { rural: PAYS[0].svg, urbain: PAYS[1].svg, littoral: PAYS[2].svg, montagne: PAYS[3].svg, industriel: PAYS[4].svg };
+const zoneSvg = (z, W, H) => z.t === 'e'
+  ? '<ellipse cx="' + ((z.x + z.w / 2) * W).toFixed(1) + '" cy="' + ((z.y + z.h / 2) * H).toFixed(1) + '" rx="' + (z.w / 2 * W).toFixed(1) + '" ry="' + (z.h / 2 * H).toFixed(1) + '"' + (z.a ? ' transform="rotate(' + (+z.a) + ' ' + ((z.x + z.w / 2) * W).toFixed(1) + ' ' + ((z.y + z.h / 2) * H).toFixed(1) + ')"' : '') + '/>'
+  : '<rect x="' + (z.x * W).toFixed(1) + '" y="' + (z.y * H).toFixed(1) + '" width="' + (z.w * W).toFixed(1) + '" height="' + (z.h * H).toFixed(1) + '" rx="4"/>';
+// paysage : zones tracées par le professeur (par-dessus le dessin ou la photo)
+const payZones = p => p.zones ? '<g fill="#fff" fill-opacity="0">' + Object.entries(p.zones).map(([k, L]) => '<g data-k="' + esc(k) + '">' + L.map(z => zoneSvg(z, 480, p.vh || 300)).join('') + '</g>').join('') + '</g>' : '';
+const imgHref = u => esc(u);
+const CONTENT = {
+  musee(D){ const L = (D.sources || []).filter(s => s && s.doc && MUS_STEPS.tp.bins[s.trace] && MUS_STEPS.en.bins[s.ecrit] && MUS_STEPS.ge.bins[s.genre]);
+    if (L.length < 4) return; SOURCES.length = 0; L.forEach(s => SOURCES.push([s.doc, s.trace, s.ecrit, s.genre, s.expl || ''])); },
+  critique(D){ const L = (D.docs || []).filter(d => d && d.t); if (!L.length) return;
+    CRIT.length = 0; L.forEach(d => CRIT.push([d.t, d.date || '', d.desc || '', d.qui, d.quand, d.but, d.fia, d.eQui || '', d.eQuand || '', d.eBut || '', d.eFia || ''])); },
+  climat(D){ const L = (D.villes || []).filter(v => v && v.n && CLIM[v.type] && (v.T || []).length === 12 && (v.P || []).length === 12); if (L.length < 4) return;
+    VILLES.length = 0; L.forEach(v => VILLES.push([v.n, v.pays || '', v.type, v.hemi === 'S' ? 'S' : 'N', v.T.map(Number), v.P.map(x => Math.max(0, +x || 0))])); },
+  anachro(D){ const L = (D.scenes || []).filter(s => s && s.t && s.x && /^[a-z]{1,12}$/.test(s.id)); if (!L.length) return;
+    SCENES.length = 0; ANA_KEYS.length = 0; SCENE_IMGS.length = 0;
+    L.forEach(s => { const VH = s.img && s.w ? 480 * s.h / s.w : 0;
+      SCENES.push({ t: s.t, p: s.p || '', c: s.c || '#8a5ad1', x: s.x }); ANA_KEYS.push(s.id);
+      SCENE_IMGS.push(s.img ? '<svg viewBox="0 0 480 ' + VH.toFixed(1) + '" role="img" aria-label="' + esc(s.t) + '"><image href="' + imgHref(s.img) + '" width="480" height="' + VH.toFixed(1) + '"/><g fill="#fff" fill-opacity="0">' +
+        Object.entries(s.zones || {}).map(([w, Z]) => '<g data-a="' + esc(w) + '">' + Z.map(z => zoneSvg(z, 480, VH)).join('') + '</g>').join('') + '</g></svg>' : ''); }); },
+  paysage(D){ const L = (D.scenes || []).filter(s => s && PTYPE[s.type] && (s.els || []).length >= 2 && (s.img || PAY_SVG0[s.svg])); if (!L.length) return;
+    PAYS.length = 0;
+    L.forEach(s => { const photo = !!s.img, VH = photo && s.w ? 480 * s.h / s.w : 300, zones = {};
+      (s.els || []).forEach(e => { if ((e.zones || []).length) zones[e.k] = e.zones; });
+      PAYS.push({ type: s.type, expl: s.expl || '', vh: VH, zones,
+        els: Object.fromEntries(s.els.filter(e => e.k && e.label).map(e => [e.k, [e.label, [1, 2, 3].includes(+e.plan) ? +e.plan : 2, e.nat === 'n' ? 'n' : 'h', FN[e.fn] ? e.fn : null, e.note || '']])),
+        svg: photo ? () => '<image href="' + imgHref(s.img) + '" width="480" height="' + VH.toFixed(1) + '" preserveAspectRatio="xMidYMid slice"/>' : PAY_SVG0[s.svg] }); }); }
+};
 function boot(){
   if (!EMB) return hall();
+  // dans l'appli : on attend le contenu du professeur (au plus 4 secondes), puis on démarre
+  let done = false;
+  const go = data => { if (done) return; done = true; try { if (data && CONTENT[EMB.game]) CONTENT[EMB.game](data); } catch(e){ console.error(e); } bootGame(); };
+  addEventListener('message', e => { if (e.origin === location.origin && e.data && e.data.src === 'app' && e.data.type === 'content') go(e.data.data); });
+  post({ type: 'need', game: EMB.game });
+  setTimeout(() => go(null), 4000);
+}
+function bootGame(){
   const Q = { paysage: PAY, climat: CLI, critique: CRI }[EMB.game];
   if (Q){ if (EMB.task && Q.modes[EMB.mode]) return qzStart(Q, EMB.mode); return qzHome(Q); }
   if (EMB.game === 'anachro'){ const i = ANA_KEYS.indexOf(EMB.mode); if (EMB.task && i >= 0) return anaStart(i); return anaHome(); }

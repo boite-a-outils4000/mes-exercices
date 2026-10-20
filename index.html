@@ -536,6 +536,29 @@ a.cblock.row{display:flex;color:inherit;text-decoration:none}
 .big-score{font-size:44px;font-weight:700;letter-spacing:-.02em;text-align:center;margin:6px 0 4px;font-variant-numeric:tabular-nums}
 
 /* Impression des codes */
+/* Contenu des jeux (éditeur du professeur) */
+.row .jic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;flex:none}.row .jic svg{width:19px;height:19px}
+.jthumb{width:44px;height:44px;border-radius:8px;object-fit:cover;flex:none;background:var(--fill)}.jthumb.wide{width:66px;height:42px}
+.jthumb.none{display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:var(--label2);text-align:center;line-height:1.1;padding:3px}
+.jform{padding-bottom:20px}
+.jimgprev{display:block;max-width:100%;border-radius:12px}.jimgprev.sq{width:160px;height:160px;object-fit:cover}
+.jimgnone{padding:18px 16px;border-radius:12px;background:var(--card);color:var(--label2);text-align:center;font-size:15px}
+.jimgbtns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn.small{width:auto;height:38px;padding:0 16px;font-size:15px}
+.swatches{display:flex;gap:12px;flex-wrap:wrap;padding:2px}
+.sw{width:34px;height:34px;border-radius:50%;border:0;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55)}.sw.on{outline:3px solid var(--blue);outline-offset:2px}
+.chips small{color:var(--label2);font-weight:500;margin-left:2px}.chip.on small{color:inherit;opacity:.8}
+.zchips{margin-bottom:10px}.zdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.ze{position:relative;border-radius:12px;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;background:var(--fill)}
+.ze img{display:block;width:100%;height:auto;pointer-events:none}
+.ze-layer{position:absolute;inset:0;cursor:crosshair}
+.ze-z{position:absolute;border:2px solid rgba(255,255,255,.85);background:rgba(0,0,0,.12);box-shadow:0 0 0 1px rgba(0,0,0,.35);border-radius:6px;pointer-events:none}
+.ze-z.e{border-radius:50%}.ze-z.cur{border-color:var(--orange);background:rgba(255,149,0,.28)}
+.ze-x{position:absolute;top:-11px;right:-11px;width:24px;height:24px;border-radius:50%;border:0;background:var(--red);color:#fff;font-weight:700;font-size:16px;line-height:24px;text-align:center;padding:0;pointer-events:auto;cursor:pointer}
+.ze-z.e .ze-x{top:0;right:0}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px 18px;padding:12px 14px}
+.months label{display:grid;grid-template-columns:42px minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:center;font-size:15px;color:var(--label2);font-weight:600}
+.months input{width:100%;min-width:0;border:0;background:var(--fill);border-radius:8px;padding:8px;font-size:16px;text-align:right;color:var(--label)}
 /* Jeux d'histoire-géo : la page du jeu s'ouvre en plein écran par-dessus l'appli */
 .jeu-frame{position:fixed;inset:0;width:100%;height:100%;border:0;z-index:50;background:#0d433d;display:block}
 body.jeu-on{overflow:hidden}
@@ -1136,10 +1159,78 @@ const JEUX = {
       mois: 'Trouver un mois sur le climatogramme', amp: 'Amplitude thermique', pluie: 'Lire les précipitations', temp: 'Lire les températures', hemi: 'Hémisphère nord ou sud' } }
 };
 // version des pages de jeux : à changer à chaque mise à jour, pour que le navigateur ne garde pas l'ancienne en mémoire
-const JEUX_V = '8';
+const JEUX_V = '9';
 const jeuMode = (map, set) => { const J = JEUX[map]; if (!J) return ''; const [m, d, l] = String(set || '').split('+'); return [J.modes[m] || m, J.decks && J.decks[d], J.levels && J.levels[l]].filter(Boolean).join(' · '); };
 const geoGameLabel = g => { if (JEUX[g.map]) return JEUX[g.map].t + ' · ' + jeuMode(g.map, g.set_key); const M = GEO_MAPS[g.map], S = M && geoSet(g.map, g.set_key); if (!S) return 'Jeu de géographie';
   return M.t + ' · ' + S.t + (g.ask === 'cap' ? ' · ' + (S.cw === 'la capitale' ? 'capitales' : 'chefs-lieux') : ''); };
+// Éditeur de contenu des jeux : libellés et outils partagés
+const JEU_EDIT = ['frise', 'anachro', 'musee', 'critique', 'paysage', 'climat'];
+const JEU_COL = { frise: 'purple', anachro: 'pink', musee: 'indigo', critique: 'red', paysage: 'teal', climat: 'orange' };
+const JEU_ICO = { frise: () => I.jFrise, anachro: () => I.jAna, musee: () => I.jMusee, critique: () => I.jCrit, paysage: () => I.jPays, climat: () => I.jClim };
+const MOIS_C = ['Jan.', 'Fév.', 'Mars', 'Avr.', 'Mai', 'Juin', 'Juil.', 'Août', 'Sept.', 'Oct.', 'Nov.', 'Déc.'];
+const PTYPE_L = { rural: 'Rural', urbain: 'Urbain', industriel: 'Industriel', littoral: 'Littoral', montagnard: 'Montagnard', periurbain: 'Périurbain', touristique: 'Touristique' };
+const PLAN_L = { 1: 'Premier plan', 2: 'Plan moyen', 3: 'Arrière-plan' };
+const FN_L = { hab: 'Habiter', prod: 'Travailler, produire', circ: 'Circuler, transporter', det: 'Se détendre, loisirs' };
+const CLIM_L = { equ: 'Équatorial', tro: 'Tropical', des: 'Désertique', med: 'Méditerranéen', oce: 'Tempéré océanique', con: 'Tempéré continental', pol: 'Polaire', mon: 'Montagnard' };
+const MUS_L = { tp: { tra: 'Trace du passé', pos: 'Travail postérieur' }, en: { ne: 'Non écrit', e: 'Écrit', both: 'Écrit et non écrit' }, ge: { mat: 'Matérielle', ico: 'Iconographique', ora: 'Orale', off: 'Officielle', lit: 'Littéraire', sch: 'Schématique' } };
+const CR_L = { qui: [['d', 'Témoin direct'], ['i', 'Témoin indirect'], ['n', 'Pas témoin']], quand: [['p', 'Pendant les faits'], ['a', 'Peu après'], ['l', 'Longtemps après']],
+  but: [['inf', 'Informer'], ['conv', 'Convaincre'], ['tem', 'Témoigner'], ['div', 'Divertir'], ['off', 'Garder une trace officielle']], fia: [['f', 'Plutôt fiable'], ['p', 'À prendre avec prudence']] };
+const crL = (k, v) => (CR_L[k].find(x => x[0] === v) || [, ''])[1];
+const fmtYear = c => (c.about ? 'vers ' : '') + Math.abs(+c.y) + (+c.y < 0 ? ' av. J.-C.' : '');
+// anachronismes : le texte porte les objets sous la forme [[mot|A ou P|explication]]
+const ANA_RE = /\[\[([^|\]]+)\|([AP])\|([^\]]*)\]\]/g;
+const anaText = x => String(x || '').replace(ANA_RE, '$1');
+const anaObjets = x => [...String(x || '').matchAll(ANA_RE)].map(m => ({ w: m[1], k: m[2], e: m[3] }));
+const anaBuild = (text, obj) => {
+  const used = [], L = /\p{L}/u;
+  for (const o of obj){
+    let i = -1, from = 0;
+    for (;;){ i = text.indexOf(o.w, from); if (i < 0) break; const j = i + o.w.length;
+      if (!used.some(u => i < u[1] && j > u[0]) && !L.test(text[i - 1] || '') && !L.test(text[j] || '')) break; from = i + 1; }
+    if (i < 0) return { err: '« ' + o.w + ' » n’apparaît pas tel quel dans le texte' };
+    used.push([i, i + o.w.length, o]);
+  }
+  used.sort((a, b) => a[0] - b[0]);
+  let x = '', at = 0; used.forEach(([i, j, o]) => { x += text.slice(at, i) + '[[' + o.w + '|' + o.k + '|' + o.e + ']]'; at = j; });
+  return { x: x + text.slice(at) };
+};
+// les libellés des paquets de la frise et des scènes suivent le contenu du professeur
+function jeuSyncLabels(game, d){
+  if (!d) return;
+  if (game === 'frise' && d.decks) JEUX.frise.decks = Object.fromEntries(d.decks.map(k => [k.id, k.t]));
+  if (game === 'anachro' && d.scenes) JEUX.anachro.modes = Object.fromEntries(d.scenes.map(x => [x.id, x.t + (x.p ? ' (' + String(x.p).split('·')[0].trim() + ')' : '')]));
+}
+const JEU_LIST = {
+  musee: { key: 'sources', one: 'document', many: 'documents', min: 4,
+    title: o => o.doc, sub: o => [MUS_L.tp[o.trace], MUS_L.en[o.ecrit], 'source ' + String(MUS_L.ge[o.genre] || '').toLowerCase()].join(' · '),
+    foot: 'L’élève classe chaque document en trois étapes : trace du passé ou travail postérieur, écrit ou non écrit, puis le genre de la source.',
+    blank: () => ({ doc: '', trace: 'tra', ecrit: 'e', genre: 'off', expl: '' }),
+    fields: [{ k: 'doc', l: 'Le document', type: 'area', rows: 2, ph: 'Ex. Une facture d’un marchand de Bruges de 1480' },
+      { k: 'trace', l: 'Trace du passé ou travail postérieur ?', type: 'seg', opts: Object.entries(MUS_L.tp) },
+      { k: 'ecrit', l: 'Écrit ou non écrit ?', type: 'seg', opts: [['ne', 'Non écrit'], ['e', 'Écrit'], ['both', 'Les deux']] },
+      { k: 'genre', l: 'Genre de la source', type: 'seg', opts: Object.entries(MUS_L.ge) },
+      { k: 'expl', l: 'Explication montrée après la réponse', type: 'area', ph: 'Ex. Une facture de l’époque : trace du passé, écrite, source officielle.' }],
+    check: o => !o.doc ? 'Décris le document' : null },
+  critique: { key: 'docs', one: 'document', many: 'documents', min: 1,
+    title: o => o.t, sub: o => [o.date, crL('but', o.but), crL('fia', o.fia)].filter(Boolean).join(' · '),
+    foot: 'Pour chaque document, l’élève répond à quatre questions : qui ? quand ? pourquoi ? est-il fiable ?',
+    blank: () => ({ t: '', date: '', desc: '', qui: 'd', quand: 'p', but: 'inf', fia: 'f', eQui: '', eQuand: '', eBut: '', eFia: '' }),
+    fields: [{ k: 't', l: 'Titre du document', ph: 'Ex. Lettre d’un soldat belge' }, { k: 'date', l: 'Date', ph: 'Ex. 1915' },
+      { k: 'desc', l: 'Description du document', type: 'area', ph: 'Ex. Un soldat écrit à sa mère depuis les tranchées de l’Yser.' },
+      { k: 'qui', l: 'Qui ? L’auteur a-t-il vécu les faits ?', type: 'seg', opts: CR_L.qui }, { k: 'eQui', l: 'Explication', type: 'area', rows: 2 },
+      { k: 'quand', l: 'Quand le document a-t-il été produit ?', type: 'seg', opts: CR_L.quand }, { k: 'eQuand', l: 'Explication', type: 'area', rows: 2 },
+      { k: 'but', l: 'Pourquoi ? L’intention de l’auteur', type: 'seg', opts: CR_L.but }, { k: 'eBut', l: 'Explication', type: 'area', rows: 2 },
+      { k: 'fia', l: 'Est-il fiable ?', type: 'seg', opts: CR_L.fia }, { k: 'eFia', l: 'Explication', type: 'area', rows: 2 }],
+    check: o => !o.t ? 'Écris le titre du document' : !o.desc ? 'Décris le document' : null },
+  climat: { key: 'villes', one: 'ville', many: 'villes', min: 4,
+    title: o => o.n + (o.pays ? ' (' + o.pays + ')' : ''), sub: o => CLIM_L[o.type] + ' · hémisphère ' + (o.hemi === 'S' ? 'sud' : 'nord'),
+    foot: 'Pour chaque ville : la température moyenne (°C) et les précipitations (mm) de chaque mois, comme sur un climatogramme.',
+    blank: () => ({ n: '', pays: '', type: 'oce', hemi: 'N', T: [], P: [] }),
+    fields: [{ k: 'n', l: 'Ville', ph: 'Ex. Bruxelles' }, { k: 'pays', l: 'Pays', ph: 'Ex. Belgique' }, { k: 'type', l: 'Climat', type: 'seg', opts: Object.entries(CLIM_L) },
+      { k: 'hemi', l: 'Hémisphère', type: 'seg', opts: [['N', 'Nord'], ['S', 'Sud']] },
+      { k: 'months', l: 'Mois par mois : température (°C), puis précipitations (mm)', type: 'months' }],
+    check: o => !o.n ? 'Écris le nom de la ville' : o.T.some(v => !Number.isFinite(v)) ? 'Complète les 12 températures' : o.P.some(v => !Number.isFinite(v) || v < 0) ? 'Complète les 12 précipitations (0 ou plus)' : null }
+};
 const STUDY_TIPS = [
   'Teste-toi au lieu de relire : essayer de retrouver la réponse dans ta tête, c’est ce qui fait le plus retenir.',
   'Révise un peu chaque jour : 10 minutes par jour valent mieux qu’une heure la veille de l’interro.',
@@ -2220,6 +2311,8 @@ const Student = {
     const on = e => {
       if (e.origin !== location.origin || !e.data || e.data.src !== 'jeux') return;
       if (e.data.type === 'end') this.jeuSave(game, e.data, task);
+      if (e.data.type === 'need'){ const fr = $app.querySelector('.jeu-frame');
+        sb.rpc('student_game_content', { p_code: this.code, p_game: game }).then(r => r.error ? null : r.data, () => null).then(data => { if (fr && fr.contentWindow) fr.contentWindow.postMessage({ src: 'app', type: 'content', data }, location.origin); }); }
       if (e.data.type === 'quit'){ off(); this.stab = task ? this._geoFrom || 'ex' : 'study'; this.renderList(); }
     };
     this._jeuOff = off;
@@ -3844,6 +3937,8 @@ const Prof = {
     if (tab === 'suivi' && id) return this.renderSetProgress(id);
     if (tab === 'exercices' && id) return this.renderEditor(id === 'nouveau' ? null : id);
     if (tab === 'exercices') return this.renderSets();
+    if (tab === 'jeux' && id) return this.renderJeuEditor(id, parts[2]);
+    if (tab === 'jeux') return this.renderJeux();
     if (tab === 'eleve' && id) return this.renderStudent(id);
     if (tab === 'copie' && id) return this.renderCopyEditor(id);
     if (tab === 'evals' && id) return this.renderEval(id);
@@ -3862,6 +3957,7 @@ const Prof = {
   async load(){
     const wp = Promise.all([sb.from('worksheets').select('id,title,subject,zones,created_at,updated_at').order('updated_at', { ascending: false }), sb.from('worksheet_sends').select('*').order('created_at', { ascending: false }), sb.from('worksheet_copies').select('id,send_id,student_id,status,score,total,submitted_at,corrected_at,seen_at,updated_at')]);
     const gtp = sb.from('geo_tasks').select('*').order('created_at', { ascending: false });
+    const gcp = sb.from('game_content').select('game,data,updated_at');
     const [ev, ea, co, fl, c, s, a, cp] = await Promise.all([
       sb.from('evaluations').select('*').order('created_at', { ascending: false }),
       sb.from('eval_attempts').select('*'),
@@ -3874,6 +3970,7 @@ const Prof = {
     ]);
     this.copies = cp.error ? [] : (cp.data || []);
     { const g = await gtp; this.geoTasks = g.error ? [] : g.data || []; }
+    { const g = await gcp; this.gameContent = {}; this.gameContentAt = {}; (g.error ? [] : g.data || []).forEach(r => { this.gameContent[r.game] = r.data; this.gameContentAt[r.game] = r.updated_at; jeuSyncLabels(r.game, r.data); }); }
     { const [fw, fs, fc] = await wp; this.worksheets = fw.error ? [] : fw.data || []; this.wsends = fs.error ? [] : fs.data || []; this.wcopies = fc.error ? [] : fc.data || []; }
     const err = c.error || s.error || a.error || co.error || fl.error; if (err) throw err;
     if (ev.error || ea.error) throw (ev.error || ea.error);
@@ -4874,7 +4971,7 @@ const Prof = {
   geoSetsSection(){
     const L = (this.geoTasks || []).filter(t => this.classes.some(c => c.id === t.class_id));
     return '<div class="section-h">Jeux</div><div class="group">' + L.map(t => this.geoTaskRowProf(t, true)).join('') +
-      '<button class="row center" id="geonew">Donner un jeu de géographie</button><button class="row center" id="jeunew">Donner un jeu d’histoire-géo</button><button class="row center" id="geoprint">Imprimer une carte muette</button></div>' +
+      '<button class="row center" id="geonew">Donner un jeu de géographie</button><button class="row center" id="jeunew">Donner un jeu d’histoire-géo</button><a class="row center" href="#/prof/jeux">Modifier le contenu des jeux</a><button class="row center" id="geoprint">Imprimer une carte muette</button></div>' +
       '<p class="foot">Jeu de géographie : pays, provinces, fleuves, coordonnées. Jeux d’histoire-géo : frise, tri du musée, critique de source, paysage, climats. Comme entraînement, devoir ou interro : les élèves les trouvent dans leur onglet Exercices.</p>';
   },
   geoSetsBind(){
@@ -4955,6 +5052,402 @@ const Prof = {
         close(); this.geoRefresh(); toast('Jeu donné à ' + esc(names.join(', ')));
       };
     });
+  },
+  /* ---------- Contenu des jeux : le professeur modifie cartes, documents, scènes… ----------
+     Sans enregistrement : le contenu d'origine (jeux/data/*.json). Après la première modification : une copie complète dans game_content. */
+  jeuImg(u){ return !u ? '' : /^(https?:|data:|blob:)/.test(u) ? u : 'jeux/' + u; },
+  async jeuData(game){
+    if (this.gameContent && this.gameContent[game]) return this.gameContent[game];
+    this._jeuDef = this._jeuDef || {};
+    if (!this._jeuDef[game]){ const r = await fetch('jeux/data/' + game + '.json?v=' + JEUX_V); if (!r.ok) throw new Error('contenu introuvable'); this._jeuDef[game] = await r.json(); }
+    return this._jeuDef[game];
+  },
+  async jeuDefault(game){ const keep = this.gameContent[game]; delete this.gameContent[game]; try { return await this.jeuData(game); } finally { if (keep) this.gameContent[game] = keep; } },
+  async jeuSave(game, data){
+    const { error } = await sb.from('game_content').upsert({ teacher_id: this.user.id, game, data, updated_at: new Date().toISOString() });
+    if (error){ toast('Erreur : ' + esc(error.message)); return false; }
+    this.gameContent[game] = data; this.gameContentAt[game] = new Date().toISOString(); jeuSyncLabels(game, data);
+    return true;
+  },
+  async jeuReset(game){
+    if (!await confirmDialog('Revenir au contenu d’origine ?', 'Toutes tes modifications de « ' + JEUX[game].t + ' » seront effacées. Les élèves verront de nouveau le contenu d’origine.', 'Effacer', true)) return;
+    const { error } = await sb.from('game_content').delete().eq('teacher_id', this.user.id).eq('game', game);
+    if (error) return toast('Erreur : ' + esc(error.message));
+    delete this.gameContent[game]; delete this.gameContentAt[game]; jeuSyncLabels(game, await this.jeuData(game));
+    toast('Contenu d’origine rétabli'); this.renderJeuEditor(game);
+  },
+  // Essayer un jeu tel que les élèves le verront (avec le contenu enregistré)
+  jeuPreview(game){
+    const J = JEUX[game], q = new URLSearchParams({ embed: '1', game }), wrap = document.createElement('div');
+    wrap.innerHTML = '<iframe class="jeu-frame" title="' + esc(J.t) + '" src="jeux/' + (J.file || 'salle') + '.html?' + q + '&v=' + JEUX_V + '"></iframe>';
+    document.body.appendChild(wrap); document.body.classList.add('jeu-on');
+    const fr = wrap.querySelector('iframe');
+    const on = e => {
+      if (e.origin !== location.origin || !e.data || e.data.src !== 'jeux' || e.source !== fr.contentWindow) return;
+      if (e.data.type === 'need') fr.contentWindow.postMessage({ src: 'app', type: 'content', data: this.gameContent[game] || null }, location.origin);
+      if (e.data.type === 'quit'){ window.removeEventListener('message', on); wrap.remove(); document.body.classList.remove('jeu-on'); }
+    };
+    window.addEventListener('message', on);
+  },
+  // Choisir une image, la réduire (WebP) et l'envoyer ; renvoie { url, w, h }
+  jeuPickImage(maxW, square){
+    return new Promise(res => {
+      const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+      inp.onchange = async () => {
+        const f = inp.files && inp.files[0]; if (!f) return res(null);
+        try {
+          const src = URL.createObjectURL(f), img = new Image();
+          await new Promise((ok, ko) => { img.onload = ok; img.onerror = ko; img.src = src; });
+          let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
+          if (square){ const m = Math.min(sw, sh); sx = (sw - m) / 2; sy = (sh - m) / 2; sw = sh = m; }
+          const k = Math.min(1, maxW / sw), c = document.createElement('canvas'); c.width = Math.round(sw * k); c.height = Math.round(sh * k);
+          c.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height); URL.revokeObjectURL(src);
+          let blob = await new Promise(r => c.toBlob(r, 'image/webp', .86));
+          if (!blob || blob.type !== 'image/webp') blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .88));
+          toast('Envoi de l’image…');
+          const url = await this.upload(blob, blob.type === 'image/webp' ? 'jeu.webp' : 'jeu.jpg', blob.type);
+          res({ url, w: c.width, h: c.height });
+        } catch(e){ console.error(e); toast('Impossible d’utiliser cette image. Essaie avec une photo JPG ou PNG.'); res(null); }
+      };
+      inp.click();
+    });
+  },
+
+  renderJeux(){
+    const sum = { frise: d => d.cards.length + ' cartes · ' + d.decks.length + ' paquets', musee: d => d.sources.length + ' documents', critique: d => d.docs.length + ' documents',
+      climat: d => d.villes.length + ' villes', anachro: d => d.scenes.length + ' scènes', paysage: d => d.scenes.length + ' paysages' };
+    const html = nav(backBtn('#/prof/exercices', 'Exercices')) + '<div class="wrap"><h1 class="large">Contenu des jeux</h1>' +
+      '<p class="subtitle">Modifie, ajoute ou supprime ce que tes élèves voient dans chaque jeu.</p>' +
+      ['Histoire', 'Géographie'].map(h => '<div class="section-h">' + h + '</div><div class="group">' + JEU_EDIT.filter(g => JEUX[g].h === h).map(g => '<a class="row" href="#/prof/jeux/' + g + '"><span class="ic jic" style="background:var(--' + JEU_COL[g] + ')">' + JEU_ICO[g]() + '</span><div class="main"><div class="t">' + JEUX[g].t + '</div><div class="s" id="js-' + g + '">' +
+        (this.gameContent[g] ? 'Modifié le ' + fmtDate(String(this.gameContentAt[g] || '').slice(0, 10)) : 'Contenu d’origine') + '</div></div><span class="chev">' + I.chevR + '</span></a>').join('') + '</div>').join('') +
+      '<p class="foot">Tes modifications valent pour toutes tes classes. Tu peux toujours revenir au contenu d’origine. Le jeu de géographie (cartes) ne se modifie pas ici.</p></div>';
+    this.shell('exercices', html);
+    JEU_EDIT.forEach(async g => { try { const d = await this.jeuData(g), e = document.getElementById('js-' + g); if (e) e.textContent = sum[g](d) + ' · ' + e.textContent; } catch(err){} });
+  },
+  async renderJeuEditor(game, sub){
+    if (!JEU_EDIT.includes(game)) return go('#/prof/jeux');
+    loading();
+    let d; try { d = JSON.parse(JSON.stringify(await this.jeuData(game))); } catch(e){ return toast('Impossible de charger le contenu. Vérifie ta connexion.'); }
+    if (game === 'frise') return this.edFrise(d);
+    if (game === 'anachro') return sub ? this.edAnaScene(d, sub) : this.edScenes(game, d);
+    if (game === 'paysage') return sub ? this.edPaysScene(d, sub) : this.edScenes(game, d);
+    return this.edList(game, d);
+  },
+  // en-tête commun d'un éditeur de jeu
+  edHead(game, title, back){
+    return nav(backBtn(back || '#/prof/jeux', back ? JEUX[game].t : 'Jeux'), '<button class="nav-btn" id="jtry">Essayer</button>') +
+      '<div class="wrap"><h1 class="large">' + esc(title || JEUX[game].t) + '</h1>' + (back ? '' : '<p class="subtitle">' + (this.gameContent[game] ? 'Ta version, modifiée le ' + fmtDate(String(this.gameContentAt[game] || '').slice(0, 10)) : 'Contenu d’origine : touche un élément pour le modifier.') + '</p>');
+  },
+  edFoot(game){ return this.gameContent[game] ? '<div class="group mt2"><button class="row danger" id="jreset">Revenir au contenu d’origine</button></div>' : ''; },
+  edBind(game){
+    const t = document.getElementById('jtry'); if (t) t.onclick = () => this.jeuPreview(game);
+    const r = document.getElementById('jreset'); if (r) r.onclick = () => this.jeuReset(game);
+  },
+  // champs de formulaire : { k, l, type: text | area | seg | year, opts, foot, ph }
+  edFields(F, o){
+    return F.map(f => {
+      const v = o[f.k] == null ? '' : o[f.k];
+      const head = '<div class="section-h">' + f.l + '</div>', foot = f.foot ? '<p class="foot">' + f.foot + '</p>' : '';
+      if (f.type === 'seg') return head + '<div class="seg wrap" data-f="' + f.k + '">' + f.opts.map(([k, l]) => '<button type="button" data-v="' + k + '" class="' + (String(v) === String(k) ? 'on' : '') + '">' + l + '</button>').join('') + '</div>' + foot;
+      if (f.type === 'area') return head + '<div class="group"><textarea class="field" data-f="' + f.k + '" rows="' + (f.rows || 3) + '" placeholder="' + esc(f.ph || '') + '">' + esc(v) + '</textarea></div>' + foot;
+      if (f.type === 'months') return head + '<div class="group"><div class="months">' + MOIS_C.map((m, i) => '<label><span>' + m + '</span><input inputmode="decimal" data-m="T' + i + '" value="' + esc((o.T || [])[i] ?? '') + '" placeholder="°C" aria-label="Température ' + m + '"><input inputmode="numeric" data-m="P' + i + '" value="' + esc((o.P || [])[i] ?? '') + '" placeholder="mm" aria-label="Précipitations ' + m + '"></label>').join('') + '</div></div>' + foot;
+      return head + '<div class="group"><input class="field" data-f="' + f.k + '" value="' + esc(v) + '" placeholder="' + esc(f.ph || '') + '"' + (f.type === 'num' ? ' inputmode="numeric"' : '') + '></div>' + foot;
+    }).join('');
+  },
+  edBindSeg(el){ el.querySelectorAll('.seg[data-f] button').forEach(b => b.onclick = () => { b.parentNode.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); }); },
+  edRead(el, F, o){
+    F.forEach(f => {
+      if (f.type === 'seg'){ const b = el.querySelector('.seg[data-f="' + f.k + '"] button.on'); if (b) o[f.k] = b.dataset.v; }
+      else if (f.type === 'months'){ o.T = MOIS_C.map((m, i) => parseFloat(String(el.querySelector('[data-m="T' + i + '"]').value).replace(',', '.'))); o.P = MOIS_C.map((m, i) => parseFloat(String(el.querySelector('[data-m="P' + i + '"]').value).replace(',', '.'))); }
+      else { const e = el.querySelector('[data-f="' + f.k + '"]'); if (e) o[f.k] = e.value.trim(); }
+    });
+    return o;
+  },
+
+  /* ----- jeux en liste : musée, critique, climats ----- */
+  edList(game, d){
+    const C = JEU_LIST[game], L = d[C.key];
+    const html = this.edHead(game) + '<div class="section-h">' + C.many.charAt(0).toUpperCase() + C.many.slice(1) + ' (' + L.length + ')</div><div class="group">' +
+      L.map((o, i) => '<button class="row" data-i="' + i + '"><div class="main"><div class="t">' + esc(C.title(o)) + '</div><div class="s">' + esc(C.sub(o)) + '</div></div><span class="chev">' + I.chevR + '</span></button>').join('') +
+      '<button class="row center" id="jnew">Ajouter un ' + C.one + '</button></div><p class="foot">' + C.foot + '</p>' + this.edFoot(game) + '</div>';
+    this.shell('exercices', html); this.edBind(game);
+    $app.querySelectorAll('[data-i]').forEach(b => b.onclick = () => this.edItem(game, d, +b.dataset.i));
+    document.getElementById('jnew').onclick = () => this.edItem(game, d, -1);
+  },
+  edItem(game, d, i){
+    const C = JEU_LIST[game], L = d[C.key], o = i >= 0 ? Object.assign({}, L[i]) : C.blank();
+    openSheet('<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Annuler</button><h2>' + (i >= 0 ? 'Modifier' : 'Nouveau ' + C.one) + '</h2><button class="nav-btn bold" id="ok">OK</button></div><div class="jform">' +
+      this.edFields(C.fields, o) + (i >= 0 ? '<div class="group mt2"><button class="row danger" id="del">Supprimer ce ' + C.one + '</button></div>' : '') + '</div>', (el, close) => {
+      this.edBindSeg(el);
+      el.querySelector('#ok').onclick = async () => {
+        this.edRead(el, C.fields, o);
+        const err = C.check(o); if (err) return toast(err);
+        if (i >= 0) L[i] = o; else L.push(o);
+        if (await this.jeuSave(game, d)){ close(); this.edList(game, d); toast('Enregistré'); }
+      };
+      const del = el.querySelector('#del'); if (del) del.onclick = async () => {
+        if (L.length <= C.min) return toast('Garde au moins ' + C.min + ' ' + C.many + ' pour que le jeu fonctionne.');
+        if (!await confirmDialog('Supprimer ce ' + C.one + ' ?', C.title(o), 'Supprimer', true)) return;
+        L.splice(i, 1); if (await this.jeuSave(game, d)){ close(); this.edList(game, d); toast('Supprimé'); }
+      };
+    });
+  },
+
+  /* ----- la frise : paquets et cartes ----- */
+  edFrise(d){
+    const q = (this._friseQ || '').toLowerCase(), byId = {}; d.cards.forEach(c => { byId[c.id] = c; });
+    const decksOf = id => d.decks.filter(k => k.cards.includes(id)).map(k => k.t);
+    const cards = d.cards.slice().sort((a, b) => a.y - b.y).filter(c => !q || (c.n + ' ' + c.d + ' ' + fmtYear(c)).toLowerCase().includes(q));
+    const html = this.edHead('frise') +
+      '<div class="section-h">Paquets (' + d.decks.length + ')</div><div class="group">' + d.decks.map((k, i) => '<button class="row" data-deck="' + i + '"><div class="main"><div class="t">' + esc(k.t) + '</div><div class="s">' + k.cards.length + ' cartes' + (k.s ? ' · ' + esc(k.s) : '') + '</div></div><span class="chev">' + I.chevR + '</span></button>').join('') +
+      '<button class="row center" id="jdeck">Nouveau paquet</button></div><p class="foot">Un paquet rassemble les cartes d’une partie : par exemple un chapitre de ton cours. Une carte peut être dans plusieurs paquets.</p>' +
+      '<div class="section-h">Cartes (' + d.cards.length + ')</div><input class="field alone" id="jq" placeholder="Rechercher une carte" value="' + esc(this._friseQ || '') + '" style="margin-bottom:10px">' +
+      '<div class="group">' + cards.map(c => '<button class="row" data-card="' + c.id + '">' + (c.img ? '<img class="jthumb" src="' + esc(this.jeuImg(c.img)) + '" alt="" loading="lazy">' : '<span class="jthumb none">' + esc(fmtYear(c)) + '</span>') +
+        '<div class="main"><div class="t">' + esc(c.n) + '</div><div class="s">' + esc(fmtYear(c)) + (decksOf(c.id).length ? ' · ' + esc(decksOf(c.id).join(', ')) : ' · dans aucun paquet') + '</div></div><span class="chev">' + I.chevR + '</span></button>').join('') +
+      '<button class="row center" id="jcard">Nouvelle carte</button></div>' + this.edFoot('frise') + '</div>';
+    this.shell('exercices', html); this.edBind('frise');
+    const jq = document.getElementById('jq'); jq.oninput = () => { this._friseQ = jq.value; clearTimeout(this._fq); this._fq = setTimeout(() => { const p = jq.selectionStart; this.edFrise(d); const n = document.getElementById('jq'); n.focus(); n.setSelectionRange(p, p); window.scrollTo(0, n.getBoundingClientRect().top + scrollY - 120); }, 250); };
+    $app.querySelectorAll('[data-card]').forEach(b => b.onclick = () => this.edCard(d, byId[b.dataset.card]));
+    $app.querySelectorAll('[data-deck]').forEach(b => b.onclick = () => this.edDeck(d, d.decks[+b.dataset.deck]));
+    document.getElementById('jcard').onclick = () => this.edCard(d, null);
+    document.getElementById('jdeck').onclick = () => this.edDeck(d, null);
+  },
+  edCard(d, c0){
+    const c = c0 ? Object.assign({}, c0) : { id: 'n' + Date.now().toString(36), y: '', n: '', d: '', ic: 'etoile', about: false, img: '', fact: '' };
+    const inDeck = new Set(d.decks.filter(k => k.cards.includes(c.id)).map(k => k.id));
+    if (!c0 && d.decks.length === 1) inDeck.add(d.decks[0].id);
+    const draw = el => {
+      el.querySelector('#jimg').innerHTML = (c.img ? '<img src="' + esc(this.jeuImg(c.img)) + '" alt="" class="jimgprev sq">' : '<div class="jimgnone">Pas d’image : la carte affiche une icône.</div>') +
+        '<div class="jimgbtns"><button type="button" class="btn small" id="pick">' + (c.img ? 'Changer l’image' : 'Ajouter une image') + '</button>' + (c.img ? '<button type="button" class="btn small plain" id="noimg">Retirer</button>' : '') + '</div>';
+      el.querySelector('#pick').onclick = async () => { const r = await this.jeuPickImage(400, true); if (r){ c.img = r.url; draw(el); } };
+      const n = el.querySelector('#noimg'); if (n) n.onclick = () => { c.img = ''; draw(el); };
+    };
+    const F = [{ k: 'n', l: 'Titre de la carte', ph: 'Ex. Bataille de Waterloo' }, { k: 'd', l: 'Précision (facultatif)', ph: 'Ex. défaite de Napoléon' }];
+    const yr = Math.abs(+c.y || 0), av = +c.y < 0;
+    openSheet('<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Annuler</button><h2>' + (c0 ? 'Modifier la carte' : 'Nouvelle carte') + '</h2><button class="nav-btn bold" id="ok">OK</button></div><div class="jform">' +
+      this.edFields(F, c) +
+      '<div class="section-h">Date</div><div class="group"><input class="field" id="jy" inputmode="numeric" value="' + (c.y === '' ? '' : yr) + '" placeholder="Ex. 1815"></div>' +
+      '<div class="seg" data-f="av" style="margin-top:8px"><button type="button" data-v="0" class="' + (av ? '' : 'on') + '">Après J.-C.</button><button type="button" data-v="1" class="' + (av ? 'on' : '') + '">Avant J.-C.</button></div>' +
+      '<div class="seg" data-f="about" style="margin-top:8px"><button type="button" data-v="0" class="' + (c.about ? '' : 'on') + '">Date précise</button><button type="button" data-v="1" class="' + (c.about ? 'on' : '') + '">Date approximative (« vers »)</button></div>' +
+      '<div class="section-h">Image</div><div id="jimg"></div><p class="foot">L’image est recadrée en carré. Une image simple, avec un sujet bien centré, se lit mieux sur la petite carte.</p>' +
+      this.edFields([{ k: 'fact', l: '« Le savais-tu ? » (facultatif)', type: 'area', ph: 'Une anecdote montrée après la carte' }], c) +
+      '<div class="section-h">Dans les paquets</div><div class="group"><div class="chips multi">' + d.decks.map(k => '<button type="button" class="chip' + (inDeck.has(k.id) ? ' on' : '') + '" data-dk="' + k.id + '">' + esc(k.t) + '</button>').join('') + '</div></div>' +
+      (c0 ? '<div class="group mt2"><button class="row danger" id="del">Supprimer la carte</button></div>' : '') + '</div>', (el, close) => {
+      draw(el); this.edBindSeg(el);
+      el.querySelectorAll('[data-dk]').forEach(b => b.onclick = () => { const k = b.dataset.dk; inDeck.has(k) ? inDeck.delete(k) : inDeck.add(k); b.classList.toggle('on'); });
+      el.querySelector('#ok').onclick = async () => {
+        this.edRead(el, F.concat([{ k: 'fact' }]), c);
+        const y = parseInt(String(el.querySelector('#jy').value).replace(/[^\d]/g, ''), 10);
+        if (!c.n) return toast('Écris le titre de la carte');
+        if (!Number.isFinite(y)) return toast('Écris l’année de l’événement');
+        c.y = el.querySelector('[data-f="av"] .on').dataset.v === '1' ? -y : y; c.about = el.querySelector('[data-f="about"] .on').dataset.v === '1';
+        if (d.cards.some(x => x.id !== c.id && x.n.toLowerCase() === c.n.toLowerCase())) return toast('Une autre carte porte déjà ce titre');
+        const i = d.cards.findIndex(x => x.id === c.id); if (i >= 0) d.cards[i] = c; else d.cards.push(c);
+        d.decks.forEach(k => { const has = k.cards.includes(c.id); if (inDeck.has(k.id) && !has) k.cards.push(c.id); if (!inDeck.has(k.id) && has) k.cards = k.cards.filter(x => x !== c.id); });
+        if (await this.jeuSave('frise', d)){ close(); this.edFrise(d); toast('Carte enregistrée'); }
+      };
+      const del = el.querySelector('#del'); if (del) del.onclick = async () => {
+        if (!await confirmDialog('Supprimer cette carte ?', c.n + ' sera retirée de tous les paquets.', 'Supprimer', true)) return;
+        d.cards = d.cards.filter(x => x.id !== c.id); d.decks.forEach(k => { k.cards = k.cards.filter(x => x !== c.id); });
+        if (await this.jeuSave('frise', d)){ close(); this.edFrise(d); toast('Carte supprimée'); }
+      };
+    });
+  },
+  edDeck(d, k0){
+    const k = k0 ? Object.assign({}, k0, { cards: k0.cards.slice() }) : { id: 'p' + Math.random().toString(36).replace(/[^a-z]/g, '').slice(0, 7), t: '', s: '', i: 'etoile', cards: [] };
+    const sel = new Set(k.cards), cards = d.cards.slice().sort((a, b) => a.y - b.y);
+    const F = [{ k: 't', l: 'Nom du paquet', ph: 'Ex. Chapitre 3 : la révolution industrielle' }, { k: 's', l: 'Sous-titre (facultatif)', ph: 'Ex. De la machine à vapeur au train' }];
+    openSheet('<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Annuler</button><h2>' + (k0 ? 'Modifier le paquet' : 'Nouveau paquet') + '</h2><button class="nav-btn bold" id="ok">OK</button></div><div class="jform">' +
+      this.edFields(F, k) + '<div class="section-h">Cartes du paquet (<span id="jn">' + sel.size + '</span>)<span><button type="button" data-all="1">Tout</button> <button type="button" data-all="0">Aucune</button></span></div><div class="group"><div class="chips multi">' +
+      cards.map(c => '<button type="button" class="chip' + (sel.has(c.id) ? ' on' : '') + '" data-c="' + c.id + '">' + esc(c.n) + ' <small>' + esc(fmtYear(c)) + '</small></button>').join('') + '</div></div>' +
+      '<p class="foot">Choisis au moins 4 cartes. Pour créer une nouvelle carte, utilise « Nouvelle carte » sous la liste des cartes.</p>' +
+      (k0 ? '<div class="group mt2"><button class="row danger" id="del">Supprimer le paquet</button></div>' : '') + '</div>', (el, close) => {
+      const cnt = () => { el.querySelector('#jn').textContent = sel.size; };
+      el.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { const id = b.dataset.c; sel.has(id) ? sel.delete(id) : sel.add(id); b.classList.toggle('on'); cnt(); });
+      el.querySelectorAll('[data-all]').forEach(b => b.onclick = () => { el.querySelectorAll('[data-c]').forEach(x => { const on = b.dataset.all === '1'; x.classList.toggle('on', on); on ? sel.add(x.dataset.c) : sel.delete(x.dataset.c); }); cnt(); });
+      el.querySelector('#ok').onclick = async () => {
+        this.edRead(el, F, k);
+        if (!k.t) return toast('Écris le nom du paquet');
+        if (sel.size < 4) return toast('Choisis au moins 4 cartes');
+        k.cards = cards.filter(c => sel.has(c.id)).map(c => c.id);
+        const i = d.decks.findIndex(x => x.id === k.id); if (i >= 0) d.decks[i] = k; else d.decks.push(k);
+        if (await this.jeuSave('frise', d)){ close(); this.edFrise(d); toast('Paquet enregistré'); }
+      };
+      const del = el.querySelector('#del'); if (del) del.onclick = async () => {
+        if (d.decks.length <= 1) return toast('Garde au moins un paquet');
+        if (!await confirmDialog('Supprimer ce paquet ?', 'Les cartes restent dans la liste des cartes.', 'Supprimer', true)) return;
+        d.decks = d.decks.filter(x => x.id !== k.id);
+        if (await this.jeuSave('frise', d)){ close(); this.edFrise(d); toast('Paquet supprimé'); }
+      };
+    });
+  },
+
+  /* ----- scènes illustrées : anachronismes et paysages ----- */
+  edScenes(game, d){
+    const A = game === 'anachro'; this._anaSt = this._paySt = null;
+    const html = this.edHead(game) + '<div class="section-h">' + (A ? 'Scènes' : 'Paysages') + ' (' + d.scenes.length + ')</div><div class="group">' +
+      d.scenes.map(s => { const img = s.img || s.preview, st = A ? anaObjets(s.x) : null;
+        return '<a class="row" href="#/prof/jeux/' + game + '/' + s.id + '">' + (img ? '<img class="jthumb wide" src="' + esc(this.jeuImg(img)) + '" alt="" loading="lazy">' : '<span class="jthumb wide none">Sans image</span>') +
+          '<div class="main"><div class="t">' + esc(A ? s.t : PTYPE_L[s.type] || s.type) + '</div><div class="s">' + esc(A ? s.p + ' · ' + st.filter(o => o.k === 'A').length + ' intrus, ' + st.filter(o => o.k === 'P').length + ' pièges' : s.els.length + ' éléments' + (s.img ? ' · photo' : ' · dessin')) + '</div></div><span class="chev">' + I.chevR + '</span></a>'; }).join('') +
+      '<button class="row center" id="jnew">' + (A ? 'Nouvelle scène' : 'Nouveau paysage') + '</button></div>' +
+      '<p class="foot">' + (A ? 'Une scène = un texte, une image et des objets à trouver : les intrus (anachronismes) et les pièges (objets bien d’époque).' : 'Un paysage = une image (photo ou dessin) et ses éléments, avec leur plan, leur nature et leur fonction.') + '</p>' + this.edFoot(game) + '</div>';
+    this.shell('exercices', html); this.edBind(game);
+    document.getElementById('jnew').onclick = async () => {
+      const id = 's' + Math.random().toString(36).replace(/[^a-z]/g, '').slice(0, 7);
+      d.scenes.push(A ? { id, t: 'Nouvelle scène', p: '', c: '#8a5ad1', x: '' } : { id, type: 'rural', expl: '', els: [] });
+      this._jeuNew = { game, d, id }; go('#/prof/jeux/' + game + '/' + id);
+    };
+  },
+  // la scène en cours d'édition (une nouvelle scène n'existe pas encore en base)
+  edScene(game, d, id){
+    if (this._jeuNew && this._jeuNew.game === game && this._jeuNew.id === id){ d = this._jeuNew.d; }
+    const s = d.scenes.find(x => x.id === id); return s ? { d, s } : null;
+  },
+  edAnaScene(d0, id){
+    const r = this.edScene('anachro', d0, id); if (!r) return go('#/prof/jeux/anachro');
+    const { d, s } = r, isNew = !!(this._jeuNew && this._jeuNew.id === id);
+    const st = this._anaSt && this._anaSt.id === id ? this._anaSt : (this._anaSt = { id, s: JSON.parse(JSON.stringify(s)), text: anaText(s.x), obj: anaObjets(s.x), cur: null });
+    const S = st.s, COLS = ['#a8743f', '#d99a1b', '#8a5ad1', '#2f7fd4', '#239a5c', '#c0392b'];
+    if (!st.cur && st.obj.length) st.cur = st.obj[0].w;
+    const html = nav(backBtn('#/prof/jeux/anachro', 'Anachronismes'), '<button class="nav-btn bold" id="jsave">Enregistrer</button>') + '<div class="wrap"><h1 class="large">' + esc(S.t || 'Nouvelle scène') + '</h1><div class="jform">' +
+      this.edFields([{ k: 't', l: 'Titre de la scène', ph: 'Ex. Au château du seigneur' }, { k: 'p', l: 'Époque', ph: 'Ex. Moyen Âge · vers 1350' }], S) +
+      '<div class="section-h">Couleur</div><div class="swatches">' + COLS.map(c => '<button type="button" class="sw' + (S.c === c ? ' on' : '') + '" data-col="' + c + '" style="background:' + c + '" aria-label="Couleur"></button>').join('') + '</div>' +
+      '<div class="section-h">Texte de la scène</div><div class="group"><textarea class="field" id="jtext" rows="7" placeholder="Raconte la scène. Glisse dedans les intrus et les pièges.">' + esc(st.text) + '</textarea></div>' +
+      '<p class="foot">Écris le texte normalement. Ajoute ensuite chaque objet à trouver ci-dessous : le mot doit apparaître tel quel dans le texte.</p>' +
+      '<div class="section-h">Objets à trouver (' + st.obj.length + ')</div><div class="group">' + st.obj.map((o, i) => '<button class="row" data-o="' + i + '"><div class="main"><div class="t">' + esc(o.w) + '</div><div class="s">' + esc(o.e) + '</div></div><span class="pill ' + (o.k === 'A' ? 'red' : 'green') + '">' + (o.k === 'A' ? 'Intrus' : 'Piège') + '</span></button>').join('') +
+      '<button class="row center" id="jobj">Ajouter un objet</button></div><p class="foot">Intrus : n’existait pas encore à cette époque. Piège : semble suspect mais existait bel et bien.</p>' +
+      '<div class="section-h">Image et zones à toucher</div><div id="jze"></div>' +
+      (isNew ? '' : '<div class="group mt2"><button class="row danger" id="jdel">Supprimer la scène</button></div>') + '</div></div>';
+    this.shell('exercices', html);
+    const readTop = () => { this.edRead($app, [{ k: 't' }, { k: 'p' }], S); st.text = document.getElementById('jtext').value; };
+    $app.querySelectorAll('[data-col]').forEach(b => b.onclick = () => { S.c = b.dataset.col; $app.querySelectorAll('[data-col]').forEach(x => x.classList.toggle('on', x === b)); });
+    $app.querySelectorAll('[data-o]').forEach(b => b.onclick = () => { readTop(); this.edAnaObj(st, +b.dataset.o, () => this.edAnaScene(d0, id)); });
+    document.getElementById('jobj').onclick = () => { readTop(); this.edAnaObj(st, -1, () => this.edAnaScene(d0, id)); };
+    this.zoneEditor(document.getElementById('jze'), {
+      src: S.img, w: S.w, h: S.h, zones: S.zones || (S.zones = {}), keys: st.obj.map(o => [o.w, o.w, o.k === 'A' ? 'red' : 'green']), cur: st.cur,
+      onCur: k => { st.cur = k; }, onImg: (img) => { readTop(); Object.assign(S, img); this.edAnaScene(d0, id); }, empty: 'Ajoute d’abord les objets à trouver, puis trace leur zone sur l’image.'
+    });
+    document.getElementById('jsave').onclick = async () => {
+      readTop();
+      if (!S.t) return toast('Écris le titre de la scène');
+      if (!st.text) return toast('Écris le texte de la scène');
+      if (!st.obj.some(o => o.k === 'A')) return toast('Ajoute au moins un intrus');
+      const x = anaBuild(st.text, st.obj); if (x.err) return toast(x.err);
+      if (!S.img) return toast('Ajoute une image à la scène');
+      S.x = x.x; Object.keys(S.zones).forEach(w => { if (!st.obj.some(o => o.w === w) || !S.zones[w].length) delete S.zones[w]; });
+      const miss = st.obj.filter(o => !(S.zones[o.w] || []).length).map(o => o.w);
+      const i = d.scenes.findIndex(z => z.id === id); d.scenes[i] = S;
+      if (await this.jeuSave('anachro', d)){ this._jeuNew = null; this._anaSt = null; go('#/prof/jeux/anachro'); toast(miss.length ? 'Enregistré. Sans zone sur l’image : ' + esc(miss.join(', ')) + ' (à trouver dans le texte seulement).' : 'Scène enregistrée'); }
+    };
+    const del = document.getElementById('jdel'); if (del) del.onclick = async () => {
+      if (d.scenes.length <= 1) return toast('Garde au moins une scène');
+      if (!await confirmDialog('Supprimer cette scène ?', S.t, 'Supprimer', true)) return;
+      d.scenes = d.scenes.filter(z => z.id !== id);
+      if (await this.jeuSave('anachro', d)){ this._anaSt = null; go('#/prof/jeux/anachro'); toast('Scène supprimée'); }
+    };
+  },
+  edAnaObj(st, i, redraw){
+    const o = i >= 0 ? Object.assign({}, st.obj[i]) : { w: '', k: 'A', e: '' }, old = o.w;
+    const F = [{ k: 'w', l: 'Mot ou expression du texte', ph: 'Ex. pommes de terre' }, { k: 'k', l: 'C’est…', type: 'seg', opts: [['A', 'Un intrus (anachronisme)'], ['P', 'Un piège (bien d’époque)']] }, { k: 'e', l: 'Explication', type: 'area', ph: 'Ex. La pomme de terre vient d’Amérique : elle n’arrive en Europe qu’au XVIe siècle.' }];
+    openSheet('<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Annuler</button><h2>' + (i >= 0 ? 'Modifier l’objet' : 'Nouvel objet') + '</h2><button class="nav-btn bold" id="ok">OK</button></div><div class="jform">' +
+      this.edFields(F, o) + (i >= 0 ? '<div class="group mt2"><button class="row danger" id="del">Retirer cet objet</button></div>' : '') + '</div>', (el, close) => {
+      this.edBindSeg(el);
+      el.querySelector('#ok').onclick = () => {
+        this.edRead(el, F, o); o.w = o.w.replace(/[|\[\]]/g, ''); o.e = o.e.replace(/[\[\]|]/g, ' ');
+        if (!o.w) return toast('Écris le mot à trouver');
+        if (!st.text.includes(o.w)) return toast('« ' + o.w + ' » n’apparaît pas tel quel dans le texte de la scène');
+        if (!o.e) return toast('Écris l’explication');
+        if (st.obj.some((x, j) => j !== i && x.w === o.w)) return toast('Cet objet existe déjà');
+        if (i >= 0) st.obj[i] = o; else st.obj.push(o);
+        const Z = st.s.zones || (st.s.zones = {}); if (old && old !== o.w && Z[old]){ Z[o.w] = Z[old]; delete Z[old]; }
+        st.cur = o.w; close(); redraw();
+      };
+      const del = el.querySelector('#del'); if (del) del.onclick = () => { st.obj.splice(i, 1); if (st.s.zones) delete st.s.zones[old]; st.cur = null; close(); redraw(); };
+    });
+  },
+  edPaysScene(d0, id){
+    const r = this.edScene('paysage', d0, id); if (!r) return go('#/prof/jeux/paysage');
+    const { d, s } = r, isNew = !!(this._jeuNew && this._jeuNew.id === id);
+    const st = this._paySt && this._paySt.id === id ? this._paySt : (this._paySt = { id, s: JSON.parse(JSON.stringify(s)), cur: null });
+    const S = st.s, drawn = new Set(S.svg && !S.img ? (S.drawKeys || S.els.map(e => e.k)) : []);
+    if (S.svg && !S.drawKeys) S.drawKeys = [...drawn];
+    if (!st.cur && S.els.length) st.cur = S.els[0].k;
+    const zones = {}; S.els.forEach(e => { zones[e.k] = e.zones || (e.zones = []); });
+    const html = nav(backBtn('#/prof/jeux/paysage', 'Paysages'), '<button class="nav-btn bold" id="jsave">Enregistrer</button>') + '<div class="wrap"><h1 class="large">' + esc(PTYPE_L[S.type] || 'Nouveau paysage') + '</h1><div class="jform">' +
+      this.edFields([{ k: 'type', l: 'Type de paysage', type: 'seg', opts: Object.entries(PTYPE_L) }, { k: 'expl', l: 'Explication du type', type: 'area', ph: 'Ex. Des champs, une ferme, un village : l’agriculture occupe la plus grande partie de l’espace.' }], S) +
+      '<div class="section-h">Éléments du paysage (' + S.els.length + ')</div><div class="group">' + S.els.map((e, i) => '<button class="row" data-e="' + i + '"><div class="main"><div class="t">' + esc(e.label) + '</div><div class="s">' +
+        esc([PLAN_L[e.plan], e.nat === 'n' ? 'naturel' : 'humain', FN_L[e.fn] ? FN_L[e.fn].toLowerCase() : null].filter(Boolean).join(' · ')) + '</div></div>' + (drawn.has(e.k) || (e.zones || []).length ? '' : '<span class="pill orange">Zone à tracer</span>') + '</button>').join('') +
+      '<button class="row center" id="jel">Ajouter un élément</button></div>' +
+      '<div class="section-h">Image et zones à toucher</div><div id="jze"></div>' +
+      (S.svg && !S.img ? '<p class="foot">C’est un dessin d’origine : ses éléments sont déjà cliquables. Trace une zone seulement pour un élément que tu ajoutes.</p>' : '') +
+      (isNew ? '' : '<div class="group mt2"><button class="row danger" id="jdel">Supprimer ce paysage</button></div>') + '</div></div>';
+    this.shell('exercices', html);
+    const readTop = () => this.edRead($app, [{ k: 'type', type: 'seg' }, { k: 'expl' }], S);
+    this.edBindSeg($app);
+    $app.querySelectorAll('[data-e]').forEach(b => b.onclick = () => { readTop(); this.edPaysEl(st, +b.dataset.e, () => this.edPaysScene(d0, id)); });
+    document.getElementById('jel').onclick = () => { readTop(); this.edPaysEl(st, -1, () => this.edPaysScene(d0, id)); };
+    this.zoneEditor(document.getElementById('jze'), {
+      src: S.img || S.preview, w: S.img ? S.w : 960, h: S.img ? S.h : 600, zones, keys: S.els.map(e => [e.k, e.label, drawn.has(e.k) ? 'gray' : 'blue']), cur: st.cur,
+      onCur: k => { st.cur = k; }, imgLabel: S.img ? 'Changer la photo' : S.svg ? 'Remplacer le dessin par une photo' : 'Ajouter une photo',
+      onImg: img => { readTop(); Object.assign(S, img); delete S.svg; delete S.preview; S.drawKeys = []; this.edPaysScene(d0, id); }, empty: 'Ajoute d’abord les éléments du paysage, puis trace leur zone sur l’image.'
+    });
+    document.getElementById('jsave').onclick = async () => {
+      readTop();
+      if (!S.img && !S.svg) return toast('Ajoute une photo du paysage');
+      if (S.els.length < 2) return toast('Ajoute au moins deux éléments');
+      const miss = S.els.filter(e => !drawn.has(e.k) && !(e.zones || []).length).map(e => e.label);
+      if (miss.length) return toast('Trace la zone de : ' + esc(miss.join(', ')));
+      S.els.forEach(e => { if (!(e.zones || []).length) delete e.zones; });
+      const i = d.scenes.findIndex(z => z.id === id); d.scenes[i] = S;
+      if (await this.jeuSave('paysage', d)){ this._jeuNew = null; this._paySt = null; go('#/prof/jeux/paysage'); toast('Paysage enregistré'); }
+    };
+    const del = document.getElementById('jdel'); if (del) del.onclick = async () => {
+      if (d.scenes.length <= 1) return toast('Garde au moins un paysage');
+      if (!await confirmDialog('Supprimer ce paysage ?', PTYPE_L[S.type] || '', 'Supprimer', true)) return;
+      d.scenes = d.scenes.filter(z => z.id !== id);
+      if (await this.jeuSave('paysage', d)){ this._paySt = null; go('#/prof/jeux/paysage'); toast('Paysage supprimé'); }
+    };
+  },
+  edPaysEl(st, i, redraw){
+    const S = st.s, e = i >= 0 ? Object.assign({}, S.els[i]) : { k: 'e' + Math.random().toString(36).replace(/[^a-z]/g, '').slice(0, 6), label: '', plan: 2, nat: 'h', fn: '', note: '', zones: [] };
+    const F = [{ k: 'label', l: 'Nom de l’élément', ph: 'Ex. le champ de blé' }, { k: 'plan', l: 'Plan', type: 'seg', opts: Object.entries(PLAN_L) }, { k: 'nat', l: 'Nature', type: 'seg', opts: [['n', 'Naturel'], ['h', 'Humain']] },
+      { k: 'fn', l: 'Fonction', type: 'seg', opts: [['', 'Aucune']].concat(Object.entries(FN_L)) }, { k: 'note', l: 'Explication (facultatif)', type: 'area', ph: 'Ex. Le terril ressemble à une colline, mais il est fait des déchets des mines.' }];
+    openSheet('<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Annuler</button><h2>' + (i >= 0 ? 'Modifier l’élément' : 'Nouvel élément') + '</h2><button class="nav-btn bold" id="ok">OK</button></div><div class="jform">' +
+      this.edFields(F, e) + '<p class="foot">Écris le nom avec son article (« le », « la », « les ») : il apparaît ainsi dans les questions.</p>' + (i >= 0 ? '<div class="group mt2"><button class="row danger" id="del">Retirer cet élément</button></div>' : '') + '</div>', (el, close) => {
+      this.edBindSeg(el);
+      el.querySelector('#ok').onclick = () => {
+        this.edRead(el, F, e); e.plan = +e.plan || 2;
+        if (!e.label) return toast('Écris le nom de l’élément');
+        if (i >= 0) S.els[i] = e; else S.els.push(e);
+        st.cur = e.k; close(); redraw();
+      };
+      const del = el.querySelector('#del'); if (del) del.onclick = () => { S.els.splice(i, 1); st.cur = null; close(); redraw(); };
+    });
+  },
+  // Éditeur de zones : une image, des rectangles à tracer au doigt ou à la souris (coordonnées de 0 à 1)
+  zoneEditor(box, o){
+    const draw = () => {
+      const cur = o.cur && o.keys.some(k => k[0] === o.cur) ? o.cur : (o.keys[0] || [])[0];
+      box.innerHTML = (o.src ? (o.keys.length ? '<div class="chips zchips">' + o.keys.map(([k, l, c]) => '<button type="button" class="chip' + (k === cur ? ' on' : '') + '" data-zk="' + esc(k) + '"><i class="zdot" style="background:var(--' + c + ')"></i>' + esc(l) + ' <small>' + ((o.zones[k] || []).length || '') + '</small></button>').join('') + '</div>' : '<p class="foot">' + o.empty + '</p>') +
+        '<div class="ze"><img src="' + esc(this.jeuImg(o.src)) + '" alt=""><div class="ze-layer">' +
+        Object.entries(o.zones).map(([k, L]) => L.map((z, j) => '<div class="ze-z' + (z.t === 'e' ? ' e' : '') + (k === cur ? ' cur' : '') + '" style="left:' + z.x * 100 + '%;top:' + z.y * 100 + '%;width:' + z.w * 100 + '%;height:' + z.h * 100 + '%' + (z.a ? ';transform:rotate(' + z.a + 'deg)' : '') + '">' + (k === cur ? '<button type="button" class="ze-x" data-zx="' + j + '" aria-label="Effacer cette zone">×</button>' : '') + '</div>').join('')).join('') +
+        '</div></div>' + (o.keys.length ? '<p class="foot">Choisis un objet, puis trace un rectangle sur l’image. Touche × pour effacer une zone. Tu peux tracer plusieurs zones pour un même objet.</p>' : '')
+        : '<div class="jimgnone">Pas encore d’image.</div>') +
+        '<div class="jimgbtns"><button type="button" class="btn small" id="zimg">' + (o.imgLabel || (o.src ? 'Changer l’image' : 'Ajouter une image')) + '</button></div>';
+      box.querySelectorAll('[data-zk]').forEach(b => b.onclick = () => { o.cur = b.dataset.zk; o.onCur(o.cur); draw(); });
+      box.querySelectorAll('[data-zx]').forEach(b => b.onclick = e => { e.stopPropagation(); o.zones[cur].splice(+b.dataset.zx, 1); draw(); });
+      box.querySelector('#zimg').onclick = async () => { const r = await this.jeuPickImage(1400, false); if (r) o.onImg({ img: r.url, w: r.w, h: r.h }); };
+      const layer = box.querySelector('.ze-layer'); if (!layer || !cur) return;
+      let p0 = null, tmp = null;
+      const pt = e => { const r = layer.getBoundingClientRect(); return [Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)), Math.min(1, Math.max(0, (e.clientY - r.top) / r.height))]; };
+      layer.onpointerdown = e => { if (e.target.closest('.ze-x')) return; e.preventDefault(); p0 = pt(e); layer.setPointerCapture(e.pointerId); tmp = document.createElement('div'); tmp.className = 'ze-z cur'; layer.appendChild(tmp); };
+      layer.onpointermove = e => { if (!p0) return; const p = pt(e); Object.assign(tmp.style, { left: Math.min(p0[0], p[0]) * 100 + '%', top: Math.min(p0[1], p[1]) * 100 + '%', width: Math.abs(p[0] - p0[0]) * 100 + '%', height: Math.abs(p[1] - p0[1]) * 100 + '%' }); };
+      layer.onpointerup = layer.onpointercancel = e => {
+        if (!p0) return; const p = pt(e), r4 = v => Math.round(v * 10000) / 10000, z = { t: 'r', x: r4(Math.min(p0[0], p[0])), y: r4(Math.min(p0[1], p[1])), w: r4(Math.abs(p[0] - p0[0])), h: r4(Math.abs(p[1] - p0[1])) };
+        p0 = null; if (z.w > .015 && z.h > .015) (o.zones[cur] = o.zones[cur] || []).push(z); draw();
+      };
+    };
+    draw();
   },
   // Donner un jeu d'histoire-géo à une ou plusieurs classes (ou à certains élèves)
   jeuTaskEditor(){

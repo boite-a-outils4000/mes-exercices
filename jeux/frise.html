@@ -397,6 +397,23 @@ let uid = 0;
 // Images des cartes (vignettes créées par l'enseignant) ; une carte sans image garde son icône
 /*FIMG*/const FIMG = {"Apparition d’Homo sapiens": "img/frise/01.webp", "Peintures de la grotte Chauvet": "img/frise/02.webp", "Peintures de la grotte de Lascaux": "img/frise/03.webp", "Débuts de l’agriculture": "img/frise/04.webp", "Invention de l’écriture": "img/frise/05.webp", "Pyramide de Khéops": "img/frise/06.webp", "Code d’Hammurabi": "img/frise/07.webp", "Premiers Jeux olympiques": "img/frise/08.webp", "Fondation de Rome": "img/frise/09.webp", "Naissance de la démocratie": "img/frise/10.webp", "Construction du Parthénon": "img/frise/11.webp", "Mort d’Alexandre le Grand": "img/frise/12.webp", "César combat les Belges": "img/frise/13.webp", "Assassinat de Jules César": "img/frise/14.webp", "Éruption du Vésuve": "img/frise/15.webp", "Édit de Milan": "img/frise/16.webp", "Fin de l’Empire romain d’Occident": "img/frise/17.webp", "Baptême de Clovis": "img/frise/18.webp", "L’Hégire": "img/frise/19.webp", "Bataille de Poitiers": "img/frise/20.webp", "Charlemagne couronné empereur": "img/frise/21.webp", "Traité de Verdun": "img/frise/22.webp", "Bataille de Hastings": "img/frise/23.webp", "Appel à la première croisade": "img/frise/24.webp", "Bataille des Éperons d’or": "img/frise/25.webp", "Début de la guerre de Cent Ans": "img/frise/26.webp", "La peste noire arrive en Europe": "img/frise/27.webp", "Jeanne d’Arc brûlée": "img/frise/28.webp", "Prise de Constantinople": "img/frise/29.webp", "Bible de Gutenberg": "img/frise/30.webp", "Colomb atteint l’Amérique": "img/frise/31.webp", "Naissance de Charles Quint": "img/frise/32.webp", "Léonard de Vinci peint la Joconde": "img/frise/33.webp", "Luther publie ses 95 thèses": "img/frise/34.webp", "Départ de Magellan": "img/frise/35.webp", "Cortés prend Tenochtitlan": "img/frise/36.webp", "Abdication de Charles Quint": "img/frise/37.webp", "Crise iconoclaste": "img/frise/38.webp", "Édit de Nantes": "img/frise/39.webp", "Galilée observe les lunes de Jupiter": "img/frise/40.webp", "La cour s’installe à Versailles": "img/frise/41.webp", "Newton et la gravitation": "img/frise/42.webp", "Indépendance des États-Unis": "img/frise/43.webp", "Prise de la Bastille": "img/frise/44.webp", "Bataille de Waterloo": "img/frise/45.webp", "Révolution belge": "img/frise/46.webp", "Léopold Ier, premier roi des Belges": "img/frise/47.webp", "Premier train du continent": "img/frise/48.webp", "Le Congo devient colonie belge": "img/frise/49.webp", "L’Allemagne envahit la Belgique": "img/frise/50.webp", "Suffrage universel masculin": "img/frise/51.webp", "Nouvelle invasion allemande": "img/frise/52.webp", "Les femmes obtiennent le droit de vote": "img/frise/53.webp", "Exposition universelle": "img/frise/54.webp", "Indépendance du Congo": "img/frise/55.webp", "La Belgique devient fédérale": "img/frise/56.webp", "L’euro dans les porte-monnaie": "img/frise/57.webp", "Premier vol motorisé": "img/frise/58.webp", "Début de la Première Guerre mondiale": "img/frise/59.webp", "Révolution russe": "img/frise/60.webp", "Armistice": "img/frise/61.webp", "Krach de Wall Street": "img/frise/62.webp", "Hitler devient chancelier": "img/frise/63.webp", "Début de la Seconde Guerre mondiale": "img/frise/64.webp", "Débarquement en Normandie": "img/frise/65.webp", "Bombes atomiques sur le Japon": "img/frise/66.webp", "Traité de Rome": "img/frise/67.webp", "Construction du mur de Berlin": "img/frise/68.webp", "Premiers pas sur la Lune": "img/frise/69.webp", "Chute du mur de Berlin": "img/frise/70.webp", "Fin de l’URSS": "img/frise/71.webp", "Attentats du 11 septembre": "img/frise/72.webp"};/*FIMG-FIN*/
 const cardImg = c => FIMG[c.n] ? '<img src="' + FIMG[c.n] + '" alt="" draggable="false">' : '';
+// Contenu du professeur (envoyé par l'appli) : ses paquets et ses cartes remplacent ceux d'origine
+function applyContent(D){
+  if (!D || !Array.isArray(D.decks) || !Array.isArray(D.cards)) return;
+  const byId = {}; D.cards.forEach(c => { if (c && c.id && c.n && Number.isFinite(+c.y)) byId[c.id] = c; });
+  const decks = D.decks.map(d => ({ d, L: (d.cards || []).map(id => byId[id]).filter(Boolean) })).filter(x => x.L.length >= 3 && /^[a-z]{1,12}$/.test(x.d.id) && x.d.id !== 'all');
+  if (!decks.length) return;
+  [DECKS, FACTS, FIMG].forEach(o => Object.keys(o).forEach(k => delete o[k]));
+  decks.forEach(({ d, L }) => {
+    DECKS[d.id] = { t: d.t || 'Paquet', s: d.s || '', i: P[d.i] ? d.i : 'etoile', c: L.map(c => [+c.y, c.n, c.d || '', P[c.ic] ? c.ic : 'etoile', c.about ? 1 : 0]) };
+    if (!DCOL[d.id]){ const ys = L.map(c => +c.y).sort((a, b) => a - b); DCOL[d.id] = eraOf(ys[ys.length >> 1]).k; }
+  });
+  if (decks.length > 1){ const seen = new Set(), all = [];
+    Object.values(DECKS).forEach(x => x.c.forEach(c => { if (!seen.has(c[1])){ seen.add(c[1]); all.push(c); } }));
+    DECKS.all = { t: 'Toutes les périodes', s: 'Un grand mélange', i: 'etoile', c: all }; }
+  Object.values(byId).forEach(c => { if (c.fact) FACTS[c.n] = c.fact; if (c.img) FIMG[c.n] = c.img; });
+  if (!DECKS[opt.deck]) opt.deck = Object.keys(DECKS)[0];
+}
 const cardOf = c => ({ y: c[0], n: c[1], d: c[2], ic: c[3], about: !!c[4], id: 'c' + (++uid) });
 const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 // tirage reproductible : le défi du jour est le même pour tous
@@ -500,7 +517,7 @@ function start(){
     return renderScale();
   }
   if (M === 'daily'){
-    const pool = []; ['ant', 'moy', 'mod', 'bel', 'xx'].forEach(k => DECKS[k].c.forEach(c => { if (!pool.some(p => p[1] === c[1])) pool.push(c); }));
+    const pool = []; Object.keys(DECKS).filter(k => k !== 'all').forEach(k => DECKS[k].c.forEach(c => { if (!pool.some(p => p[1] === c[1])) pool.push(c); }));
     all = shuffle(pool, seeded('frise-' + today())).map(cardOf); n = 11;
   } else {
     all = shuffle(DECKS[opt.deck].c.map(cardOf));
@@ -810,9 +827,19 @@ function finish(){
   if (EMB && EMB.task) document.getElementById('home').textContent = 'Terminer';
 }
 // Démarrage : un jeu donné par le professeur s'ouvre directement avec son mode, son paquet et son niveau
-if (EMB && EMB.task){
-  const [m, d, l] = EMB.mode.split('+');
-  if (MODES[m] && m !== 'duel'){ opt = Object.assign({}, opt, { mode: m, deck: DECKS[d] ? d : opt.deck, level: Math.max(0, LVL.indexOf(l)) }); start(); }
-  else post({ type: 'quit' });
+function bootGame(){
+  if (EMB && EMB.task){
+    const [m, d, l] = EMB.mode.split('+');
+    if (MODES[m] && m !== 'duel'){ opt = Object.assign({}, opt, { mode: m, deck: DECKS[d] ? d : opt.deck, level: Math.max(0, LVL.indexOf(l)) }); start(); }
+    else post({ type: 'quit' });
+  } else home();
+}
+// dans l'appli : on attend le contenu du professeur (au plus 4 secondes)
+if (EMB){
+  let done = false;
+  const go = data => { if (done) return; done = true; try { applyContent(data); } catch(e){ console.error(e); } bootGame(); };
+  addEventListener('message', e => { if (e.origin === location.origin && e.data && e.data.src === 'app' && e.data.type === 'content') go(e.data.data); });
+  post({ type: 'need', game: 'frise' });
+  setTimeout(() => go(null), 4000);
 } else home();
 </script>
