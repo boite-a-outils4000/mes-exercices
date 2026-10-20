@@ -80,8 +80,13 @@ h1{font:700 34px/1.05 var(--display);margin:0;letter-spacing:.01em;text-wrap:bal
 .card .back{transform:rotateY(180deg)}
 .card .top{height:56px;flex:none;background:var(--c);color:#fff;display:flex;align-items:center;justify-content:center;position:relative}
 .card .top svg{width:36px;height:36px;filter:drop-shadow(0 1px 0 rgba(0,0,0,.2))}
-.card .top.img{height:76px;border-bottom:4px solid var(--c)}.card .top.img img{width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none;pointer-events:none}
-.card .top.img::after{display:none}.card .top.img~.pr{-webkit-line-clamp:1}
+/* carte illustrée : l'image prend la moitié haute, le texte se resserre en dessous */
+.card .top.img{height:102px;border-bottom:4px solid var(--c)}.card .top.img img{width:100%;height:100%;object-fit:cover;object-position:center 35%;display:block;-webkit-user-drag:none;pointer-events:none}
+.card .top.img::after{display:none}
+.card .top.img~.nm{padding:5px 8px 1px;font-size:12.5px;line-height:1.15}
+.card .top.img~.pr{-webkit-line-clamp:1;font-size:11px;padding:0 8px}
+.card .top.img~.yr{margin:auto 7px 7px;font-size:15px;padding:2px}.card .top.img~.yr.long{font-size:12px;padding:3px 2px}
+.hand .card .top.img{height:112px}.hand .card .top.img~.nm{font-size:13.5px}
 .card .top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:10px;background:radial-gradient(circle at 6px -2px,transparent 6px,var(--paper) 6.5px) 0 0/12px 10px repeat-x}
 .card .nm{padding:7px 9px 2px;font-weight:800;font-size:13.5px;line-height:1.2;flex:none;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;text-wrap:balance}
 .card .pr{padding:0 9px;font-size:11.5px;color:var(--ink2);font-weight:600;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
