@@ -80,10 +80,13 @@ h1{font:700 34px/1.05 var(--display);margin:0;letter-spacing:.01em;text-wrap:bal
 .card .back{transform:rotateY(180deg)}
 .card .top{height:56px;flex:none;background:var(--c);color:#fff;display:flex;align-items:center;justify-content:center;position:relative}
 .card .top svg{width:36px;height:36px;filter:drop-shadow(0 1px 0 rgba(0,0,0,.2))}
+.card .top.img{height:76px;border-bottom:4px solid var(--c)}.card .top.img img{width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none;pointer-events:none}
+.card .top.img::after{display:none}.card .top.img~.pr{-webkit-line-clamp:1}
 .card .top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:10px;background:radial-gradient(circle at 6px -2px,transparent 6px,var(--paper) 6.5px) 0 0/12px 10px repeat-x}
 .card .nm{padding:7px 9px 2px;font-weight:800;font-size:13.5px;line-height:1.2;flex:none;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;text-wrap:balance}
 .card .pr{padding:0 9px;font-size:11.5px;color:var(--ink2);font-weight:600;line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .card .yr{margin:auto 8px 8px;border-radius:8px;background:color-mix(in srgb,var(--c) 16%,var(--paper));color:var(--c);text-align:center;font:700 17px var(--display);padding:3px 2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.card .yr.long{font-size:13.5px;padding:5px 2px}
 .card .yr.q{color:var(--ink2);letter-spacing:.2em;background:rgba(0,0,0,.06)}
 .card.flip .in{transform:rotateY(180deg)}
 .card.ok .back{box-shadow:0 0 0 3px var(--ok),0 6px 14px rgba(0,0,0,.3)}
@@ -158,6 +161,7 @@ canvas.fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-in
 .factp .fk{font:600 13px var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep)}
 .factp .fn{display:flex;align-items:center;gap:8px;font:600 16px/1.2 var(--display);margin:4px 0 6px}.factp .fn b{color:var(--c)}
 .factp .fi{flex:none;width:30px;height:30px;border-radius:8px;background:var(--c);color:#fff;display:flex;align-items:center;justify-content:center}.factp .fi svg{width:20px;height:20px}
+.factp .fi.img{width:44px;height:44px;overflow:hidden;padding:0}.factp .fi.img img{width:100%;height:100%;object-fit:cover}
 .factp p{margin:0;font-weight:600;font-size:14.5px;line-height:1.45}
 .factp .pose{margin:10px 0 0 auto}
 .cent{position:relative;z-index:2;text-align:center;max-width:460px;width:100%}
@@ -380,6 +384,9 @@ const fmtN = n => String(Math.round(n * 10) / 10).replace('.', ',');
 const store = { get(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } }, set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} } };
 const calm = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 let uid = 0;
+// Images des cartes (vignettes créées par l'enseignant) ; une carte sans image garde son icône
+/*FIMG*/const FIMG = {"Apparition d’Homo sapiens": "img/frise/01.webp", "Peintures de la grotte Chauvet": "img/frise/02.webp", "Peintures de la grotte de Lascaux": "img/frise/03.webp", "Débuts de l’agriculture": "img/frise/04.webp", "Invention de l’écriture": "img/frise/05.webp", "Pyramide de Khéops": "img/frise/06.webp", "Code d’Hammurabi": "img/frise/07.webp", "Premiers Jeux olympiques": "img/frise/08.webp", "Fondation de Rome": "img/frise/09.webp", "Naissance de la démocratie": "img/frise/10.webp", "Construction du Parthénon": "img/frise/11.webp", "Mort d’Alexandre le Grand": "img/frise/12.webp", "César combat les Belges": "img/frise/13.webp", "Assassinat de Jules César": "img/frise/14.webp", "Éruption du Vésuve": "img/frise/15.webp", "Édit de Milan": "img/frise/16.webp", "Fin de l’Empire romain d’Occident": "img/frise/17.webp", "Baptême de Clovis": "img/frise/18.webp", "L’Hégire": "img/frise/19.webp", "Bataille de Poitiers": "img/frise/20.webp", "Charlemagne couronné empereur": "img/frise/21.webp", "Traité de Verdun": "img/frise/22.webp", "Bataille de Hastings": "img/frise/23.webp", "Appel à la première croisade": "img/frise/24.webp", "Bataille des Éperons d’or": "img/frise/25.webp", "Début de la guerre de Cent Ans": "img/frise/26.webp", "La peste noire arrive en Europe": "img/frise/27.webp", "Jeanne d’Arc brûlée": "img/frise/28.webp", "Prise de Constantinople": "img/frise/29.webp", "Bible de Gutenberg": "img/frise/30.webp", "Colomb atteint l’Amérique": "img/frise/31.webp", "Naissance de Charles Quint": "img/frise/32.webp", "Léonard de Vinci peint la Joconde": "img/frise/33.webp", "Luther publie ses 95 thèses": "img/frise/34.webp", "Départ de Magellan": "img/frise/35.webp", "Cortés prend Tenochtitlan": "img/frise/36.webp", "Abdication de Charles Quint": "img/frise/37.webp", "Crise iconoclaste": "img/frise/38.webp", "Édit de Nantes": "img/frise/39.webp", "Galilée observe les lunes de Jupiter": "img/frise/40.webp", "La cour s’installe à Versailles": "img/frise/41.webp", "Newton et la gravitation": "img/frise/42.webp", "Indépendance des États-Unis": "img/frise/43.webp", "Prise de la Bastille": "img/frise/44.webp", "Bataille de Waterloo": "img/frise/45.webp"};/*FIMG-FIN*/
+const cardImg = c => FIMG[c.n] ? '<img src="' + FIMG[c.n] + '" alt="" draggable="false">' : '';
 const cardOf = c => ({ y: c[0], n: c[1], d: c[2], ic: c[3], about: !!c[4], id: 'c' + (++uid) });
 const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 // tirage reproductible : le défi du jour est le même pour tous
@@ -509,9 +516,9 @@ function start(){
 /* ---------- Cartes et frise ---------- */
 const cardHtml = (c, opts) => {
   const e = eraOf(c.y), rev = opts && opts.rev;
-  const face = '<div class="top">' + icon(c.ic) + '</div><div class="nm">' + esc(c.n) + '</div><div class="pr">' + esc(c.d) + '</div>';
+  const face = (FIMG[c.n] ? '<div class="top img">' + cardImg(c) + '</div>' : '<div class="top">' + icon(c.ic) + '</div>') + '<div class="nm">' + esc(c.n) + '</div><div class="pr">' + esc(c.d) + '</div>';
   return '<div class="card' + (rev ? ' flip' : '') + (c.st === 'ok' ? ' ok' : c.st === 'ko' ? ' ko' : '') + (opts && opts.tap ? ' tapme' : '') + '" id="' + c.id + '" data-id="' + c.id + '" style="--c:var(--p-' + e.k + ')' + (c.team != null && G && G.teams ? ';--team:' + G.teams[c.team].c : '') + '"><div class="in">' +
-    '<div class="f front">' + face + '<div class="yr q">? ? ?</div></div><div class="f back">' + face + '<div class="yr">' + fmtY(c.y, c.about) + '</div></div></div>' +
+    '<div class="f front">' + face + '<div class="yr q">? ? ?</div></div><div class="f back">' + face + '<div class="yr' + (fmtY(c.y, c.about).length > 13 ? ' long' : '') + '">' + fmtY(c.y, c.about) + '</div></div></div>' +
     (c.team != null && G && G.teams && c.st === 'ok' ? '<span class="tdot" style="background:' + G.teams[c.team].c + '"></span>' : '') +
     (opts && opts.era ? '<div class="era"></div>' + (opts.eraLabel ? '<div class="eral" title="' + e.n + '">' + e.s + '</div>' : '') : '') + '</div>';
 };
@@ -551,7 +558,7 @@ function handHtml(cur, extra){
   }
   if (G.showFact){
     const c = G.showFact, e = eraOf(c.y);
-    return '<div class="hand ask"><div class="factp" style="--c:var(--p-' + e.k + ')"><div class="fk">Le savais-tu ?</div><div class="fn"><span class="fi">' + icon(c.ic) + '</span><span>' + esc(c.n) + ' · <b>' + fmtY(c.y, c.about) + '</b></span></div>' +
+    return '<div class="hand ask"><div class="factp" style="--c:var(--p-' + e.k + ')"><div class="fk">Le savais-tu ?</div><div class="fn"><span class="fi' + (FIMG[c.n] ? ' img' : '') + '">' + (cardImg(c) || icon(c.ic)) + '</span><span>' + esc(c.n) + ' · <b>' + fmtY(c.y, c.about) + '</b></span></div>' +
       '<p>' + esc(FACTS[c.n]) + '</p><button class="pose" id="fnext">' + (G.pile.length && !(G.lives && G.errs >= G.lives) ? 'Carte suivante' : 'Voir le résultat') + '</button></div></div>';
   }
   const tip = '<b>À toi de jouer</b>' + (G.mode === 'scale' ? 'Touche la règle à l’endroit de l’événement, puis pose la carte.' : 'Plus ancien à gauche, plus récent à droite.');
