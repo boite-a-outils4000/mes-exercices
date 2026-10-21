@@ -236,6 +236,59 @@ body.easy .tour-slide p{font-size:20px}
 .tools-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:0;padding:22px 4px 6px;font:inherit;color:var(--label);cursor:pointer}
 .tools-toggle b{font-size:20px;font-weight:700;letter-spacing:-.01em}
 .tools-toggle span{color:var(--blue);font-size:15px}
+/* J'étudie : séance du jour, chiffres, familles, tuiles, carrousel de jeux */
+.shero{position:relative;overflow:hidden;border-radius:22px;padding:18px;color:#fff;background:linear-gradient(140deg,#6a5cff,#2f7bff 58%,#1fb2e6);box-shadow:0 8px 24px rgba(47,123,255,.28);margin:8px 0 4px}
+.shero::before,.shero::after{content:'';position:absolute;border-radius:50%;background:rgba(255,255,255,.09);pointer-events:none}
+.shero::before{width:180px;height:180px;right:-60px;top:-70px}.shero::after{width:110px;height:110px;right:40px;bottom:-60px}
+.shero>*{position:relative;z-index:1}
+.shero-top{display:flex;align-items:center;gap:14px}
+.shero-ring{width:66px;height:66px;flex:none;position:relative}
+.shero-ring svg{width:66px;height:66px;transform:rotate(-90deg)}
+.shero-ring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:17px;font-variant-numeric:tabular-nums}
+.shero h2{margin:0;font-size:21px;line-height:1.2;letter-spacing:-.01em}
+.shero-top p{margin:3px 0 0;opacity:.92;font-size:15px;line-height:1.35}
+.shero-steps{display:flex;flex-direction:column;gap:8px;margin:16px 0 14px}
+.shero-step{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.16);border:0;border-radius:14px;padding:10px 12px;color:#fff;text-align:left;font:inherit;cursor:pointer}
+.shero-step:active{background:rgba(255,255,255,.26)}
+.shero-step .ck{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.75);flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.shero-step .ck svg{width:16px;height:16px}
+.shero-step.done .ck{background:#fff;color:#22a559;border-color:#fff}
+.shero-step .m{flex:1;min-width:0}.shero-step .t{font-weight:600;font-size:16px;line-height:1.25}
+.shero-step.done .t{text-decoration:line-through;text-decoration-thickness:1.5px;opacity:.8}
+.shero-step .s{font-size:13px;opacity:.85;margin-top:1px}
+.shero-go{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:14px;background:#fff;color:#3550e6;font:inherit;font-weight:700;font-size:17px;padding:14px;cursor:pointer}
+.shero-go svg{width:18px;height:18px}
+.shero-week{display:flex;gap:6px;margin-top:16px}
+.shero-week span{flex:1;text-align:center;font-size:12px;opacity:.8}
+.shero-week i{display:block;height:7px;border-radius:4px;background:rgba(255,255,255,.25);margin-bottom:5px}
+.shero-week .on i{background:#fff}.shero-week .now{opacity:1;font-weight:700}
+.sstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0 0}
+.sstat{background:var(--card);border-radius:16px;padding:12px 8px;box-shadow:var(--shadow);text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.sstat svg{width:20px;height:20px}
+.sstat b{font-size:22px;font-variant-numeric:tabular-nums;color:var(--label);line-height:1.15}
+.sstat span{font-size:12.5px;color:var(--label2);line-height:1.25}
+.sfam{display:flex;align-items:center;gap:12px;margin:28px 2px 10px}
+.sfam-i{width:34px;height:34px;border-radius:10px;color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.sfam-i svg{width:19px;height:19px}
+.sfam b{display:block;font-size:19px;letter-spacing:-.01em}.sfam small{display:block;color:var(--label2);font-size:13.5px;line-height:1.3}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px}
+.tl{--c:var(--blue);position:relative;border:0;border-radius:18px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:3px;color:var(--label);background:linear-gradient(165deg,color-mix(in srgb,var(--c) 15%,var(--card)),var(--card) 72%);box-shadow:var(--shadow);min-height:122px;font:inherit;cursor:pointer}
+.tl:active{transform:scale(.97)}
+.tl .ic{width:40px;height:40px;border-radius:12px;background:linear-gradient(150deg,color-mix(in srgb,var(--c) 68%,#fff),var(--c));color:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:8px;box-shadow:0 4px 10px color-mix(in srgb,var(--c) 32%,transparent)}
+.tl .tt{font-weight:600;font-size:16px;line-height:1.25}.tl .ss{font-size:13px;color:var(--label2);line-height:1.35}
+.tl .bdg{position:absolute;top:12px;right:12px;background:var(--c);color:#fff;font-size:12.5px;font-weight:700;border-radius:10px;padding:2px 8px;min-width:22px;text-align:center}
+.tl .bdg svg{width:13px;height:13px;vertical-align:-2px}
+.tl .bar{margin-top:auto}
+.jcar{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 16px 14px;margin:0 -16px;scrollbar-width:none;scroll-padding:0 16px}
+.jcar::-webkit-scrollbar{display:none}
+.jcard{--c:var(--orange);flex:0 0 148px;scroll-snap-align:start;height:178px;border:0;border-radius:20px;padding:14px;color:#fff;text-align:left;display:flex;flex-direction:column;position:relative;overflow:hidden;font:inherit;cursor:pointer;background:linear-gradient(155deg,color-mix(in srgb,var(--c) 62%,#fff),var(--c) 55%,color-mix(in srgb,var(--c) 78%,#000));box-shadow:0 6px 16px color-mix(in srgb,var(--c) 30%,transparent)}
+.jcard:active{transform:scale(.97)}
+.jcard .big{position:absolute;right:-18px;bottom:30px;opacity:.13;pointer-events:none}.jcard .big svg{width:104px;height:104px}
+.jcard .ic{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.24);display:flex;align-items:center;justify-content:center;margin-bottom:auto}
+.jcard .ic svg{width:25px;height:25px}
+.jcard .tt{font-weight:700;font-size:17px;line-height:1.2}.jcard .ss{font-size:12.5px;opacity:.92;margin-top:4px;line-height:1.3}
+.jcard .tag{position:absolute;top:12px;right:12px;background:#fff;color:var(--c);font-size:11px;font-weight:800;border-radius:8px;padding:3px 7px;text-transform:uppercase;letter-spacing:.03em}
+@media (min-width:700px){.jcar{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));overflow:visible;margin:0;padding:4px 0 14px}.jcard{height:186px}}
 .study-h .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:1px}
 .attn{margin-bottom:12px}
 .group + .tiles{margin-top:12px}
@@ -1825,16 +1878,36 @@ const Student = {
         if (sugg.length < 3 && has('cons')) sugg.push(['cons', 'Entraîne-toi à lire les consignes', '6 consignes · 5 min', 'train']);
         if (sugg.length < 2 && has('free') && nQ) sugg.push(['free', 'Entraîne-toi librement', '10 questions au hasard', 'train']);
         const ico = k => (TOOLS.find(t => t[0] === k) || [])[2] || '';
-        let open = TOOLS.length <= 6; try { if (!open) open = store.get('exos_tools_open') === '1'; } catch(e){}
-        this._toolsOpen = open;
+        // jeu du jour : change chaque jour, parmi les jeux autorisés
+        const games = TOOLS.filter(t => t[1] === 'jeux'), gday = games.length ? games[day % games.length] : null;
+        if (sugg.length < 3 && gday) sugg.push([gday[0], 'Le jeu du jour : ' + gday[3], gday[4], 'jeux']);
+        const log = this.dayLog(), today = isoDate(new Date()), doneT = new Set(log[today] || []);
+        const steps = sugg.slice(0, 3), nDone = steps.filter(x => doneT.has(x[0])).length, next = steps.find(x => !doneT.has(x[0]));
+        const streak = this.studyStreak(log), R = 27, CIRC = 2 * Math.PI * R, pct = steps.length ? nDone / steps.length : 0;
+        const mon = new Date(); mon.setDate(mon.getDate() - (mon.getDay() + 6) % 7);
+        const week = ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((l, k) => { const d = new Date(mon); d.setDate(mon.getDate() + k); const iso = isoDate(d); return '<span class="' + ((log[iso] || []).length ? 'on' : '') + (iso === today ? ' now' : '') + '"><i></i>' + l + '</span>'; }).join('');
+        const hero = steps.length ? '<div class="shero"><div class="shero-top"><div class="shero-ring"><svg viewBox="0 0 66 66"><circle cx="33" cy="33" r="' + R + '" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="7"/><circle cx="33" cy="33" r="' + R + '" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-dasharray="' + (CIRC * pct).toFixed(1) + ' ' + CIRC.toFixed(1) + '"/></svg><b>' + nDone + '/' + steps.length + '</b></div>' +
+            '<div><h2>' + (next ? (nDone ? 'Continue ta séance' : 'Ta séance du jour') : 'Séance terminée, bravo !') + '</h2><p>' + (next ? 'Une dizaine de minutes, étape par étape.' : 'Reviens demain : c’est la régularité qui fait retenir.') + '</p></div></div>' +
+          '<div class="shero-steps">' + steps.map((x, k) => '<button class="shero-step' + (doneT.has(x[0]) ? ' done' : '') + '" data-study="' + x[0] + '"><span class="ck">' + (doneT.has(x[0]) ? I.check : k + 1) + '</span><span class="m"><div class="t">' + esc(x[1]) + '</div><div class="s">' + esc(x[2]) + '</div></span></button>').join('') + '</div>' +
+          (next ? '<button class="shero-go" data-study="' + next[0] + '">' + I.play + (nDone ? 'Étape suivante' : 'Commencer') + '</button>' : '') +
+          '<div class="shero-week">' + week + '</div></div>' : '';
+        const stats = '<div class="sstats"><div class="sstat" style="color:var(--orange)">' + I.flame + '<b>' + streak + '</b><span>jour' + (streak > 1 ? 's' : '') + ' d’affilée</span></div>' +
+          '<div class="sstat" style="color:var(--blue)">' + I.cards + '<b>' + c.mastered + '<small style="font-size:14px;color:var(--label2)">/' + c.all.length + '</small></b><span>cartes maîtrisées</span></div>' +
+          '<div class="sstat" style="color:var(--' + (mis.length ? 'red' : 'green') + ')">' + I.redo + '<b>' + mis.length + '</b><span>erreur' + (mis.length > 1 ? 's' : '') + ' à revoir</span></div></div>';
+        const BDG = { cards: c.today || '', mist: mis.length || '', week: wDone ? I.check : '' };
+        const tl = t => '<button class="tl" style="--c:var(--' + COL[t[0]] + ')" data-study="' + t[0] + '">' + (BDG[t[0]] ? '<span class="bdg">' + BDG[t[0]] + '</span>' : '') + '<span class="ic">' + t[2] + '</span><span class="tt">' + t[3] + '</span><span class="ss">' + t[4] + '</span>' + (t[5] || '') + '</button>';
+        const jc = t => '<button class="jcard" style="--c:var(--' + COL[t[0]] + ')" data-study="' + t[0] + '"><span class="big">' + t[2] + '</span>' + (gday && t[0] === gday[0] ? '<span class="tag">Du jour</span>' : '') + '<span class="ic">' + t[2] + '</span><span class="tt">' + t[3] + '</span><span class="ss">' + t[4] + '</span></button>';
+        const FD = { test: [I.target, 'Retrouver de mémoire, c’est ce qui fait retenir'], train: [I.steps, 'Travaille les méthodes pas à pas'], jeux: [I.dice, 'Apprendre en s’amusant'], review: [I.book, 'Relire tes fiches et t’organiser'] };
+        const fam = f => { const L = TOOLS.filter(t => t[1] === f); if (!L.length) return '';
+          return '<div class="sfam"><span class="sfam-i" style="background:var(--' + FAM[f][1] + ')">' + FD[f][0] + '</span><div><b>' + FAM[f][0] + '</b><small>' + FD[f][1] + '</small></div></div>' +
+            (f === 'jeux' ? '<div class="jcar">' + L.slice().sort((x, y) => (y === gday) - (x === gday)).map(jc).join('') + '</div>' : '<div class="tgrid">' + L.map(tl).join('') + '</div>'); };
         const nArch = this.archivedIds().size, sc = this.scope();
         body = '<h1 class="large">J’étudie</h1>' +
           (nArch ? '<div class="seg" style="margin:4px 0 6px">' + [['act', 'Séries actives'], ['arch', 'Archivées (' + nArch + ')'], ['all', 'Toutes']].map(([k, l]) => '<button data-scope="' + k + '" class="' + (sc === k ? 'on' : '') + '">' + l + '</button>').join('') + '</div>' +
             '<p class="foot" style="margin:0 0 6px">' + (sc === 'act' ? 'Les outils utilisent tes séries en cours.' : sc === 'arch' ? 'Les outils utilisent tes séries archivées : idéal pour ne pas oublier.' : 'Les outils utilisent toutes tes séries.') + '</p>' : '') +
-          (sugg.length ? '<div class="section-h">Pour toi aujourd’hui</div><div class="group">' + sugg.slice(0, 3).map(x => '<button class="row todo-row" data-study="' + x[0] + '"><span class="ic" style="background:var(--' + COL[x[0]] + ')">' + ico(x[0]) + '</span><div class="main"><div class="t">' + x[1] + '</div><div class="s">' + x[2] + '</div></div><span class="chev">' + I.chevR + '</span></button>').join('') + '</div>' : '') +
-          (TOOLS.length > 6 ? '<button class="tools-toggle" id="ttog"><b>Tous les outils</b><span>' + (open ? 'Masquer' : 'Afficher (' + TOOLS.length + ')') + '</span></button>' : '<div class="section-h">Mes outils</div>') +
-          '<div id="tools"' + (open ? '' : ' hidden') + '>' + ['test', 'train', 'jeux', 'review'].map(f => { const L = TOOLS.filter(t => t[1] === f); return L.length ? '<div class="study-h">' + FAM[f][0] + '</div><div class="study-grid">' + L.map(tile).join('') + '</div>' : ''; }).join('') + '</div>' +
-          '<div class="tip"><b>Le conseil du jour</b>' + nb(esc(STUDY_TIPS[day % STUDY_TIPS.length])) + '</div>' +
+          hero + stats +
+          ['test', 'jeux', 'train', 'review'].map(fam).join('') +
+          '<div class="tip" style="margin-top:26px"><b>Le conseil du jour</b>' + nb(esc(STUDY_TIPS[day % STUDY_TIPS.length])) + '</div>' +
           '<button class="why-link" data-study="why">' + I.info + ' Pourquoi ces méthodes marchent</button>';
       }
     } else if (tab === 'qa'){
@@ -1873,6 +1946,7 @@ const Student = {
     const tt = document.getElementById('ttog'); if (tt) tt.onclick = () => { const o = !this._toolsOpen; this._toolsOpen = o; store.set('exos_tools_open', o ? '1' : '0'); document.getElementById('tools').hidden = !o; tt.querySelector('span').textContent = o ? 'Masquer' : 'Afficher'; };
     $app.querySelectorAll('[data-study]').forEach(b => b.onclick = () => {
       const k = b.dataset.study;
+      if (k !== 'why' && !(k === 'mist' && !this.mistakes().length)) this.logStudy(k);
       if (k === 'cards') return this.startCards();
       if (k === 'free') return this.freePicker();
       if (k === 'mist') return this.mistakes().length ? this.runMistakes() : toast('Aucune erreur à revoir pour le moment');
@@ -2096,6 +2170,19 @@ const Student = {
       '<p>' + (s.known ? 'Les cartes connues reviendront plus tard, de plus en plus espacées, pour vérifier que tu t\u2019en souviens.' : '') + (s.known < s.total ? (s.known ? ' ' : '') + 'Les cartes ratées reviendront demain.' : '') + '</p>' +
       '<div class="stack mt2"><button class="btn" id="b1">Retour à J’étudie</button></div></div>';
     document.getElementById('b1').onclick = () => { this.stab = 'study'; this.renderList(); };
+  },
+  // Journal local : { '2026-10-21': ['cards', 'j_frise'] }, gardé 60 jours
+  dayLog(){ try { return JSON.parse(store.get('exos_days_' + this.code) || '{}') || {}; } catch(e){ return {}; } },
+  logStudy(k){
+    const log = this.dayLog(), t = isoDate(new Date()), lim = isoDate(new Date(Date.now() - 60 * 864e5));
+    log[t] = [...new Set((log[t] || []).concat(k))];
+    Object.keys(log).forEach(d => { if (d < lim) delete log[d]; });
+    store.set('exos_days_' + this.code, JSON.stringify(log));
+  },
+  studyStreak(log){
+    const d = new Date(); if (!(log[isoDate(d)] || []).length) d.setDate(d.getDate() - 1);
+    let n = 0; while (n < 60 && (log[isoDate(d)] || []).length){ n++; d.setDate(d.getDate() - 1); }
+    return n;
   },
   weekKey(d){ const t = d ? new Date(d) : new Date(), m = new Date(t); m.setHours(12, 0, 0, 0); m.setDate(m.getDate() - (m.getDay() + 6) % 7); return isoDate(m); },
   weekState(){
