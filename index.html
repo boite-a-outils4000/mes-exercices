@@ -536,6 +536,21 @@ a.cblock.row{display:flex;color:inherit;text-decoration:none}
 .big-score{font-size:44px;font-weight:700;letter-spacing:-.02em;text-align:center;margin:6px 0 4px;font-variant-numeric:tabular-nums}
 
 /* Impression des codes */
+/* Questions des élèves */
+.qa-ask{background:var(--card);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--shadow);margin:6px 0 4px}
+.qa-ask b{font-size:17px}.qa-ask span{font-size:14px;color:var(--label2)}.qa-ask .btn{margin-top:10px}
+.qa-card{background:var(--card);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow)}
+.qa-list{display:flex;flex-direction:column;gap:10px}
+.qa-ctx{font-size:13px;color:var(--label2);font-weight:600}
+.qa-q{font-size:17px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere}
+.qa-a{background:color-mix(in srgb,var(--blue) 9%,var(--card));border-radius:12px;padding:10px 12px;font-size:16px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.qa-ah{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;white-space:normal}
+.qa-wait{font-size:14px;color:var(--orange);font-weight:600}
+.qa-who{display:flex;align-items:center;gap:10px}.qa-who .main{min-width:0}.qa-who .t{font-weight:600}.qa-who .s{font-size:13px;color:var(--label2)}
+.qa-btns{display:flex;gap:8px;flex-wrap:wrap}.qa-btns .btn{flex:1 1 160px;height:42px;font-size:15px}
+.qa-card textarea.field{border-radius:10px;background:var(--fill);min-height:70px}
+.qa-tools{display:flex;gap:14px;justify-content:flex-end}.qa-tools button{border:0;background:none;color:var(--blue);font-size:15px;padding:2px 0}.qa-tools button.red{color:var(--red)}
+@media (min-width:1000px){ body.prof .tabbar .tdot{left:34px;top:8px} }
 /* Rappel du professeur (bandeau chez l'élève) */
 .remind{background:color-mix(in srgb,var(--orange) 11%,var(--card));border-radius:16px;padding:14px 16px;margin:6px 0 14px;box-shadow:inset 4px 0 0 var(--orange)}
 .remind-h{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--orange);font-size:15px;text-transform:uppercase;letter-spacing:.04em}
@@ -961,6 +976,7 @@ I.phone = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="c
 I.hi = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V5.5a1.5 1.5 0 013 0V11M11 10.5V4a1.5 1.5 0 013 0v6.5M14 10.5V5.5a1.5 1.5 0 013 0V14a7 7 0 01-7 7h-.5a6.5 6.5 0 01-5.3-2.8L2.5 15.4a1.5 1.5 0 012.3-1.9L8 16"/></svg>';
 I.users = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18.5 14.4c1.8.8 3 2.7 3 5.6"/></svg>';
 I.gauge = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 17a8 8 0 1116 0"/><path d="M12 17l4-5"/><circle cx="12" cy="17" r="1.4" fill="currentColor"/></svg>';
+I.tabQ = '<svg width="27" height="25" viewBox="0 0 28 26" fill="currentColor"><path d="M5.5 3h17A3.5 3.5 0 0126 6.5v10a3.5 3.5 0 01-3.5 3.5H13l-5.6 4.3c-.7.5-1.6 0-1.6-.8V20h-.3A3.5 3.5 0 012 16.5v-10A3.5 3.5 0 015.5 3z" opacity=".95"/><path d="M11.4 9.3a2.7 2.7 0 115.2 1c-.4.9-1.4 1.3-2 1.9-.3.3-.5.7-.5 1.3" fill="none" stroke="var(--card)" stroke-width="1.8" stroke-linecap="round"/><circle cx="14.1" cy="16" r="1.1" fill="var(--card)"/></svg>';
 I.bell = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0112 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 004 0"/></svg>';
 I.jAna = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2"/><path d="M4 4l16 16"/></svg>';
 I.jFrise = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><rect x="4" y="4" width="6" height="8" rx="1.2"/><rect x="14" y="12" width="6" height="8" rx="1.2"/></svg>';
@@ -1623,8 +1639,9 @@ const Student = {
       if (!data){ store.del('exos_code'); return this.renderLogin('Ce code n\u2019est plus valide.'); }
       this.me = data;
     }
-    const [{ data, error }, cp, fw, gt, rm] = await Promise.all([sb.rpc('student_home', { p_code: this.code }), sb.rpc('student_copies', { p_code: this.code }), sb.rpc('student_worksheets', { p_code: this.code }), sb.rpc('student_geo_tasks', { p_code: this.code }), sb.rpc('student_reminders', { p_code: this.code })]);
+    const [{ data, error }, cp, fw, gt, rm, qa] = await Promise.all([sb.rpc('student_home', { p_code: this.code }), sb.rpc('student_copies', { p_code: this.code }), sb.rpc('student_worksheets', { p_code: this.code }), sb.rpc('student_geo_tasks', { p_code: this.code }), sb.rpc('student_reminders', { p_code: this.code }), sb.rpc('student_questions', { p_code: this.code })]);
     this.reminders = rm.error ? (this.reminders || []) : (rm.data || []);
+    this.qa = qa.error || !qa.data ? (this.qa || { enabled: true, mine: [], faq: [] }) : qa.data;
     this.geoTasks = gt.error ? (this.geoTasks || []) : (gt.data || []);
     this.fiches = fw.error ? (this.fiches || []) : (fw.data || []);
     if (error || !data) return this.offline();
@@ -1820,6 +1837,8 @@ const Student = {
           '<div class="tip"><b>Le conseil du jour</b>' + nb(esc(STUDY_TIPS[day % STUDY_TIPS.length])) + '</div>' +
           '<button class="why-link" data-study="why">' + I.info + ' Pourquoi ces méthodes marchent</button>';
       }
+    } else if (tab === 'qa'){
+      body = this.qaBody();
     } else if (tab === 'cours'){
       const courses = h.courses || [];
       body = '<h1 class="large">Mes cours</h1>' +
@@ -1831,7 +1850,7 @@ const Student = {
     const tb = (k, label, icon, badge) => '<a href="#" data-stab="' + k + '" class="' + (tab === k ? 'on' : '') + '">' + icon + '<span>' + label + '</span>' + (badge ? '<b class="tdot"></b>' : '') + '</a>';
     $app.innerHTML = nav('<button class="nav-btn" id="opts">Réglages</button>', '<button class="nav-btn" id="refresh">Actualiser</button>') +
       '<div class="wrap' + (tab === 'ex' && wideScreen() ? ' wide' : '') + '">' + body + '</div>' +
-      '<nav class="tabbar">' + tb('ex', 'Exercices', I.tabDoc, (this.reminders || []).length) + tb('cours', 'Cours', I.tabBook) + tb('study', 'J\u2019étudie', I.tabStudy) + tb('eval', 'Évaluation', I.tabEval, evOpen.length || (this.copies || []).some(c => !c.seen_at) || (this.fiches || []).some(f => f.status === 'todo' || (f.status === 'corrected' && !f.seen_at))) + '</nav>';
+      '<nav class="tabbar">' + tb('ex', 'Exercices', I.tabDoc, (this.reminders || []).length) + tb('cours', 'Cours', I.tabBook) + tb('study', 'J\u2019étudie', I.tabStudy) + tb('qa', 'Questions', I.tabQ, ((this.qa || {}).mine || []).some(q => q.answer && !q.seen)) + tb('eval', 'Évaluation', I.tabEval, evOpen.length || (this.copies || []).some(c => !c.seen_at) || (this.fiches || []).some(f => f.status === 'todo' || (f.status === 'corrected' && !f.seen_at))) + '</nav>';
     $app.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => this.openCopy(b.dataset.copy));
     $app.querySelectorAll('[data-fiche]').forEach(b => b.onclick = () => this.openFiche(b.dataset.fiche));
     $app.querySelectorAll('[data-stab]').forEach(a => a.onclick = e => { e.preventDefault(); this.stab = a.dataset.stab; this.renderList(); window.scrollTo(0, 0); });
@@ -1842,6 +1861,9 @@ const Student = {
     const ts = document.getElementById('tostudy'); if (ts) ts.onclick = () => { this.stab = 'study'; this.renderList(); window.scrollTo(0, 0); };
     const ge = document.getElementById('goeval'); if (ge) ge.onclick = () => { this.stab = 'eval'; this.renderList(); window.scrollTo(0, 0); };
     const mb = document.getElementById('mist'); if (mb) mb.onclick = () => this.runMistakes();
+    const qb = document.getElementById('qask'); if (qb) qb.onclick = () => this.qaAsk();
+    if (tab === 'qa' && this.qa && this.qa.mine.some(q => q.answer && !q.seen)){ this.qa.mine.forEach(q => { if (q.answer) q.seen = true; }); sb.rpc('student_questions_seen', { p_code: this.code }).then(() => {}, () => {});
+      const t = document.querySelector('[data-stab="qa"] .tdot'); if (t) t.remove(); }
     const ro = document.getElementById('remok'); if (ro) ro.onclick = () => { const ids = this.reminders.map(r => r.id); this.reminders = []; sb.rpc('student_reminders_dismiss', { p_code: this.code, p_ids: ids }).then(() => {}, () => {}); const y = window.scrollY; this.renderList(); window.scrollTo(0, y); };
     const at = document.getElementById('archtog'); if (at) at.onclick = () => { this._archOpen = !this._archOpen; const y = window.scrollY; this.renderList(); window.scrollTo(0, y); };
     $app.querySelectorAll('[data-scope]').forEach(b => b.onclick = () => { store.set('exos_scope', b.dataset.scope); this.applyScope(); const y = window.scrollY; this.renderList(); window.scrollTo(0, y); });
@@ -1874,6 +1896,47 @@ const Student = {
     if (tab === 'eval') this._hp = setTimeout(() => { if (this.stab === 'eval' && document.getElementById('stab-eval-view')) this.loadList(true); }, 8000);
   },
 
+  /* ---------- Questions au professeur (élève) ---------- */
+  qaBody(){
+    const Q = this.qa || { enabled: true, mine: [], faq: [] }, fresh = Q.mine.filter(q => q.answer && !q.seen).map(q => q.id);
+    if (fresh.length) this._qaNew = new Set(fresh);
+    const N = this._qaNew || new Set();
+    const when = d => d ? fmtDate(String(d).slice(0, 10)) : '';
+    const card = (q, mine) => '<div class="qa-card"><div class="qa-ctx">' + esc([q.context, mine ? 'posée le ' + when(q.created_at) : null].filter(Boolean).join(' · ')) + '</div>' +
+      '<div class="qa-q">' + esc(q.body) + '</div>' +
+      (q.answer ? '<div class="qa-a"><div class="qa-ah">Réponse de ton professeur' + (mine && N.has(q.id) ? '<span class="pill red">Nouveau</span>' : '') + (mine && q.visibility === 'class' ? '<span class="pill">partagée avec la classe, sans ton prénom</span>' : '') + '</div>' + esc(q.answer) + '</div>'
+        : '<div class="qa-wait">En attente de réponse</div>') + '</div>';
+    return '<h1 class="large">Questions</h1>' +
+      (Q.enabled ? '<div class="qa-ask"><b>Une question sur un exercice ou sur le cours ?</b><span>Ton professeur te répond ici. Les autres élèves ne voient pas ta question.</span><button class="btn" id="qask">Poser une question</button></div>'
+        : '<div class="empty">Ton professeur a désactivé les questions pour ta classe.</div>') +
+      (Q.mine.length ? '<div class="section-h">Mes questions (' + Q.mine.length + ')</div><div class="qa-list">' + Q.mine.map(q => card(q, true)).join('') + '</div>' : '') +
+      (Q.faq.length ? '<div class="section-h">Questions de la classe (' + Q.faq.length + ')</div><div class="qa-list">' + Q.faq.map(q => card(q, false)).join('') + '</div>' +
+        '<p class="foot">Les questions que ton professeur a choisi de partager avec toute la classe, avec sa réponse. Les prénoms ne sont jamais affichés.</p>' : '') +
+      (!Q.mine.length && !Q.faq.length && Q.enabled ? '<p class="foot" style="margin-top:14px">Quand ton professeur répond, tu reçois une pastille sur cet onglet.</p>' : '');
+  },
+  qaAsk(){
+    const opts = ['Question générale'].concat((this.list || []).filter(a => !a.set_archived).slice(0, 12).map(a => 'Série : ' + a.title)).concat(((this.home || {}).courses || []).slice(0, 8).map(c => 'Cours : ' + c.title));
+    let ctx = opts[0];
+    openSheet('<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Annuler</button><h2>Ta question</h2><button class="nav-btn bold" id="ok">Envoyer</button></div>' +
+      '<div class="section-h" style="margin-top:4px">À propos de</div><div class="group"><div class="chips multi">' + opts.map((o, i) => '<button type="button" class="chip' + (i ? '' : ' on') + '" data-qc="' + i + '">' + esc(o) + '</button>').join('') + '</div></div>' +
+      '<div class="section-h">Ta question</div><div class="group"><textarea class="field" id="qbody" rows="5" maxlength="1000" placeholder="Explique ce que tu ne comprends pas. Par exemple : dans l’exercice 3, je ne sais pas comment trouver la capitale."></textarea></div>' +
+      '<p class="foot">Seul ton professeur voit ta question. Écris poliment, comme dans un message à un adulte.</p>', (el, close) => {
+      el.querySelectorAll('[data-qc]').forEach(b => b.onclick = () => { ctx = opts[+b.dataset.qc]; el.querySelectorAll('[data-qc]').forEach(x => x.classList.toggle('on', x === b)); });
+      setTimeout(() => el.querySelector('#qbody').focus(), 300);
+      el.querySelector('#ok').onclick = async () => {
+        const body = el.querySelector('#qbody').value.trim();
+        if (body.length < 5) return toast('Écris ta question en une phrase au moins');
+        const btn = el.querySelector('#ok'); btn.disabled = true;
+        const { data, error } = await sb.rpc('student_ask', { p_code: this.code, p_body: body, p_context: ctx === opts[0] ? null : ctx });
+        btn.disabled = false;
+        if (error) return toast(/désactiv/i.test(error.message) ? 'Ton professeur a désactivé les questions.' : 'Ta question n’a pas pu être envoyée. Vérifie ta connexion.');
+        if (data && data.ok === false) return toast('Tu as déjà posé 5 questions aujourd’hui. Réessaie demain.');
+        this.qa = this.qa || { enabled: true, mine: [], faq: [] };
+        this.qa.mine.unshift({ id: data && data.id, context: ctx === opts[0] ? null : ctx, body, created_at: new Date().toISOString(), answer: null, visibility: 'private', seen: false });
+        close(); this.stab = 'qa'; this.renderList(); toast('Question envoyée à ton professeur');
+      };
+    });
+  },
   // Bandeau des rappels envoyés par le professeur
   remindHtml(){
     const R = this.reminders || []; if (!R.length) return '';
@@ -3967,6 +4030,7 @@ const Prof = {
     if (tab === 'exercices') return this.renderSets();
     if (tab === 'jeux' && id) return this.renderJeuEditor(id, parts[2]);
     if (tab === 'jeux') return this.renderJeux();
+    if (tab === 'questions') return this.renderQuestions();
     if (tab === 'eleve' && id) return this.renderStudent(id);
     if (tab === 'copie' && id) return this.renderCopyEditor(id);
     if (tab === 'evals' && id) return this.renderEval(id);
@@ -3988,6 +4052,7 @@ const Prof = {
     const wp = Promise.all([sb.from('worksheets').select('id,title,subject,zones,created_at,updated_at').order('updated_at', { ascending: false }), sb.from('worksheet_sends').select('*').order('created_at', { ascending: false }), sb.from('worksheet_copies').select('id,send_id,student_id,status,score,total,submitted_at,corrected_at,seen_at,updated_at')]);
     const gtp = sb.from('geo_tasks').select('*').order('created_at', { ascending: false });
     const gcp = sb.from('game_content').select('game,data,updated_at');
+    const qap = sb.from('questions').select('*').order('created_at', { ascending: false }).limit(500);
     const rmp = sb.from('reminders').select('id,student_id,assignment_id,created_at,seen_at,dismissed_at').gte('created_at', new Date(Date.now() - 45 * 864e5).toISOString()).order('created_at', { ascending: false });
     const [ev, ea, co, fl, c, s, a, cp] = await Promise.all([
       sb.from('evaluations').select('*').order('created_at', { ascending: false }),
@@ -4002,6 +4067,7 @@ const Prof = {
     this.copies = cp.error ? [] : (cp.data || []);
     { const g = await gtp; this.geoTasks = g.error ? [] : g.data || []; }
     { const r = await rmp; this.reminders = r.error ? [] : r.data || []; }
+    { const r = await qap; this.questions = r.error ? [] : r.data || []; }
     { const g = await gcp; this.gameContent = {}; this.gameContentAt = {}; (g.error ? [] : g.data || []).forEach(r => { this.gameContent[r.game] = r.data; this.gameContentAt[r.game] = r.updated_at; jeuSyncLabels(r.game, r.data); }); }
     { const [fw, fs, fc] = await wp; this.worksheets = fw.error ? [] : fw.data || []; this.wsends = fs.error ? [] : fs.data || []; this.wcopies = fc.error ? [] : fc.data || []; }
     const err = c.error || s.error || a.error || co.error || fl.error; if (err) throw err;
@@ -4037,8 +4103,8 @@ const Prof = {
   },
 
   shell(active, html){
-    const tab = (k, label, icon) => '<a href="#/prof/' + k + '" class="' + (active === k ? 'on' : '') + '">' + icon + '<span>' + label + '</span></a>';
-    $app.innerHTML = html + '<nav class="tabbar">' + tab('suivi', 'Suivi', I.tabChart) + tab('exercices', 'Exercices', I.tabDoc) + tab('cours', 'Cours', I.tabBook) + tab('jeux', 'Jeux', I.tabGame) + tab('evals', 'Évaluations', I.tabEval) + tab('classes', 'Classes', I.tabPeople) + '</nav>';
+    const tab = (k, label, icon, badge) => '<a href="#/prof/' + k + '" class="' + (active === k ? 'on' : '') + '">' + icon + '<span>' + label + '</span>' + (badge ? '<b class="tdot"></b>' : '') + '</a>';
+    $app.innerHTML = html + '<nav class="tabbar">' + tab('suivi', 'Suivi', I.tabChart) + tab('exercices', 'Exercices', I.tabDoc) + tab('cours', 'Cours', I.tabBook) + tab('jeux', 'Jeux', I.tabGame) + tab('evals', 'Évaluations', I.tabEval) + tab('questions', 'Questions', I.tabQ, (this.questions || []).some(q => !q.answer)) + tab('classes', 'Classes', I.tabPeople) + '</nav>';
     window.scrollTo(0, 0);
   },
 
@@ -4194,6 +4260,7 @@ const Prof = {
       const lk = this.evalAtts.filter(x => x.evaluation_id === e.id && x.status === 'locked').length;
       attn.push(['#/prof/evals/' + e.id, lk ? 'red' : 'purple', lk ? I.lock : I.tabEval, lk ? lk + ' copie' + (lk > 1 ? 's' : '') + ' bloquée' + (lk > 1 ? 's' : '') : 'Évaluation en cours', e.title]);
     });
+    { const qw = (this.questions || []).filter(q => !q.answer && inCls(q.student_id)); if (qw.length) attn.push(['#/prof/questions', 'blue', I.tabQ, qw.length + ' question' + (qw.length > 1 ? 's' : '') + ' d’élève' + (qw.length > 1 ? 's' : '') + ' à répondre', [...new Set(qw.map(q => (this.studentById[q.student_id] || {}).first_name).filter(Boolean))].join(', ')]); }
     const flBy = {}; (this.flags || []).filter(f => inCls(f.student_id)).forEach(f => { const a = this.assignments.find(x => x.id === f.assignment_id); if (a) flBy[a.set_id] = (flBy[a.set_id] || 0) + 1; });
     Object.keys(flBy).forEach(sid => { const st = this.sets.find(x => x.id === sid); if (st) attn.push(['#/prof/suivi/' + sid, 'blue', I.flag, flBy[sid] + ' « Je n’ai pas compris »', st.title]); });
     const wk = Date.now() - 7 * 864e5, ctlBy = {};
@@ -4373,6 +4440,54 @@ const Prof = {
     });
   },
 
+  /* --- Questions des élèves --- */
+  renderQuestions(){
+    const inCls = sid => { const st = this.studentById[sid]; return st && (this.classFilter === 'all' || st.class_id === this.classFilter); };
+    const all = (this.questions || []).filter(q => inCls(q.student_id)), open = all.filter(q => !q.answer), done = all.filter(q => q.answer);
+    const tabQ = this._qaTab === 'done' ? 'done' : 'open', L = tabQ === 'done' ? done : open;
+    const when = d => fmtDateTime(d);
+    const card = q => { const st = this.studentById[q.student_id] || {};
+      return '<div class="qa-card" data-q="' + q.id + '"><div class="qa-who"><div class="avatar">' + initials(st.first_name || '?') + '</div><div class="main"><div class="t">' + esc(st.first_name || 'Élève') + (this.classes.length > 1 ? ' <span style="color:var(--label2);font-weight:400">· ' + esc(st.class_name || '') + '</span>' : '') + '</div>' +
+        '<div class="s">' + esc([q.context, when(q.created_at)].filter(Boolean).join(' · ')) + '</div></div></div><div class="qa-q">' + esc(q.body) + '</div>' +
+        (q.answer ? '<div class="qa-a"><div class="qa-ah">Ta réponse' + (q.visibility === 'class' ? '<span class="pill blue">visible par toute la classe</span>' : '<span class="pill">privée</span>') + (q.seen_at ? '<span class="pill green">vue</span>' : '') + '</div>' + esc(q.answer) + '</div>' +
+            '<div class="qa-tools"><button data-qedit="' + q.id + '">Modifier</button><button class="red" data-qdel="' + q.id + '">Supprimer</button></div>'
+          : '<textarea class="field" data-qa="' + q.id + '" rows="3" maxlength="3000" placeholder="Ta réponse"></textarea><div class="qa-btns"><button class="btn tinted" data-qsend="private" data-id="' + q.id + '">Répondre à ' + esc(st.first_name || 'l’élève') + '</button><button class="btn" data-qsend="class" data-id="' + q.id + '">Répondre à toute la classe</button></div>' +
+            '<div class="qa-tools"><button class="red" data-qdel="' + q.id + '">Supprimer</button></div>') + '</div>'; };
+    const html = nav('') + '<div class="wrap"><h1 class="large">Questions</h1>' + this.classSeg() +
+      '<div class="seg" style="margin-bottom:14px"><button data-qt="open" class="' + (tabQ === 'open' ? 'on' : '') + '">À répondre (' + open.length + ')</button><button data-qt="done" class="' + (tabQ === 'done' ? 'on' : '') + '">Répondues (' + done.length + ')</button></div>' +
+      (L.length ? '<div class="qa-list">' + L.map(card).join('') + '</div>' : '<div class="empty">' + (tabQ === 'open' ? '<b>Aucune question en attente</b>Les élèves posent leurs questions depuis l’onglet Questions de leur appli.' : 'Aucune question répondue pour l’instant.') + '</div>') +
+      '<p class="foot" style="margin-top:14px">« Répondre à toute la classe » ajoute la question, sans le prénom, et ta réponse aux « Questions de la classe » : tous les élèves de la classe la voient. Tu peux désactiver les questions pour une classe dans sa fiche (onglet Classes).</p></div>';
+    this.shell('questions', html);
+    this.bindSeg(() => this.renderQuestions());
+    $app.querySelectorAll('[data-qt]').forEach(b => b.onclick = () => { this._qaTab = b.dataset.qt; this.renderQuestions(); });
+    const save = async (q, answer, visibility) => {
+      const patch = { answer, visibility, answered_at: q.answered_at || new Date().toISOString(), seen_at: null };
+      const { error } = await sb.from('questions').update(patch).eq('id', q.id);
+      if (error){ toast('Erreur : ' + esc(error.message)); return false; }
+      Object.assign(q, patch); return true;
+    };
+    $app.querySelectorAll('[data-qsend]').forEach(b => b.onclick = async () => {
+      const q = this.questions.find(x => x.id === b.dataset.id), ta = $app.querySelector('[data-qa="' + q.id + '"]'), ans = ta.value.trim();
+      if (!ans) { ta.focus(); return toast('Écris ta réponse'); }
+      if (b.dataset.qsend === 'class' && !await confirmDialog('Partager avec toute la classe ?', 'La question (sans le prénom) et ta réponse seront visibles par tous les élèves de la classe.', 'Partager')) return;
+      if (await save(q, ans, b.dataset.qsend)){ const y = window.scrollY; this.renderQuestions(); window.scrollTo(0, y); toast(b.dataset.qsend === 'class' ? 'Réponse partagée avec la classe' : 'Réponse envoyée'); }
+    });
+    $app.querySelectorAll('[data-qedit]').forEach(b => b.onclick = () => {
+      const q = this.questions.find(x => x.id === b.dataset.qedit); let vis = q.visibility;
+      openSheet('<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Annuler</button><h2>Ta réponse</h2><button class="nav-btn bold" id="ok">OK</button></div>' +
+        '<div class="group" style="margin-top:4px"><textarea class="field" id="qans" rows="6" maxlength="3000">' + esc(q.answer) + '</textarea></div>' +
+        '<div class="section-h">Visible par</div><div class="seg" id="qvis"><button type="button" data-v="private" class="' + (vis === 'private' ? 'on' : '') + '">L’élève seulement</button><button type="button" data-v="class" class="' + (vis === 'class' ? 'on' : '') + '">Toute la classe</button></div>', (el, close) => {
+        el.querySelectorAll('#qvis button').forEach(x => x.onclick = () => { vis = x.dataset.v; el.querySelectorAll('#qvis button').forEach(y => y.classList.toggle('on', y === x)); });
+        el.querySelector('#ok').onclick = async () => { const a = el.querySelector('#qans').value.trim(); if (!a) return toast('Écris ta réponse'); if (await save(q, a, vis)){ close(); const y = window.scrollY; this.renderQuestions(); window.scrollTo(0, y); toast('Réponse mise à jour'); } };
+      });
+    });
+    $app.querySelectorAll('[data-qdel]').forEach(b => b.onclick = async () => {
+      if (!await confirmDialog('Supprimer cette question ?', 'Elle disparaît pour toi et pour l’élève, ainsi que ta réponse.', 'Supprimer', true)) return;
+      const { error } = await sb.from('questions').delete().eq('id', b.dataset.qdel);
+      if (error) return toast('Erreur : ' + esc(error.message));
+      this.questions = this.questions.filter(x => x.id !== b.dataset.qdel); const y = window.scrollY; this.renderQuestions(); window.scrollTo(0, y); toast('Question supprimée');
+    });
+  },
   /* --- Rappels aux élèves --- */
   // « · rappel vu le 12 oct. » sous une série en retard
   remindMeta(aid){
@@ -4982,12 +5097,19 @@ const Prof = {
           '<div class="section-h">Jeux</div><div class="group">' + (this.geoTasks || []).filter(t => t.class_id === c.id).map(t => this.geoTaskRowProf(t, false)).join('') +
             '<button class="row" id="geores"><div class="main"><div class="t">Résultats de la classe</div><div class="s">Toutes les parties et ce qui est le plus raté</div></div><span class="chev">' + I.chevR + '</span></button>' +
             '</div><p class="foot">Pour donner un nouveau jeu, modifier les jeux ou imprimer une carte muette, va dans l’onglet Jeux.</p>' +
+          '<div class="section-h">Questions</div><div class="group"><label class="row" style="cursor:pointer"><div class="main"><div class="t">Les élèves peuvent poser des questions</div><div class="s">Dans leur onglet Questions. Tu réponds depuis ton onglet Questions.</div></div><span class="switch"><input type="checkbox" id="qaon"' + (hid.has('qa') ? '' : ' checked') + ' aria-label="Questions des élèves"><span></span></span></label></div>' +
           '<div class="section-h">Outils de J\u2019étudie</div><div class="group"><button class="row" id="tools"><div class="main"><div class="t">Outils visibles par les élèves</div><div class="s">' + (n === STUDY_TOOLS.length ? 'Tous les outils (' + n + ')' : n + ' sur ' + STUDY_TOOLS.length) + '</div></div><span class="chev">' + I.chevR + '</span></button></div>'; })() +
       '<div class="group mt2"><button class="row center" id="ren">Renommer la classe</button><button class="row danger" id="delc">Supprimer la classe</button></div></div>';
     this.shell('classes', html);
     document.getElementById('adds').onclick = () => this.addStudentsSheet(c);
     document.getElementById('ren').onclick = () => this.classNameSheet(c);
     document.getElementById('tools').onclick = () => this.toolsSheet(c);
+    document.getElementById('qaon').onchange = async e => {
+      const H = (c.hidden_tools || []).filter(k => k !== 'qa'); if (!e.target.checked) H.push('qa');
+      const { error } = await sb.from('classes').update({ hidden_tools: H }).eq('id', c.id);
+      if (error){ e.target.checked = !e.target.checked; return toast('Erreur : ' + esc(error.message)); }
+      c.hidden_tools = H; toast(e.target.checked ? 'Questions activées pour ' + esc(c.name) : 'Questions désactivées pour ' + esc(c.name));
+    };
     document.getElementById('geores').onclick = () => this.geoClassSheet(c);
     $app.querySelectorAll('[data-gtask]').forEach(b => b.onclick = () => this.geoTaskSheet((this.geoTasks || []).find(t => t.id === b.dataset.gtask), c));
     $app.querySelectorAll('[data-ch]').forEach(b => b.onclick = async () => {
