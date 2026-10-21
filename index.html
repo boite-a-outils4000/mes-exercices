@@ -605,6 +605,8 @@ a.cblock.row{display:flex;color:inherit;text-decoration:none}
 .qa-card textarea.field{border-radius:10px;background:var(--fill);min-height:70px}
 .qa-tools{display:flex;gap:14px;justify-content:flex-end}.qa-tools button{border:0;background:none;color:var(--blue);font-size:15px;padding:2px 0}.qa-tools button.red{color:var(--red)}
 @media (min-width:1000px){ body.prof .tabbar .tdot{left:34px;top:8px} }
+@media (max-width:999px){ body.prof .tabbar a.tb-q{display:none} body.prof .tabbar a.on-m{color:var(--blue)} }
+@media (min-width:1000px){ body.prof .tabbar a.tb-cl .tdot{display:none} .only-m{display:none} }
 /* Rappel du professeur (bandeau chez l'élève) */
 .remind{background:color-mix(in srgb,var(--orange) 11%,var(--card));border-radius:16px;padding:14px 16px;margin:6px 0 14px;box-shadow:inset 4px 0 0 var(--orange)}
 .remind-h{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--orange);font-size:15px;text-transform:uppercase;letter-spacing:.04em}
@@ -4231,8 +4233,10 @@ const Prof = {
   },
 
   shell(active, html){
-    const tab = (k, label, icon, badge) => '<a href="#/prof/' + k + '" class="' + (active === k ? 'on' : '') + '">' + icon + '<span>' + label + '</span>' + (badge ? '<b class="tdot"></b>' : '') + '</a>';
-    $app.innerHTML = html + '<nav class="tabbar">' + tab('suivi', 'Suivi', I.tabChart) + tab('exercices', 'Exercices', I.tabDoc) + tab('cours', 'Cours', I.tabBook) + tab('jeux', 'Jeux', I.tabGame) + tab('evals', 'Évaluations', I.tabEval) + tab('questions', 'Questions', I.tabQ, (this.questions || []).some(q => !q.answer)) + tab('classes', 'Classes', I.tabPeople) + '</nav>';
+    // sur téléphone, « Questions » est rangé dans « Classes » (classes CSS tb-q / tb-cl) ; sur ordinateur, il garde son onglet
+    const tab = (k, label, icon, badge, cls) => '<a href="#/prof/' + k + '" class="' + (active === k ? 'on' : '') + (cls ? ' ' + cls : '') + '">' + icon + '<span>' + label + '</span>' + (badge ? '<b class="tdot"></b>' : '') + '</a>';
+    const qNew = (this.questions || []).some(q => !q.answer);
+    $app.innerHTML = html + '<nav class="tabbar">' + tab('suivi', 'Suivi', I.tabChart) + tab('exercices', 'Exercices', I.tabDoc) + tab('cours', 'Cours', I.tabBook) + tab('jeux', 'Jeux', I.tabGame) + tab('evals', 'Évaluations', I.tabEval) + tab('questions', 'Questions', I.tabQ, qNew, 'tb-q') + tab('classes', 'Classes', I.tabPeople, qNew, 'tb-cl' + (active === 'questions' ? ' on-m' : '')) + '</nav>';
     window.scrollTo(0, 0);
   },
 
@@ -4581,7 +4585,7 @@ const Prof = {
             '<div class="qa-tools"><button data-qedit="' + q.id + '">Modifier</button><button class="red" data-qdel="' + q.id + '">Supprimer</button></div>'
           : '<textarea class="field" data-qa="' + q.id + '" rows="3" maxlength="3000" placeholder="Ta réponse"></textarea><div class="qa-btns"><button class="btn tinted" data-qsend="private" data-id="' + q.id + '">Répondre à ' + esc(st.first_name || 'l’élève') + '</button><button class="btn" data-qsend="class" data-id="' + q.id + '">Répondre à toute la classe</button></div>' +
             '<div class="qa-tools"><button class="red" data-qdel="' + q.id + '">Supprimer</button></div>') + '</div>'; };
-    const html = nav('') + '<div class="wrap"><h1 class="large">Questions</h1>' + this.classSeg() +
+    const html = nav(backBtn('#/prof/classes', 'Classes').replace('class="nav-btn"', 'class="nav-btn only-m"')) + '<div class="wrap"><h1 class="large">Questions</h1>' + this.classSeg() +
       '<div class="seg" style="margin-bottom:14px"><button data-qt="open" class="' + (tabQ === 'open' ? 'on' : '') + '">À répondre (' + open.length + ')</button><button data-qt="done" class="' + (tabQ === 'done' ? 'on' : '') + '">Répondues (' + done.length + ')</button></div>' +
       (L.length ? '<div class="qa-list">' + L.map(card).join('') + '</div>' : '<div class="empty">' + (tabQ === 'open' ? '<b>Aucune question en attente</b>Les élèves posent leurs questions depuis l’onglet Questions de leur appli.' : 'Aucune question répondue pour l’instant.') + '</div>') +
       '<p class="foot" style="margin-top:14px">« Répondre à toute la classe » ajoute la question, sans le prénom, et ta réponse aux « Questions de la classe » : tous les élèves de la classe la voient. Tu peux désactiver les questions pour une classe dans sa fiche (onglet Classes).</p></div>';
@@ -5183,7 +5187,7 @@ const Prof = {
   /* --- Classes --- */
   renderClasses(){
     const html = nav('', '<button class="nav-btn" id="newc" aria-label="Nouvelle classe">' + I.plus + '</button>') +
-      '<div class="wrap"><h1 class="large">Classes</h1>' +
+      '<div class="wrap"><h1 class="large">Classes</h1>' + this.qaLink() +
       (this.classes.length ? '<div class="group">' + this.classes.map(c => '<a class="row" href="#/prof/classes/' + c.id + '"><div class="main t">' + esc(c.name) + '</div><span class="val">' + c.students.length + ' élève' + (c.students.length > 1 ? 's' : '') + '</span><span class="chev">' + I.chevR + '</span></a>').join('') + '</div>'
         : '<div class="empty"><b>Aucune classe</b>Crée une classe avec le bouton +, puis ajoute tes élèves. Chacun recevra un code personnel.</div>') +
       '<p class="foot" style="margin-top:14px">Pour la vie privée, seul le prénom (ou un pseudo) est enregistré. Aucun e-mail n\u2019est demandé aux élèves.</p></div>';
@@ -5191,6 +5195,12 @@ const Prof = {
     document.getElementById('newc').onclick = () => this.classNameSheet();
   },
 
+  // Accès aux questions depuis Classes, sur téléphone (sur ordinateur, l'onglet est dans le menu)
+  qaLink(){
+    const n = (this.questions || []).filter(q => !q.answer).length;
+    return '<div class="group only-m" style="margin-bottom:18px"><a class="row" href="#/prof/questions"><span style="color:var(--blue);display:flex">' + I.tabQ + '</span><div class="main"><div class="t">Questions des élèves</div><div class="s">' + (n ? n + ' question' + (n > 1 ? 's' : '') + ' en attente de réponse' : 'Aucune question en attente') + '</div></div>' +
+      (n ? '<span class="val" style="background:var(--red);color:#fff;border-radius:11px;padding:1px 8px;font-weight:700;font-size:14px">' + n + '</span>' : '') + '<span class="chev">' + I.chevR + '</span></a></div>';
+  },
   classNameSheet(cl){
     const html = '<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Annuler</button><h2>' + (cl ? 'Renommer' : 'Nouvelle classe') + '</h2><button class="nav-btn bold" id="ok">OK</button></div>' +
       '<input class="field alone" id="cn" placeholder="Nom (ex. 3P FHG)" value="' + esc(cl ? cl.name : '') + '">';
