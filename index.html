@@ -849,7 +849,8 @@ window.addEventListener('error', e => {
 'use strict';
 const SUPABASE_URL = 'https://gbwsvtmmgzoonoytqquv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_VOIm_5-skIkI9Mu0u3GfTw_3PUafdTZ';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Pas de verrou entre onglets : un onglet mis en pause par le téléphone pouvait le garder et bloquer l'appli (écran noir)
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { lock: (name, timeout, fn) => fn() } });
 const $app = document.getElementById('app');
 
 /* ---------- Utilitaires ---------- */
@@ -4116,7 +4117,10 @@ const Prof = {
   user: null, loaded: false, classes: [], sets: [], assignments: [], studentById: {}, classFilter: 'all', draft: null,
 
   async route(parts){
-    const { data: { session } } = await sb.auth.getSession();
+    if (!this.loaded) loading();
+    const got = await Promise.race([sb.auth.getSession(), new Promise(r => setTimeout(() => r(null), 10000))]);
+    if (!got){ $app.innerHTML = '<div class="screen center"><div class="empty"><b>La connexion ne répond pas</b>Ferme les autres onglets de l’appli, puis réessaie.</div><button class="btn mt" onclick="location.reload()">Réessayer</button></div>'; return; }
+    const { data: { session } } = got;
     if (!session) return this.renderAuth();
     this.user = session.user;
     const [tab, id] = parts;
