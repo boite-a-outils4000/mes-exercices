@@ -848,9 +848,29 @@ window.addEventListener('error', e => {
 <script>
 'use strict';
 const SUPABASE_URL = 'https://gbwsvtmmgzoonoytqquv.supabase.co';
+// Relais Netlify : certains opérateurs mobiles bloquent supabase.co. Si la connexion directe échoue, on passe par
+// mes-exercices-hl.netlify.app/sb (règle dans _redirects) et on s'en souvient pour la journée.
+const SB_PROXY = 'https://mes-exercices-hl.netlify.app/sb';
+const sbRelay = { on: false, ok: false };
+try { const t = +localStorage.getItem('sb_relay'); sbRelay.on = !!t && Date.now() - t < 864e5; } catch(e){}
+const viaRelay = u => String(u).replace(SUPABASE_URL, SB_PROXY);
+async function sbFetch(input, init){
+  const url = typeof input === 'string' ? input : input.url;
+  if (sbRelay.on) return fetch(viaRelay(url), init);
+  if (sbRelay.ok) return fetch(input, init);
+  // tant que la connexion directe n'a jamais répondu, on lui laisse 7 secondes
+  const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 7000);
+  if (init && init.signal) init.signal.addEventListener('abort', () => ctl.abort());
+  try { const r = await fetch(input, { ...init, signal: ctl.signal }); clearTimeout(tm); sbRelay.ok = true; return r; }
+  catch(e){
+    clearTimeout(tm); if (init && init.signal && init.signal.aborted) throw e;
+    sbRelay.on = true; try { localStorage.setItem('sb_relay', String(Date.now())); } catch(x){}
+    return fetch(viaRelay(url), init);
+  }
+}
 const SUPABASE_KEY = 'sb_publishable_VOIm_5-skIkI9Mu0u3GfTw_3PUafdTZ';
 // Pas de verrou entre onglets : un onglet mis en pause par le téléphone pouvait le garder et bloquer l'appli (écran noir)
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { lock: (name, timeout, fn) => fn() } });
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { lock: (name, timeout, fn) => fn() }, global: { fetch: sbFetch } });
 const $app = document.getElementById('app');
 
 /* ---------- Utilitaires ---------- */
@@ -1338,7 +1358,7 @@ const STUDY_TIPS = [
 const finalScore = a => a.score == null ? null : Math.max(0, a.score - (a.penalty || 0));
 const fmtTime = d => new Date(d).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' });
 I.tabBook = '<svg width="27" height="25" viewBox="0 0 28 26" fill="currentColor"><path d="M3 4.5C3 3.1 4.1 2 5.5 2H13v20H5.5A2.5 2.5 0 003 24.5z"/><path d="M15 2h7.5C23.9 2 25 3.1 25 4.5v20a2.5 2.5 0 00-2.5-2.5H15z" opacity=".7"/></svg>';
-const safeUrl = u => /^(https?:|blob:|data:image\/)/i.test(String(u || '').trim()) ? String(u).trim() : '#';
+const safeUrl = u => /^(https?:|blob:|data:image\/)/i.test(String(u || '').trim()) ? (sbRelay.on ? viaRelay(String(u).trim()) : String(u).trim()) : '#';
 const hostOf = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch(e){ return 'Lien'; } };
 function mdLite(t){
   const lines = String(t || '').split('\n'); let out = '', inList = false, para = [];
@@ -4118,7 +4138,7 @@ const Prof = {
 
   async route(parts){
     if (!this.loaded) loading();
-    const got = await Promise.race([sb.auth.getSession(), new Promise(r => setTimeout(() => r(null), 10000))]);
+    const got = await Promise.race([sb.auth.getSession(), new Promise(r => setTimeout(() => r(null), 25000))]);
     if (!got){ $app.innerHTML = '<div class="screen center"><div class="empty"><b>La connexion ne répond pas</b>Ferme les autres onglets de l’appli, puis réessaie.</div><button class="btn mt" onclick="location.reload()">Réessayer</button></div>'; return; }
     const { data: { session } } = got;
     if (!session) return this.renderAuth();
