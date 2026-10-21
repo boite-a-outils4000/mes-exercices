@@ -1875,6 +1875,7 @@ const Student = {
         '<a class="link-quiet" href="#" id="logout">Ce n’est pas toi ? Changer de code</a>';
       if (wideScreen()) body = '<div class="cols"><div class="col-ex">' + body + '</div><div class="col-ev">' + this.evalBody(evals, evOpen, true) + '</div></div>';
     } else if (tab === 'study'){
+      this._studyKey = null; // retour à J'étudie sans avoir terminé : rien n'est coché
       if (!this.study){
         body = '<h1 class="large">J’étudie</h1><div class="spinner" style="margin:60px auto"></div>';
       } else {
@@ -1986,7 +1987,8 @@ const Student = {
     const tt = document.getElementById('ttog'); if (tt) tt.onclick = () => { const o = !this._toolsOpen; this._toolsOpen = o; store.set('exos_tools_open', o ? '1' : '0'); document.getElementById('tools').hidden = !o; tt.querySelector('span').textContent = o ? 'Masquer' : 'Afficher'; };
     $app.querySelectorAll('[data-study]').forEach(b => b.onclick = () => {
       const k = b.dataset.study;
-      if (k !== 'why' && !(k === 'mist' && !this.mistakes().length)) this.logStudy(k);
+      // l'étape n'est cochée qu'à la fin de l'activité (studyDone) ; les outils sans fin (minuteur, fiches) comptent à l'ouverture
+      this._studyKey = k; if (k === 'timer' || k === 'recaps') this.studyDone();
       if (k === 'cards') return this.startCards();
       if (k === 'free') return this.freePicker();
       if (k === 'mist') return this.mistakes().length ? this.runMistakes() : toast('Aucune erreur à revoir pour le moment');
@@ -2203,6 +2205,7 @@ const Student = {
     s.idx++; this.renderCard();
   },
   cardsDone(){
+    this.studyDone();
     const s = this.cardSess, c = this.cardStats();
     $app.innerHTML = '<div class="screen center result"><div class="app-icon" style="background:linear-gradient(160deg,#4da3ff,#0062e0);box-shadow:none">' + I.cards + '</div>' +
       '<h1>Session terminée</h1><p>' + s.known + ' carte' + (s.known > 1 ? 's' : '') + ' connue' + (s.known > 1 ? 's' : '') + ' du premier coup sur ' + s.total + '.</p>' +
@@ -2213,6 +2216,7 @@ const Student = {
   },
   // Journal local : { '2026-10-21': ['cards', 'j_frise'] }, gardé 60 jours
   dayLog(){ try { return JSON.parse(store.get('exos_days_' + this.code) || '{}') || {}; } catch(e){ return {}; } },
+  studyDone(){ const k = this._studyKey; this._studyKey = null; if (k && k !== 'why') this.logStudy(k); },
   logStudy(k){
     const log = this.dayLog(), t = isoDate(new Date()), lim = isoDate(new Date(Date.now() - 60 * 864e5));
     log[t] = [...new Set((log[t] || []).concat(k))];
@@ -2375,6 +2379,7 @@ const Student = {
     done.onclick = () => { clearInterval(this._rInt); if (this._micStop) this._micStop(); this.recallResult(sec, ta.value); };
   },
   recallResult(sec, text){
+    this.studyDone();
     const t = norm(text);
     const has = term => { const n = norm(term); if (t.includes(n)) return true; const words = n.split(' ').filter(w => w.length > 3); return words.length > 1 && words.every(w => t.includes(w.slice(0, Math.max(4, w.length - 1)))); };
     const found = sec.terms.filter(has), missing = sec.terms.filter(x => !found.includes(x));
@@ -2537,6 +2542,7 @@ const Student = {
     window.addEventListener('message', on);
   },
   jeuSave(game, d, task){
+    this.studyDone();
     const n = Math.round(+d.n), ok = Math.round(+d.ok), set = task ? task.set : String(d.mode || '');
     if (!(n >= 1 && n <= 100 && ok >= 0 && ok <= n) || !/^[a-z]{1,12}(\+[a-z]{1,12}){0,3}$/.test(set)) return;
     const weak = Array.isArray(d.weak) ? d.weak.filter(k => typeof k === 'string' && /^[a-z]{1,8}$/.test(k)).slice(0, 20) : [];
@@ -2727,6 +2733,7 @@ const Student = {
     const say = document.getElementById('gsay'); if (say) say.onclick = () => TTS.speak(it.le.charAt(0).toUpperCase() + it.le.slice(1) + (o.S.cap && it.c ? '. ' + o.S.cw.charAt(0).toUpperCase() + o.S.cw.slice(1) + ' : ' + it.c : '') + '.', say);
   },
   geoDone(){
+    this.studyDone();
     const G = this.gm, o = G.o, n = G.list.length, s = Math.round((Date.now() - G.t0) / 1000), cap = o.ask === 'cap';
     const weak = G.list.filter(k => G.res[k] !== 'ok');
     let rec = false;
@@ -2875,6 +2882,7 @@ const Student = {
   labTop(i, n, kind){ return '<div class="quiz"><div class="quiz-top"><button class="icon-btn mute" id="quit" aria-label="Arrêter">' + I.x + '</button><div class="bar"><i style="width:' + (i / n * 100) + '%"></i></div><span class="counter">' + (i + 1) + '/' + n + '</span></div><div class="quiz-body" style="padding-bottom:60px"><div class="qtype">' + kind + '</div>'; },
   labQuit(){ window.scrollTo(0, 0); const q = document.getElementById('quit'); if (q) q.onclick = () => { this.stab = 'study'; this.renderList(); }; },
   labDone(icon, grad, title, ok, total, unit, msg, again){
+    this.studyDone();
     $app.innerHTML = '<div class="screen center result"><div class="app-icon" style="background:' + grad + ';box-shadow:none">' + icon + '</div><h1>' + title + '</h1><div class="big-score">' + ok + ' / ' + total + '</div><p>' + unit + '</p><p>' + nb(msg) + '</p>' +
       '<div class="stack mt2"><button class="btn" id="again">Recommencer</button><button class="btn plain" id="b1">Retour à J’étudie</button></div></div>';
     document.getElementById('again').onclick = again;
@@ -4077,6 +4085,7 @@ const Student = {
   },
 
   renderPracticeResult(score, total){
+    this.studyDone();
     if (this.practiceKind === 'conf') return this.renderConfResult(score, total);
     if (this.practiceKind === 'pre'){
       $app.innerHTML = '<div class="screen center result"><div class="app-icon" style="background:linear-gradient(160deg,#d17bff,#9b3fe0);box-shadow:none">' + I.pre + '</div>' +
