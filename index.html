@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>if (!window.supabase) document.write('<script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"><\/script>');</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
 :root{
@@ -833,6 +834,17 @@ body.easy .f-txt{font-size:25px}
 <body>
 <div id="app"></div>
 <div id="print"></div>
+<script>
+// Si l'appli plante au démarrage, afficher un message plutôt qu'un écran vide
+window.addEventListener('error', e => {
+  const a = document.getElementById('app'); if (!a || a.children.length) return;
+  a.innerHTML = '<div style="max-width:480px;margin:18vh auto 0;padding:0 24px;text-align:center;font:17px/1.45 -apple-system,system-ui,sans-serif;color:#888">' +
+    '<p style="font-size:20px;font-weight:600;color:inherit;margin:0 0 8px">L’application n’a pas pu démarrer</p>' +
+    '<p style="margin:0 0 18px">' + (window.supabase ? 'Une erreur est survenue.' : 'Un fichier nécessaire n’a pas pu être téléchargé : vérifie ta connexion ou essaie un autre réseau (wifi / 4G).') + '</p>' +
+    '<button onclick="location.reload()" style="font:inherit;font-weight:600;border:0;border-radius:12px;background:#007aff;color:#fff;padding:12px 22px">Réessayer</button>' +
+    '<p style="font-size:12.5px;margin-top:22px;word-break:break-word">Détail : ' + String(e.message || 'inconnu').replace(/[<>&]/g, '') + '</p></div>';
+});
+</script>
 <script>
 'use strict';
 const SUPABASE_URL = 'https://gbwsvtmmgzoonoytqquv.supabase.co';
