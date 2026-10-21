@@ -1667,6 +1667,7 @@ const Student = {
   anc(a){ if (!a._anc) a._anc = anchorInfo(a.passes, a.is_control ? 1 : a.anchor); return a._anc; },
   status(a){
     const today = todayLocal();
+    if (a.set_archived) return a.done ? ['Acquise', 'green'] : ['Archivée', ''];
     if (a.done && a.control_open) return ['Test de contrôle', 'blue'];
     if (a.done){ const n = this.anc(a); if (n.anchored) return ['Acquise', 'green']; return n.due ? ['À revoir · ' + n.level + '/' + n.anchor, 'teal'] : ['Ancrage ' + n.level + '/' + n.anchor, 'teal']; }
     if (a.due_date && a.due_date < today) return ['En retard', 'red'];
@@ -1700,14 +1701,16 @@ const Student = {
     let body = '';
     if (tab === 'ex'){
       const A = a => this.anc(a);
-      const todo = this.list.filter(a => !a.done || a.control_open || A(a).due);
-      const waiting = this.list.filter(a => a.done && !a.control_open && !A(a).anchored && !A(a).due);
-      const done = this.list.filter(a => a.done && !a.control_open && A(a).anchored && !A(a).archived);
-      const archived = this.list.filter(a => a.done && !a.control_open && A(a).archived);
+      // une série archivée par le professeur va dans les archives, faite ou non : l'élève peut toujours la refaire
+      const live = this.list.filter(a => !a.set_archived);
+      const todo = live.filter(a => !a.done || a.control_open || A(a).due);
+      const waiting = live.filter(a => a.done && !a.control_open && !A(a).anchored && !A(a).due);
+      const done = live.filter(a => a.done && !a.control_open && A(a).anchored && !A(a).archived);
+      const archived = this.list.filter(a => a.set_archived || (a.done && !a.control_open && A(a).archived));
       const row = a => {
         const [lab, col] = this.status(a);
         const n = a.done ? A(a) : null;
-        const meta = [a.subject, a.due_date && !a.done ? 'Pour le ' + fmtDate(a.due_date) : null, n && !n.anchored && !n.due ? 'Reviens à partir du ' + fmtDate(n.next) : null, n && n.due ? 'Refais-la pour bien la retenir' : null, a.best_percent != null ? 'Meilleur score : ' + a.best_percent + ' %' : null].filter(Boolean).join(' · ');
+        const meta = [a.subject, a.due_date && !a.done && !a.set_archived ? 'Pour le ' + fmtDate(a.due_date) : null, n && !n.anchored && !n.due ? 'Reviens à partir du ' + fmtDate(n.next) : null, n && n.due ? 'Refais-la pour bien la retenir' : null, a.best_percent != null ? 'Meilleur score : ' + a.best_percent + ' %' : null].filter(Boolean).join(' · ');
         return '<button class="row ' + (a.is_control ? 'ctlrow' : 'exrow') + '" data-id="' + a.id + '"><div class="main"><div class="t">' + esc(a.title) + '</div><div class="s">' + esc(meta || a.question_count + ' questions') + '</div></div><span class="pill ' + col + '">' + lab + '</span><span class="chev">' + I.chevR + '</span></button>';
       };
       const grp = (items, foot) => { const rv = items.filter(a => !a.is_control), ct = items.filter(a => a.is_control);
@@ -1747,7 +1750,7 @@ const Student = {
         (mis.length ? '<div class="section-h">Réviser</div><div class="group"><button class="row" id="mist"><div class="main"><div class="t">Mes erreurs</div><div class="s">' + mis.length + ' question' + (mis.length > 1 ? 's' : '') + ' ratée' + (mis.length > 1 ? 's' : '') + ' à retravailler</div></div><span class="pill orange">' + mis.length + '</span><span class="chev">' + I.chevR + '</span></button></div>' : '') +
         (waiting.length ? '<div class="section-h">En cours d\u2019ancrage (' + waiting.length + ')</div>' + grp(waiting) + '<p class="foot">Pour retenir durablement, chaque série se réussit 3 fois, à quelques jours d\u2019écart. L\u2019appli te dit quand revenir.</p>' : '') +
         (done.length ? '<div class="section-h">Acquises · tu peux les refaire pour réviser</div>' + grp(done) : '') +
-        (archived.length ? '<button class="tools-toggle" id="archtog"><b>Archives</b><span>' + (this._archOpen ? 'Masquer' : 'Afficher (' + archived.length + ')') + '</span></button>' + (this._archOpen ? grp(archived) + '<p class="foot">Les séries acquises depuis plus d\u2019une semaine sont rangées ici. Tu les retrouves aussi dans J\u2019étudie.</p>' : '') : '') +
+        (archived.length ? '<button class="tools-toggle" id="archtog"><b>Archives</b><span>' + (this._archOpen ? 'Masquer' : 'Afficher (' + archived.length + ')') + '</span></button>' + (this._archOpen ? grp(archived) + '<p class="foot">Les séries acquises depuis plus d\u2019une semaine sont rangées ici, avec celles que ton professeur a archivées. Tu peux toujours les refaire pour réviser, et tu les retrouves aussi dans J\u2019étudie.</p>' : '') : '') +
         '<a class="link-quiet" href="#" id="logout">Ce n’est pas toi ? Changer de code</a>';
       if (wideScreen()) body = '<div class="cols"><div class="col-ex">' + body + '</div><div class="col-ev">' + this.evalBody(evals, evOpen, true) + '</div></div>';
     } else if (tab === 'study'){
@@ -1920,7 +1923,7 @@ const Student = {
     this.studyAll = data; this.applyScope(); return true;
   },
   scope(){ const v = store.get('exos_scope'); return ['act', 'arch', 'all'].includes(v) ? v : 'act'; },
-  archivedIds(){ return new Set((this.list || []).filter(a => a.done && !a.control_open && this.anc(a).archived).map(a => a.id)); },
+  archivedIds(){ return new Set((this.list || []).filter(a => a.set_archived || (a.done && !a.control_open && this.anc(a).archived)).map(a => a.id)); },
   applyScope(){
     if (!this.studyAll) return;
     const arch = this.archivedIds(), sc = this.scope();
@@ -4071,7 +4074,7 @@ const Prof = {
   setStats(as){
     const bySet = {};
     as.forEach(x => (bySet[x.a.set_id] = bySet[x.a.set_id] || []).push(x));
-    return this.sets.filter(s => bySet[s.id]).map(s => {
+    return this.sets.filter(s => bySet[s.id] && !s.archived).map(s => {
       const list = bySet[s.id];
       const due = list.filter(x => !x.st.done && x.a.due_date).map(x => x.a.due_date).sort();
       return { s, total: list.length, done: list.filter(x => x.st.done).length, late: list.filter(x => x.st.late).length,
@@ -4158,7 +4161,7 @@ const Prof = {
     const bySet = {};
     as.forEach(x => (bySet[x.a.set_id] = bySet[x.a.set_id] || []).push(x));
     const sets = this.setStats(as);
-    const late = as.filter(x => x.st.late).map(x => ({ ...x, stu: this.studentById[x.a.student_id], set: this.sets.find(s => s.id === x.a.set_id) })).filter(x => x.set)
+    const late = as.filter(x => x.st.late).map(x => ({ ...x, stu: this.studentById[x.a.student_id], set: this.sets.find(s => s.id === x.a.set_id) })).filter(x => x.set && !x.set.archived)
       .sort((x, y) => x.stu.class_name.localeCompare(y.stu.class_name, 'fr', { numeric: true }) || x.stu.first_name.localeCompare(y.stu.first_name, 'fr'));
     this._late = late;
     const inCls = sid => this.studentById[sid] && (this.classFilter === 'all' || this.studentById[sid].class_id === this.classFilter);
@@ -4345,6 +4348,14 @@ const Prof = {
   },
 
   /* --- Exercices --- */
+  // Archiver : la série quitte la liste du professeur et le « à faire » des élèves, qui la gardent dans leurs archives
+  async archiveSet(s, on){
+    if (on && !await confirmDialog('Archiver « ' + s.title + ' » ?', 'Elle quitte ta liste et le « à faire » des élèves. Ils la retrouvent dans leurs archives et peuvent toujours la refaire. Les résultats sont conservés.', 'Archiver')) return;
+    const { error } = await sb.from('exercise_sets').update({ archived: on }).eq('id', s.id);
+    if (error) return toast('Erreur : ' + esc(error.message));
+    s.archived = on; const y = window.scrollY; this.renderSets(); window.scrollTo(0, y);
+    toast(on ? 'Série archivée' : 'Série remise dans ta liste');
+  },
   folderNames(){
     return [...new Set(this.sets.map(s => (s.folder || '').trim()).filter(Boolean))].sort((x, y) => x.localeCompare(y, 'fr', { numeric: true }));
   },
@@ -4364,7 +4375,8 @@ const Prof = {
         [s.subject ? esc(s.subject) : null, s.questions.length + ' question' + (s.questions.length > 1 ? 's' : '') + (s.draw_count && s.draw_count < s.questions.length ? ' (' + s.draw_count + ' par essai)' : ''), n ? n + ' élève' + (n > 1 ? 's' : '') : 'non assignée'].filter(Boolean).join(' · ') +
         '</div></div><span class="chev">' + I.chevR + '</span></button>';
     };
-    const groups = this.folderGroups(), open = this.openFolders(), hasF = groups.some(g => g[0]);
+    const active = this.sets.filter(x => !x.archived), arch = this.sets.filter(x => x.archived).sort((x, y) => x.title.localeCompare(y.title, 'fr', { numeric: true }));
+    const groups = this.folderGroups(active), open = this.openFolders(), hasF = groups.some(g => g[0]);
     const body = groups.map(([f, list], i) => {
       if (!f) return (hasF ? '<div class="section-h">Sans dossier</div>' : '') + '<div class="group">' + list.map(rowS).join('') + '</div>';
       const isOpen = open.includes(f), nA = list.filter(s => countFor(s.id)).length;
@@ -4374,7 +4386,10 @@ const Prof = {
     }).join('');
     const html = nav('<button class="nav-btn" id="imp">Importer</button>', (this.sets.length ? '<button class="nav-btn" id="asgm">Assigner</button>' : '') + '<button class="nav-btn" id="new" aria-label="Nouvelle série">' + I.plus + '</button>') +
       '<div class="wrap"><h1 class="large">Exercices</h1>' +
-      (this.sets.length ? body + '<div class="group" style="margin-top:14px"><button class="row center" id="newfold">Nouveau dossier</button></div>'
+      (this.sets.length ? (active.length ? body : '<div class="empty"><b>Toutes tes séries sont archivées</b>Crée une nouvelle série avec +, ou désarchive une série ci-dessous.</div>') +
+        '<div class="group" style="margin-top:14px"><button class="row center" id="newfold">Nouveau dossier</button></div>' +
+        (arch.length ? '<button class="tools-toggle" id="sarch" style="margin-top:18px"><b>Archives</b><span>' + (this._setArchOpen ? 'Masquer' : 'Afficher (' + arch.length + ')') + '</span></button>' +
+          (this._setArchOpen ? '<div class="group">' + arch.map(rowS).join('') + '</div><p class="foot">Les élèves retrouvent ces séries dans leurs archives et peuvent toujours les refaire. Leurs résultats sont conservés.</p>' : '') : '')
         : '<div class="empty"><b>Aucune série</b>Crée ta première série avec le bouton +, ou importe une série préparée par Claude.</div>') +
       '<p class="foot" style="margin-top:14px">' + (this.sets.length ? 'Range tes séries dans des dossiers (par chapitre, par classe…) pour garder la liste claire. Les élèves ne voient pas les dossiers. ' : '') +
       'Astuce : demande à Claude « crée une série d\u2019exercices sur… pour mon appli ». Il peut l\u2019ajouter directement ici ou te donner un texte à importer.</p></div>';
@@ -4383,6 +4398,7 @@ const Prof = {
     document.getElementById('imp').onclick = () => this.importSheet();
     const nf = document.getElementById('newfold'); if (nf) nf.onclick = () => this.folderSheet(null);
     const am = document.getElementById('asgm'); if (am) am.onclick = () => this.assignSheet(null);
+    const sa = document.getElementById('sarch'); if (sa) sa.onclick = () => { this._setArchOpen = !this._setArchOpen; const y = window.scrollY; this.renderSets(); window.scrollTo(0, y); };
     $app.querySelectorAll('[data-fold]').forEach(b => b.onclick = e => {
       const f = groups[+b.dataset.fold][0];
       if (e.target.closest('[data-fmore]')) return this.folderSheet(f);
@@ -4400,6 +4416,7 @@ const Prof = {
         { label: s.folder ? 'Changer de dossier' : 'Ranger dans un dossier', run: () => this.moveSheet(s) },
         { label: 'Essayer comme un élève', run: () => Student.runPreview(s) },
         { label: 'Dupliquer', run: () => this.duplicate(s) },
+        { label: s.archived ? 'Désarchiver' : 'Archiver', run: () => this.archiveSet(s, !s.archived) },
         { label: 'Supprimer', red: true, run: () => this.deleteSet(s) }
       ]);
     });
