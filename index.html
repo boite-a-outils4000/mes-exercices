@@ -536,6 +536,8 @@ a.cblock.row{display:flex;color:inherit;text-decoration:none}
 .big-score{font-size:44px;font-weight:700;letter-spacing:-.02em;text-align:center;margin:6px 0 4px;font-variant-numeric:tabular-nums}
 
 /* Impression des codes */
+/* Copies corrigées par évaluation */
+.ret-next{margin-top:18px}
 /* Contenu des jeux (éditeur du professeur) */
 .row .jic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;flex:none}.row .jic svg{width:19px;height:19px}
 .jthumb{width:44px;height:44px;border-radius:8px;object-fit:cover;flex:none;background:var(--fill)}.jthumb.wide{width:66px;height:42px}
@@ -3946,6 +3948,8 @@ const Prof = {
     if (tab === 'evals') return this.renderEvals();
     if (tab === 'fiches' && id) return this.renderFicheEditor(id);
     if (tab === 'fiches') return this.renderFiches();
+    if (tab === 'retours') return this.renderRetours();
+    if (tab === 'retour' && id) return this.renderRetour(decodeURIComponent(id));
     if (tab === 'fsend' && id) return this.renderFicheSend(id);
     if (tab === 'fcopy' && id) return this.renderFicheCopy(id);
     if (tab === 'cours' && id) return this.renderCourseEditor(id === 'nouveau' ? null : id);
@@ -6081,11 +6085,13 @@ const Prof = {
         const sid = id.slice(8);
         if (!this.studentById[sid]) return go('#/prof/classes');
         this.pdraft = { _for: id, student_id: sid, title: '', copy_date: todayLocal(), score: null, total: null, general: '', comments: [], corrections: [], pages: [], published: false, published_at: null, seen_at: null };
+        const R = this.retOf(this.pdraft), g = R && this.retGroups().find(x => x.key === R.key);
+        if (R){ this.pdraft.title = R.title; this.pdraft.copy_date = R.date || todayLocal(); this.pdraft.total = g && g.total != null ? fmtNum(g.total) : null; }
       } else {
         loading();
         const { data, error } = await sb.from('copies').select('*').eq('id', id).maybeSingle();
         if (error || !data){ toast('Copie introuvable'); return go('#/prof/classes'); }
-        this.pdraft = { ...data, _for: id, _was: data.published, general: data.general || '', comments: data.comments || [], corrections: data.corrections || [], pages: data.pages || [] };
+        this.pdraft = { ...data, _for: id, _was: data.published, _title0: data.title, _date0: data.copy_date || '', general: data.general || '', comments: data.comments || [], corrections: data.corrections || [], pages: data.pages || [] };
       }
     }
     const d = this.pdraft, stu = this.studentById[d.student_id];
@@ -6123,7 +6129,8 @@ const Prof = {
     const pend = d.comments.filter(c => c.ai && !c.ok).length + kPend;
     const status = !d.published ? 'Brouillon : ' + esc(stu.first_name) + ' ne voit pas encore cette copie.'
       : d.seen_at ? 'Vue par ' + esc(stu.first_name) + ' le ' + fmtDateTime(d.seen_at) + '.' : 'Envoyée' + (d.published_at ? ' le ' + fmtDateTime(d.published_at) : '') + ', pas encore ouverte.';
-    const html = nav(backBtn('#/prof/eleve/' + d.student_id, stu.first_name), '<button class="nav-btn bold" id="psave">Enregistrer</button>') +
+    const R = this.retOf(d), cl = R && this.classes.find(c => c.id === R.cls), nextStu = cl ? cl.students[cl.students.findIndex(u => u.id === d.student_id) + 1] : null;
+    const html = nav(R ? backBtn('#/prof/retour/' + encodeURIComponent(R.key), 'Copies') : backBtn('#/prof/eleve/' + d.student_id, stu.first_name), '<button class="nav-btn bold" id="psave">Enregistrer</button>') +
       '<div class="wrap" id="ped"><h1 class="large">Copie corrigée</h1><p class="subtitle">' + esc(stu.first_name) + ' · ' + esc(stu.class_name || '') + '</p>' +
       '<div class="group"><input class="field" data-f="title" value="' + esc(d.title) + '" placeholder="Titre (ex. Évaluation : les pays d’Europe)" style="font-weight:600">' +
       '<div class="row"><div class="main t">Date</div><input class="field" type="date" data-f="copy_date" value="' + esc(d.copy_date || '') + '" style="width:auto;padding:0;text-align:right"></div>' +
@@ -6147,8 +6154,9 @@ const Prof = {
       '<p class="foot">Avec l’IA : envoie à Claude, dans ta conversation, la copie et ton correctif. Il complète chaque réponse fausse ou vide d’après le correctif. Ses corrections arrivent ici en violet ; tu les relis avant l’envoi.</p>' +
       '<div class="section-h">Envoi</div><div class="group"><label class="row" style="cursor:pointer"><div class="main"><div class="t">Visible par ' + esc(stu.first_name) + '</div><div class="s">' + status + '</div></div><span class="switch"><input type="checkbox" id="ppub" ' + (d.published ? 'checked' : '') + ' aria-label="Visible par l’élève"><span></span></span></label></div>' +
       (pend ? '<p class="foot" style="color:var(--purple)">' + pend + ' proposition' + (pend > 1 ? 's' : '') + ' de l’IA à valider avant l’envoi.</p>' : '') +
+      (R ? '<button class="btn ret-next" id="pnext">' + (nextStu ? 'Enregistrer et passer à ' + esc(nextStu.first_name) : 'Enregistrer et revenir à la liste') + '</button>' : '') +
       '<div class="group mt2"><button class="row center" data-act="pprev">Voir comme l’élève</button>' + (isNew ? '' : '<button class="row danger" data-act="pdelete">Supprimer la copie</button>') + '</div></div>';
-    this.shell('classes', html);
+    this.shell(R ? 'evals' : 'classes', html);
     const ed = document.getElementById('ped');
     const rerender = () => { const y = window.scrollY; this.renderCopyEditor(id); window.scrollTo(0, y); };
     ed.addEventListener('change', e => { const t = e.target; if (t.matches('select[data-f="page"]')) (t.dataset.k !== undefined ? d.corrections[+t.dataset.k] : d.comments[+t.dataset.c]).page = t.value ? +t.value : null; });
@@ -6223,6 +6231,7 @@ const Prof = {
       }
     });
     document.getElementById('psave').onclick = async () => {
+      const goNext = this._goNext; this._goNext = false;
       if (!String(d.title || '').trim()) return toast('Donne un titre à la copie.');
       const sc = parseNum(d.score), tot = parseNum(d.total);
       if (sc === false || tot === false) return toast('La note doit être un nombre (ex. 14,5).');
@@ -6240,8 +6249,116 @@ const Prof = {
       if (res.error) return toast('Erreur : ' + esc(res.error.message));
       this.pdraft = null; await this.load();
       toast(payload.published ? (d._was ? 'Copie mise à jour' : 'Copie envoyée à ' + esc(stu.first_name)) : 'Brouillon enregistré');
+      // dans une évaluation : la copie suit ses nouveaux titre et date ; on avance vers l'élève suivant si demandé
+      if (R){ const nk = this.retKey(R.cls, payload.copy_date, payload.title); this._retour = nk;
+        if (goNext && nextStu){ const nc = (this.copies || []).find(c => c.student_id === nextStu.id && this.retKey(R.cls, c.copy_date, c.title) === nk); return go('#/prof/copie/' + (nc ? nc.id : 'nouveau-' + nextStu.id)); }
+        return go('#/prof/retour/' + encodeURIComponent(nk)); }
       go('#/prof/eleve/' + d.student_id);
     };
+    const pn = document.getElementById('pnext'); if (pn) pn.onclick = () => { this._goNext = true; document.getElementById('psave').click(); };
+  },
+  /* ---------- Copies corrigées par évaluation ----------
+     Une évaluation faite en classe = les copies d'une classe qui ont le même titre et la même date.
+     Une évaluation encore sans copie est gardée sur cet appareil (prof_retours). */
+  retKey(cls, date, title){ return [cls, date || '', String(title || '').trim()].join('|'); },
+  retPending(list){
+    const k = 'prof_retours_' + (this.user ? this.user.id : '');
+    if (list) { store.set(k, JSON.stringify(list)); return list; }
+    try { return JSON.parse(store.get(k) || '[]') || []; } catch(e){ return []; }
+  },
+  retGroups(){
+    const G = {};
+    (this.copies || []).forEach(c => { const st = this.studentById[c.student_id]; if (!st) return;
+      const key = this.retKey(st.class_id, c.copy_date, c.title);
+      (G[key] = G[key] || { key, cls: st.class_id, date: c.copy_date || '', title: String(c.title || '').trim(), total: c.total, copies: [] }).copies.push(c); });
+    this.retPending().forEach(p => { const key = this.retKey(p.cls, p.date, p.title); if (!G[key] && this.classes.some(c => c.id === p.cls)) G[key] = { key, cls: p.cls, date: p.date, title: p.title, total: p.total, copies: [] }; });
+    return Object.values(G).sort((a, b) => String(b.date).localeCompare(String(a.date)) || a.title.localeCompare(b.title, 'fr'));
+  },
+  retStats(g){
+    const cl = this.classes.find(c => c.id === g.cls), n = cl ? cl.students.length : 0, pub = g.copies.filter(c => c.published);
+    const sc = g.copies.filter(c => c.score != null && c.total), avg = sc.length ? sc.reduce((t, c) => t + c.score / c.total, 0) / sc.length : null;
+    return { cl, n, done: g.copies.length, pub: pub.length, seen: pub.filter(c => c.seen_at).length, drafts: g.copies.filter(c => !c.published), avg };
+  },
+  renderRetours(){
+    const G = this.retGroups(), cname = id => (this.classes.find(c => c.id === id) || {}).name || '';
+    const html = nav('', '<button class="nav-btn" id="newret" aria-label="Nouvelle évaluation à rendre">' + I.plus + '</button>') +
+      '<div class="wrap"><h1 class="large ev-title-l">Évaluations</h1>' + this.evSeg('retours') +
+      (G.length ? '<div class="group">' + G.map(g => { const S = this.retStats(g);
+        const [lab, col] = !S.done ? ['À corriger', ''] : S.drafts.length ? [S.drafts.length + ' à envoyer', 'orange'] : S.done < S.n ? ['En cours', 'blue'] : ['Rendue', 'green'];
+        return '<a class="row" href="#/prof/retour/' + encodeURIComponent(g.key) + '"><div class="main"><div class="t">' + esc(g.title) + '</div><div class="s">' +
+          esc([cname(g.cls), g.date ? fmtDate(g.date) : null, S.done + ' / ' + S.n + ' copies', S.pub ? S.pub + ' envoyée' + (S.pub > 1 ? 's' : '') : null].filter(Boolean).join(' · ')) + '</div></div><span class="pill ' + col + '">' + lab + '</span><span class="chev">' + I.chevR + '</span></a>'; }).join('') + '</div>'
+        : '<div class="empty"><b>Aucune copie corrigée</b>Pour rendre une évaluation faite en classe, touche +, choisis la classe et le titre, puis corrige les copies élève après élève.</div>') +
+      '<p class="foot" style="margin-top:14px">Dépose chaque copie corrigée (photo ou PDF) avec tes commentaires. Les élèves la retrouvent dans l’onglet Évaluation de leur appli, avec la correction.</p></div>';
+    this.shell('evals', html);
+    this.bindEvSeg();
+    document.getElementById('newret').onclick = () => this.retSheet(null);
+  },
+  // créer (g = null) ou modifier une évaluation à rendre
+  retSheet(g){
+    if (!this.classes.length){ toast('Crée d’abord une classe'); return go('#/prof/classes'); }
+    const st = g ? { cls: g.cls, title: g.title, date: g.date, total: g.total == null ? '' : fmtNum(g.total) } : { cls: this.classFilter !== 'all' && this.classes.some(c => c.id === this.classFilter) ? this.classFilter : this.classes[0].id, title: '', date: todayLocal(), total: '20' };
+    openSheet('<div class="grabber"></div><div class="sheet-head"><button class="nav-btn" data-close>Annuler</button><h2>' + (g ? 'Modifier' : 'Évaluation à rendre') + '</h2><button class="nav-btn bold" id="ok">' + (g ? 'OK' : 'Créer') + '</button></div>' +
+      (g ? '' : '<div class="section-h" style="margin-top:4px">Classe</div><div class="seg wrap" id="rcls">' + this.classes.map(c => '<button type="button" data-v="' + c.id + '" class="' + (c.id === st.cls ? 'on' : '') + '">' + esc(c.name) + '</button>').join('') + '</div>') +
+      '<div class="section-h">Titre vu par les élèves</div><div class="group"><input class="field" id="rtitle" value="' + esc(st.title) + '" placeholder="Ex. Évaluation : les pays d’Europe"></div>' +
+      '<div class="group mt"><div class="row"><div class="main t">Date</div><input class="field" type="date" id="rdate" value="' + esc(st.date || '') + '" style="width:auto;padding:0;text-align:right"></div>' +
+      '<div class="row"><div class="main t">Noté sur</div><input class="field" id="rtot" inputmode="decimal" value="' + esc(st.total) + '" style="width:70px;padding:6px 8px;text-align:right;background:var(--fill);border-radius:8px"></div></div>' +
+      (g ? '<p class="foot">Le titre, la date et le total changent sur toutes les copies de cette évaluation.</p>' : '<p class="foot">Ensuite, corrige les copies élève après élève : le titre, la date et le total sont déjà remplis.</p>'), (el, close) => {
+      el.querySelectorAll('#rcls button').forEach(b => b.onclick = () => { st.cls = b.dataset.v; el.querySelectorAll('#rcls button').forEach(x => x.classList.toggle('on', x === b)); });
+      setTimeout(() => el.querySelector('#rtitle').focus(), 300);
+      el.querySelector('#ok').onclick = async () => {
+        const title = el.querySelector('#rtitle').value.trim(), date = el.querySelector('#rdate').value, tot = parseNum(el.querySelector('#rtot').value);
+        if (!title) return toast('Écris le titre de l’évaluation');
+        if (tot === false) return toast('Le total doit être un nombre (ex. 20)');
+        const P = this.retPending().filter(p => !(g && this.retKey(p.cls, p.date, p.title) === g.key));
+        if (g){
+          if (g.copies.length){ const { error } = await sb.from('copies').update({ title, copy_date: date || null, total: tot }).in('id', g.copies.map(c => c.id)); if (error) return toast('Erreur : ' + esc(error.message)); await this.load(); }
+          else P.push({ cls: g.cls, title, date, total: tot });
+        } else P.push({ cls: st.cls, title, date, total: tot });
+        this.retPending(P); close(); go('#/prof/retour/' + encodeURIComponent(this.retKey(g ? g.cls : st.cls, date, title)));
+      };
+    });
+  },
+  renderRetour(key){
+    const g = this.retGroups().find(x => x.key === key); if (!g) return go('#/prof/retours');
+    const S = this.retStats(g); if (!S.cl) return go('#/prof/retours');
+    this._retour = key;
+    const byStu = {}; g.copies.forEach(c => { byStu[c.student_id] = c; });
+    const aiPend = c => (c.comments || []).some(x => x.ai && !x.ok);
+    const ready = S.drafts.filter(c => !aiPend(c));
+    const html = nav(backBtn('#/prof/retours', 'Copies corrigées'), '<button class="nav-btn" id="rmod">Modifier</button>') +
+      '<div class="wrap"><h1 class="large">' + esc(g.title) + '</h1><p class="subtitle">' + esc([S.cl.name, g.date ? fmtDate(g.date) : null, g.total ? 'sur ' + fmtNum(g.total) : null].filter(Boolean).join(' · ')) + '</p>' +
+      '<div class="tiles"><div class="tile"><div class="n">' + S.done + ' / ' + S.n + '</div><div class="l">Copies corrigées</div></div>' +
+      '<div class="tile"><div class="n">' + S.pub + '</div><div class="l">Envoyées' + (S.pub ? ' · ' + S.seen + ' vue' + (S.seen > 1 ? 's' : '') : '') + '</div></div>' +
+      '<div class="tile"><div class="n">' + (S.avg == null ? '—' : (Math.round(S.avg * (g.total || 20) * 10) / 10).toString().replace('.', ',')) + '</div><div class="l">Moyenne' + (g.total ? ' / ' + fmtNum(g.total) : '') + '</div></div></div>' +
+      (ready.length ? '<div class="group mt"><button class="row center" id="rsend" style="font-weight:600">Envoyer les copies prêtes (' + ready.length + ')</button></div>' : '') +
+      '<div class="section-h">Élèves (' + S.n + ')' + (g.copies.some(c => c.score != null) ? '<button id="rcopy">Copier les notes</button>' : '') + '</div><div class="group">' +
+      S.cl.students.map(u => { const c = byStu[u.id];
+        const [lab, col] = !c ? ['À corriger', ''] : !c.published ? (aiPend(c) ? ['IA à relire', 'purple'] : ['Brouillon', 'orange']) : c.seen_at ? ['Vue', 'green'] : ['Envoyée', 'blue'];
+        return '<button class="row" data-rs="' + u.id + '"><div class="avatar">' + initials(u.first_name) + '</div><div class="main"><div class="t">' + esc(u.first_name) + '</div>' +
+          (c && (c.comments || []).length ? '<div class="s">' + (c.comments || []).length + ' commentaire' + ((c.comments || []).length > 1 ? 's' : '') + '</div>' : '') + '</div>' +
+          (c && c.score != null ? '<span class="val">' + fmtNum(c.score) + (c.total ? ' / ' + fmtNum(c.total) : '') + '</span>' : '') + '<span class="pill ' + col + '">' + lab + '</span><span class="chev">' + I.chevR + '</span></button>'; }).join('') + '</div>' +
+      '<p class="foot">Touche un élève pour corriger sa copie. En bas de chaque copie, « Enregistrer et passer à l’élève suivant » te fait avancer dans la liste. Les brouillons restent invisibles pour les élèves jusqu’à l’envoi.</p>' +
+      (g.copies.length ? '' : '<div class="group mt2"><button class="row danger" id="rdel">Supprimer cette évaluation</button></div>') + '</div>';
+    this.shell('evals', html);
+    $app.querySelectorAll('[data-rs]').forEach(b => b.onclick = () => { const c = byStu[b.dataset.rs]; this.pdraft = null; go('#/prof/copie/' + (c ? c.id : 'nouveau-' + b.dataset.rs)); });
+    document.getElementById('rmod').onclick = () => this.retSheet(g);
+    const rs = document.getElementById('rsend'); if (rs) rs.onclick = async () => {
+      if (!await confirmDialog('Envoyer ' + ready.length + ' copie' + (ready.length > 1 ? 's' : '') + ' ?', 'Les élèves concernés la verront tout de suite dans leur appli.', 'Envoyer')) return;
+      const { error } = await sb.from('copies').update({ published: true, published_at: new Date().toISOString() }).in('id', ready.map(c => c.id));
+      if (error) return toast('Erreur : ' + esc(error.message));
+      await this.load(); this.renderRetour(key); toast(ready.length + ' copie' + (ready.length > 1 ? 's envoyées' : ' envoyée'));
+    };
+    const rc = document.getElementById('rcopy'); if (rc) rc.onclick = () => copyText(S.cl.students.map(u => { const c = byStu[u.id]; return u.first_name + '\t' + (c && c.score != null ? fmtNum(c.score) : ''); }).join('\n'), 'Notes copiées : colle-les dans ton tableur');
+    const rd = document.getElementById('rdel'); if (rd) rd.onclick = () => { this.retPending(this.retPending().filter(p => this.retKey(p.cls, p.date, p.title) !== key)); go('#/prof/retours'); };
+  },
+  // la copie fait-elle partie de l'évaluation ouverte ? (pour le bouton « élève suivant » et le retour)
+  retOf(d){
+    if (!this._retour) return null;
+    const st = this.studentById[d.student_id]; if (!st) return null;
+    const [cls, date, title] = this._retour.split('|');
+    if (st.class_id !== cls) return null;
+    if (d.id && !(String(d._title0 || '').trim() === title && (d._date0 || '') === date)) return null;
+    return { key: this._retour, cls, date, title };
   },
   exCount(n){
     if (n){ try { store.set('exos_nex', String(n)); } catch(e){} return n; }
@@ -6571,7 +6688,7 @@ Object.assign(Student, {
 /* ===== Côté professeur ===== */
 Object.assign(Prof, {
   evSeg(active){
-    return '<div class="seg" style="margin-bottom:14px"><button data-evs="evals" class="' + (active === 'evals' ? 'on' : '') + '">Évaluations</button><button data-evs="fiches" class="' + (active === 'fiches' ? 'on' : '') + '">Fiches à rendre</button></div>';
+    return '<div class="seg" style="margin-bottom:14px"><button data-evs="evals" class="' + (active === 'evals' ? 'on' : '') + '">Évaluations</button><button data-evs="fiches" class="' + (active === 'fiches' ? 'on' : '') + '">Fiches à rendre</button><button data-evs="retours" class="' + (active === 'retours' ? 'on' : '') + '">Copies corrigées</button></div>';
   },
   bindEvSeg(){ document.querySelectorAll('[data-evs]').forEach(b => b.onclick = () => go('#/prof/' + b.dataset.evs)); },
   ficheSends(wid){ return (this.wsends || []).filter(s => s.worksheet_id === wid); },
