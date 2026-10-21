@@ -854,9 +854,12 @@ const SB_PROXY = 'https://mes-exercices-hl.netlify.app/sb';
 const sbRelay = { on: false, ok: false };
 try { const t = +localStorage.getItem('sb_relay'); sbRelay.on = !!t && Date.now() - t < 864e5; } catch(e){}
 const viaRelay = u => String(u).replace(SUPABASE_URL, SB_PROXY);
+// relais pas (encore) en place sur Netlify : page 404 au lieu d'une réponse Supabase → on l'oublie
+const relayDead = r => r.status === 404 && !/json/.test(r.headers.get('content-type') || '');
+const relayOff = () => { sbRelay.on = false; try { localStorage.removeItem('sb_relay'); } catch(e){} };
 async function sbFetch(input, init){
   const url = typeof input === 'string' ? input : input.url;
-  if (sbRelay.on) return fetch(viaRelay(url), init);
+  if (sbRelay.on){ const r = await fetch(viaRelay(url), init); if (relayDead(r)){ relayOff(); return fetch(input, init); } return r; }
   if (sbRelay.ok) return fetch(input, init);
   // tant que la connexion directe n'a jamais répondu, on lui laisse 7 secondes
   const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 7000);
@@ -864,8 +867,10 @@ async function sbFetch(input, init){
   try { const r = await fetch(input, { ...init, signal: ctl.signal }); clearTimeout(tm); sbRelay.ok = true; return r; }
   catch(e){
     clearTimeout(tm); if (init && init.signal && init.signal.aborted) throw e;
+    const r = await fetch(viaRelay(url), init);
+    if (relayDead(r)) throw e;
     sbRelay.on = true; try { localStorage.setItem('sb_relay', String(Date.now())); } catch(x){}
-    return fetch(viaRelay(url), init);
+    return r;
   }
 }
 const SUPABASE_KEY = 'sb_publishable_VOIm_5-skIkI9Mu0u3GfTw_3PUafdTZ';
