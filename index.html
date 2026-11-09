@@ -19,7 +19,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <style>
 :root{
-  --bg:#f2f2f7;--card:#fff;--elev:#fff;--label:#000;--label2:rgba(60,60,67,.6);--label3:rgba(60,60,67,.3);
+  --bg:#f2f2f7;--card:#fff;--elev:#fff;--label:#000;--label2:rgba(60,60,67,.76);--label3:rgba(60,60,67,.3);
   --sep:rgba(60,60,67,.2);--fill:rgba(120,120,128,.12);--fill2:rgba(120,120,128,.2);
   --blue:#007aff;--green:#34c759;--red:#ff3b30;--orange:#ff9500;--gray:#8e8e93;--segon:#fff;--purple:#af52de;--teal:#30b0c7;--indigo:#5856d6;--pink:#ff2d55;
   --shadow:0 1px 2px rgba(0,0,0,.04);
@@ -344,6 +344,7 @@ body.easy .why-opt{font-size:17px;line-height:1.5}
 .stile.feat .done{flex:none;font-weight:700;font-size:20px;font-variant-numeric:tabular-nums;color:var(--green)}
 .ring{display:block;margin:0 auto 22px}
 .ring circle{transition:stroke-dashoffset 1s cubic-bezier(.32,.72,0,1)}
+.result svg.ring,.screen svg.ring{width:170px;height:170px;display:block;position:static;margin:0 auto 22px}
 .result h1{text-align:center;font-size:28px;font-weight:700;margin-bottom:8px}
 .result p{text-align:center;color:var(--label2);margin-bottom:6px;line-height:1.45}
 
@@ -412,6 +413,29 @@ select.leg:disabled{opacity:1;color:var(--label)}
 .col-h{font-size:24px;font-weight:700;margin:22px 0 4px;color:var(--purple)}
 @media (min-width:1000px){ body.prof .tabbar a[href$="/evals"] svg{color:var(--purple)} body.prof .tabbar a[href$="/evals"].on{background:color-mix(in srgb,var(--purple) 14%,transparent);color:var(--purple)} }
 .pill.teal{background:color-mix(in srgb,var(--teal) 16%,transparent);color:var(--teal)}.btn.teal{background:var(--teal)}
+/* Connexion faible, récapitulatif des erreurs, bouton de départ fixe, confettis */
+.netbar{display:flex;align-items:center;gap:10px;background:color-mix(in srgb,var(--orange) 16%,var(--card));border-radius:12px;padding:10px 14px;margin:0 0 12px;font-size:15px;line-height:1.35}
+.netbar.info{background:color-mix(in srgb,var(--blue) 12%,var(--card))}
+.netbar b{font-weight:600}.netbar .grow{flex:1;min-width:0}
+.netbar button{flex:none;border:0;background:none;color:var(--blue);font-weight:600;font-size:15px;padding:6px 0 6px 8px}
+.row .val.wrapv{white-space:normal;text-align:right;font-size:15px;line-height:1.3;max-width:62%}
+.sticky-cta{position:sticky;bottom:0;z-index:4;margin:0 -16px;padding:14px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to bottom,transparent,var(--bg) 26%)}
+.sticky-cta .btn.mt2,.sticky-cta .btn.mt{margin-top:0}
+.screen.center.long{justify-content:flex-start}
+.errs{text-align:left;margin-top:18px}
+.errs .section-h{margin-left:4px}
+.err-it{padding:12px 16px;border-bottom:.5px solid var(--sep)}.err-it:last-child{border-bottom:0}
+.err-it .q{font-size:15px;line-height:1.35;color:var(--label)}
+.err-it .a{font-size:15px;line-height:1.35;color:var(--green);font-weight:600;margin-top:4px}
+.err-it .e{font-size:14px;line-height:1.4;color:var(--label2);margin-top:3px}
+.steps3{display:flex;gap:8px;margin:14px 0 2px;text-align:left}
+.steps3 div{flex:1;background:var(--card);border-radius:12px;padding:10px 10px;font-size:13px;line-height:1.3;color:var(--label2)}
+.steps3 b{display:block;color:var(--label);font-size:14px;margin-bottom:2px}
+.steps3 i{display:inline-flex;width:20px;height:20px;border-radius:50%;background:var(--blue);color:#fff;font-style:normal;font-weight:700;font-size:12px;align-items:center;justify-content:center;margin-bottom:6px}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+.confetti i{position:absolute;top:-12px;width:8px;height:14px;border-radius:2px;opacity:.95;animation:confet 1.9s cubic-bezier(.2,.6,.4,1) forwards}
+@keyframes confet{to{transform:translate3d(var(--dx),105vh,0) rotate(var(--rot));opacity:.7}}
+@media (prefers-reduced-motion:reduce){.confetti{display:none}}
 /* Fiches interactives */
 .fwrap .fpage{position:relative;container-type:inline-size;border-radius:10px;overflow:hidden;background:#fff;box-shadow:var(--shadow),0 0 0 .5px var(--sep);margin:0 0 6px;line-height:1.15;color:#111}
 .fpage img{display:block;width:100%;height:100%;object-fit:fill;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;pointer-events:none}
@@ -1728,18 +1752,20 @@ const Student = {
     if (!silent) loading();
     if (!this.me){
       const { data, error } = await sb.rpc('student_login', { p_code: this.code });
-      if (error) return this.offline();
+      if (error){ const c = this.cachedHome(); if (c && c.me){ this.me = c.me; return this.useCached(c); } return this.offline(); }
       if (!data){ store.del('exos_code'); return this.renderLogin('Ce code n\u2019est plus valide.'); }
       this.me = data;
     }
+    await this.flushOutbox();
     const [{ data, error }, cp, fw, gt, rm, qa] = await Promise.all([sb.rpc('student_home', { p_code: this.code }), sb.rpc('student_copies', { p_code: this.code }), sb.rpc('student_worksheets', { p_code: this.code }), sb.rpc('student_geo_tasks', { p_code: this.code }), sb.rpc('student_reminders', { p_code: this.code }), sb.rpc('student_questions', { p_code: this.code })]);
     this.reminders = rm.error ? (this.reminders || []) : (rm.data || []);
     this.qa = qa.error || !qa.data ? (this.qa || { enabled: true, mine: [], faq: [] }) : qa.data;
     this.geoTasks = gt.error ? (this.geoTasks || []) : (gt.data || []);
     this.fiches = fw.error ? (this.fiches || []) : (fw.data || []);
-    if (error || !data) return this.offline();
+    if (error || !data){ const c = this.cachedHome(); if (c && c.home && (!error || netError(error))) return this.useCached(c); return this.offline(); }
     this.copies = cp.error ? (this.copies || []) : (cp.data || []);
-    this.home = data; this.list = data.assignments || []; this.practice = false;
+    this.home = data; this.list = data.assignments || []; this.practice = false; this.offlineSince = null;
+    this.cacheHome(); if (this.outbox().length) this.outWatch();
     this.list.forEach(a => { if (a.control_open && !anchorInfo(a.passes, a.anchor).anchored) a.control_open = false; });
     this.renderList();
     if (!silent && !store.get('exos_tour_' + this.code)) setTimeout(() => this.showTour(), 350);
@@ -1780,6 +1806,13 @@ const Student = {
     setTimeout(() => el.querySelector('#tnext').focus({ preventScroll: true }), 100);
   },
 
+  useCached(c){
+    this.home = c.home; this.list = c.home.assignments || []; this.practice = false; this.offlineSince = c.at;
+    this.copies = this.copies || c.copies || []; this.fiches = this.fiches || c.fiches || []; this.geoTasks = this.geoTasks || c.geoTasks || []; this.reminders = this.reminders || [];
+    this.qa = this.qa || c.qa || { enabled: true, mine: [], faq: [] };
+    this.list.forEach(a => { if (a.control_open && !anchorInfo(a.passes, a.anchor).anchored) a.control_open = false; });
+    this.renderList();
+  },
   offline(){
     $app.innerHTML = '<div class="screen center"><div class="empty"><b>Pas de connexion</b>Vérifie que ton téléphone est connecté à internet.</div><button class="btn mt" id="r">Réessayer</button></div>';
     document.getElementById('r').onclick = () => this.loadList();
@@ -3378,12 +3411,33 @@ const Student = {
       '<div class="section-h">Apparence</div>' + themeSeg() +
       '<p class="foot">Ces réglages restent sur ton téléphone. Personne d’autre ne les voit.</p>' +
       '<div class="section-h">Aide</div><div class="group"><button class="row" id="tourb"><div class="main"><div class="t">Revoir la visite guidée</div><div class="s">Comment fonctionne l\u2019appli</div></div><span class="chev">' + I.chevR + '</span></button></div>' +
-      '<div class="section-h">Sur ton téléphone</div><div class="group"><button class="row" id="inst"><div class="main"><div class="t">Ajouter l’appli à l’écran d’accueil</div><div class="s">Pour l’ouvrir comme une vraie appli</div></div><span class="chev">' + I.chevR + '</span></button></div>';
+      '<div class="section-h">Sur ton téléphone</div><div class="group"><button class="row" id="inst"><div class="main"><div class="t">Ajouter l’appli à l’écran d’accueil</div><div class="s">Pour l’ouvrir comme une vraie appli</div></div><span class="chev">' + I.chevR + '</span></button>' +
+      '<button class="row" id="priv"><div class="main"><div class="t">Tes données</div><div class="s">Ce que l\u2019appli garde, et qui le voit</div></div><span class="chev">' + I.chevR + '</span></button></div>';
     openSheet(html, (el, close) => {
+      el.querySelector('#priv').onclick = () => { close(); setTimeout(() => this.privacySheet(), 250); };
       el.querySelector('#easy').onchange = e => { document.body.classList.toggle('easy', e.target.checked); store.set('exos_easy', e.target.checked ? '1' : '0'); };
       bindThemeSeg(el);
       el.querySelector('#inst').onclick = () => { close(); setTimeout(() => this.installSheet(), 250); };
       el.querySelector('#tourb').onclick = () => { close(); setTimeout(() => this.showTour(), 250); };
+    });
+  },
+
+  privacySheet(){
+    const html = '<div class="grabber"></div><div class="sheet-head"><span></span><h2>Tes données</h2><button class="nav-btn bold" data-close>OK</button></div>' +
+      '<div class="group"><div class="row"><div class="main"><div class="t">Ce que l\u2019appli connaît de toi</div><div class="s">Ton prénom, ta classe et ton code. Pas de nom de famille, pas d\u2019adresse e-mail, pas de mot de passe, pas de photo.</div></div></div>' +
+      '<div class="row"><div class="main"><div class="t">Ce qui est enregistré</div><div class="s">Tes réponses, tes scores, le temps passé et la date de tes exercices. Les questions que tu poses à ton professeur.</div></div></div>' +
+      '<div class="row"><div class="main"><div class="t">Qui le voit</div><div class="s">Ton professeur, et personne d\u2019autre. Les autres élèves ne voient jamais tes résultats. Rien n\u2019est vendu ni utilisé pour de la publicité.</div></div></div>' +
+      '<div class="row"><div class="main"><div class="t">Sur ce téléphone</div><div class="s">Tes réglages, tes cartes mémoire et un exercice en cours restent sur ton téléphone pour que l\u2019appli marche même avec une mauvaise connexion.</div></div></div></div>' +
+      '<p class="foot">Pour faire corriger ou supprimer tes données, demande à ton professeur.</p>' +
+      '<div class="group"><button class="row danger" id="wipe">Effacer les données de ce téléphone</button></div>' +
+      '<p class="foot">À faire sur un téléphone prêté. Tes résultats restent chez ton professeur, il te suffira de retaper ton code.</p>';
+    openSheet(html, (el, close) => {
+      el.querySelector('#wipe').onclick = async () => {
+        const n = this.outbox().length;
+        if (!await confirmDialog('Effacer les données de ce téléphone ?', (n ? n + ' résultat' + (n > 1 ? 's' : '') + ' pas encore envoyé' + (n > 1 ? 's seront perdus' : ' sera perdu') + '. ' : '') + 'Tu devras retaper ton code.', 'Effacer', true)) return;
+        try { Object.keys(localStorage).filter(k => /^(exos_|geo_|jeu_|study_|cards_)/.test(k)).forEach(k => localStorage.removeItem(k)); } catch(e){}
+        close(); this.code = null; this.me = null; this.home = null; this.renderLogin();
+      };
     });
   },
 
@@ -3464,8 +3518,14 @@ const Student = {
   async open(id){
     this.conf = false; this.practice = false;
     loading();
-    const { data, error } = await sb.rpc('student_get_set', { p_code: this.code, p_assignment_id: id });
-    if (error || !data){ toast('Impossible d\u2019ouvrir cet exercice'); return this.loadList(); }
+    let { data, error } = await sb.rpc('student_get_set', { p_code: this.code, p_assignment_id: id });
+    if (!error && data) this.cacheSet(data);
+    else if (error && netError(error) && this.cachedSet(id)){ data = this.cachedSet(id); error = null; toast('Pas de connexion : tu peux quand même faire cet exercice'); }
+    if (error || !data){
+      if (error && netError(error)){ toast('Pas de connexion : ouvre cet exercice une première fois avec internet'); if (this.home) return this.renderList(); }
+      else toast('Impossible d\u2019ouvrir cet exercice');
+      return this.loadList();
+    }
     if (data.control && data.control.available && !anchorInfo(data.passes, data.anchor).anchored) data.control.available = false;
     if ((this.list || []).some(a => a.id === data.assignment_id && a.is_control)) data.anchor = 1;
     this.set = data; this.renderIntro();
@@ -3490,15 +3550,15 @@ const Student = {
       '<div class="group mt">' +
       '<div class="row"><div class="main t">Questions</div><span class="val">' + (s.draw_count && s.draw_count < s.questions.length ? s.draw_count + ', nouvelles à chaque essai' : s.questions.length) + '</span></div>' +
       '<div class="row"><div class="main t">Pour valider</div><span class="val">' + s.pass_score + ' %</span></div>' +
-      ((s.anchor || 1) > 1 && s.assignment_id ? (() => { const n = anchorInfo(s.passes, s.anchor); return '<div class="row"><div class="main t">Ancrage</div><span class="val">' + (n.anchored ? 'Acquise ✓' : n.level + ' réussite' + (n.level > 1 ? 's' : '') + ' sur ' + n.anchor + (n.next ? (n.due ? ' · à refaire maintenant' : ' · prochaine le ' + fmtDate(n.next)) : '')) + '</span></div>'; })() : '') +
-      (C && !C.available && !C.done ? '<div class="row"><div class="main t">Ensuite</div><span class="val">Test de contrôle (' + C.count + ' questions)' + ((s.anchor || 1) > 1 ? ', une fois la série acquise' : '') + '</span></div>' : '') +
+      ((s.anchor || 1) > 1 && s.assignment_id ? (() => { const n = anchorInfo(s.passes, s.anchor); return '<div class="row"><div class="main t">Ancrage</div><span class="val wrapv">' + (n.anchored ? 'Acquise ✓' : n.level + ' réussite' + (n.level > 1 ? 's' : '') + ' sur ' + n.anchor + (n.next ? (n.due ? ' · à refaire maintenant' : ' · prochaine le ' + fmtDate(n.next)) : '')) + '</span></div>'; })() : '') +
+      (C && !C.available && !C.done ? '<div class="row"><div class="main t">Ensuite</div><span class="val wrapv">Test de contrôle (' + C.count + ' questions)' + ((s.anchor || 1) > 1 ? ', une fois la série acquise' : '') + '</span></div>' : '') +
       (info.due_date ? '<div class="row"><div class="main t">À faire pour le</div><span class="val">' + fmtDate(info.due_date) + '</span></div>' : '') +
       (info.attempt_count ? '<div class="row"><div class="main t">Tes essais</div><span class="val">' + info.attempt_count + ' · meilleur ' + info.best_percent + ' %</span></div>' : '') +
       '</div>' +
       (missed && !saved ? '<p class="foot">Les ' + missed + ' question' + (missed > 1 ? 's' : '') + ' ratée' + (missed > 1 ? 's' : '') + ' la dernière fois arrivent en premier.</p>' : '') +
-      (saved
+      '<div class="sticky-cta">' + (saved
         ? '<button class="btn mt2" id="resume">Reprendre où tu t’étais arrêté</button><p class="foot" style="text-align:center">' + Object.keys(saved.first).length + ' question' + (Object.keys(saved.first).length > 1 ? 's' : '') + ' déjà faite' + (Object.keys(saved.first).length > 1 ? 's' : '') + ' sur ' + saved.total + '</p><button class="btn plain" id="startq">Recommencer depuis le début</button>'
-        : '<button class="btn ' + (C && C.available ? 'plain mt' : 'mt2') + '" id="startq">' + (C && C.available ? 'Refaire la série pour réviser' : info.attempt_count ? 'Recommencer' : 'Commencer') + '</button>') + '</div>';
+        : '<button class="btn ' + (C && C.available ? 'plain mt' : 'mt2') + '" id="startq">' + (C && C.available ? 'Refaire la série pour réviser' : info.attempt_count ? 'Recommencer' : 'Commencer') + '</button>') + '</div></div>';
     document.getElementById('back').onclick = () => this.loadList();
     const sq = document.getElementById('startq'); if (sq) sq.onclick = () => { this.clearRun(); this.startSession(); };
     const rs = document.getElementById('resume'); if (rs) rs.onclick = () => this.resumeSession(saved);
@@ -3627,7 +3687,7 @@ const Student = {
       '<div class="qhead"><div class="qtype">' + TYPE_LABEL[q.type] + '</div>' + (TTS.ok ? '<button class="speak" id="speak" aria-label="Écouter la question">' + I.speaker + ' Écouter</button>' : '') + '</div>' +
       (q.doc && q.type !== 'image' && q.type !== 'clic' ? '<div class="docbox"><div class="doc-label">' + (q.doc.pin ? 'Carte' : 'Document') + '</div>' + (q.doc.image ? (q.doc.pin ? '<div class="img-wrap" style="margin-bottom:4px"><img src="' + esc(q.doc.image) + '" alt="Carte muette"><span class="pin target" style="left:' + q.doc.pin.x + '%;top:' + q.doc.pin.y + '%">?</span></div>' : '<img src="' + esc(q.doc.image) + '" alt="Document">') : '') +
         (q.doc.text ? '<div class="doc-text">' + nb(esc(q.doc.text)).replace(/\n/g, '<br>') + '</div>' : '') + (q.doc.source ? '<div class="doc-src">' + esc(q.doc.source) + '</div>' : '') + '</div>' : '') +
-      body + '</div><div class="feedback" id="fb"></div></div>';
+      body + '</div><div class="feedback" id="fb" role="status" aria-live="polite"></div></div>';
     window.scrollTo(0, 0);
     if (q.doc && q.type !== 'image' && q.type !== 'clic' && q.doc.text) speech = 'Document. ' + q.doc.text + '. ' + (q.doc.source ? 'Source : ' + q.doc.source + '. ' : '') + 'Question. ' + speech;
     const qbtn = document.getElementById('quit');
@@ -3925,9 +3985,11 @@ const Student = {
     if (!ok && it.repeat < 2 && !isPre) s.queue.push({ q: it.q, repeat: it.repeat + 1 });
     if (!ok && navigator.vibrate) try { navigator.vibrate(60); } catch(e){}
     const fb = document.getElementById('fb');
+    s.run = ok ? (s.run || 0) + 1 : 0;
+    const okTitle = s.run >= 3 ? s.run + ' bonnes réponses d\u2019affilée !' : ['Bonne réponse !', 'Exact !', 'Bien joué !', 'C\u2019est ça !'][(s.idx + s.run) % 4];
     const why = ok && !it.repeat ? this.whyChoices(it.q, explanation) : null;
     fb.className = 'feedback ' + (ok ? 'ok' : 'ko');
-    fb.innerHTML = '<div><h3>' + (ok ? I.okCircle + ' Bonne réponse !' : I.koCircle + ' Pas tout à fait') + '</h3>' +
+    fb.innerHTML = '<div><h3>' + (ok ? I.okCircle + ' ' + okTitle : I.koCircle + ' Pas tout à fait') + '</h3>' +
       (!ok ? '<p class="fb-ans">Réponse correcte : <strong>' + esc(correctText) + '</strong></p>' : '') +
       (why ? '<div class="why-q">Pourquoi c\u2019est la bonne réponse ?</div>' + why.map((t, k) => '<button class="why-opt" data-why="' + k + '">' + nb(esc(t)) + '</button>').join('') + '<p class="fb-exp" id="whyr" style="margin-top:8px" hidden></p>'
         : explanation ? '<p class="fb-exp">' + esc(explanation) + '</p>' : '') +
@@ -4040,7 +4102,17 @@ const Student = {
       }
     } else {
       $app.innerHTML = '<div class="screen center"><div class="spinner" style="margin:0 auto 16px"></div><p style="text-align:center;color:var(--label2)">Enregistrement…</p></div>';
-      const { data, error } = await sb.rpc('student_submit_attempt', { p_code: this.code, p_assignment_id: this.set.assignment_id, p_score: score, p_duration: duration, p_answers: answers });
+      s.cid = s.cid || (Date.now().toString(36) + Math.random().toString(36).slice(2, 10));
+      const item = { aid: this.set.assignment_id, score, duration, answers, cid: s.cid, at: new Date().toISOString(), title: this.set.title };
+      const { data, error } = await this.sendAttempt(item);
+      this._wrong = qs.filter(q => !s.first[q.id]);
+      if (error && netError(error)){
+        // pas de connexion : on garde le résultat sur le téléphone et on l'envoie plus tard
+        const box = this.outbox().filter(x => x.cid !== item.cid); box.push(item); this.outSave(box); this.outWatch();
+        const pc = Math.round(100 * score / qs.length);
+        this.clearRun();
+        return this.renderResult({ percent: pc, passed: pc >= this.set.pass_score, pass_score: this.set.pass_score, pending: true }, score, qs.length);
+      }
       if (error){
         $app.innerHTML = '<div class="screen center"><div class="empty"><b>Ton résultat n\u2019a pas pu être envoyé</b>Vérifie ta connexion internet puis réessaie. Ne quitte pas cette page.</div><button class="btn mt" id="retry">Réessayer l\u2019envoi</button></div>';
         document.getElementById('retry').onclick = () => { s.start = Date.now() - duration * 1000; this.finish(); };
@@ -4048,18 +4120,93 @@ const Student = {
       }
       res = data; this.clearRun();
     }
+    if (this.preview) this._wrong = qs.filter(q => !s.first[q.id]);
     this.renderResult(res, score, qs.length);
+  },
+
+  /* --- Connexion faible : résultats en attente et dernière version connue --- */
+  outbox(){ try { return JSON.parse(store.get('exos_outbox_' + this.code) || '[]') || []; } catch(e){ return []; } },
+  outSave(list){ if (list.length) store.set('exos_outbox_' + this.code, JSON.stringify(list)); else store.del('exos_outbox_' + this.code); },
+  async sendAttempt(x){
+    const base = { p_code: this.code, p_assignment_id: x.aid, p_score: x.score, p_duration: x.duration, p_answers: x.answers };
+    let r = await sb.rpc('student_submit_attempt', { ...base, p_client_id: x.cid });
+    // base pas encore mise à jour (paramètre inconnu) : ancien envoi
+    if (r.error && (r.error.code === 'PGRST202' || /p_client_id|Could not find the function/i.test(r.error.message || ''))) r = await sb.rpc('student_submit_attempt', base);
+    return r;
+  },
+  async flushOutbox(){
+    if (this._flushing || !this.code) return 0;
+    let box = this.outbox(); if (!box.length) return 0;
+    this._flushing = true; let sent = 0;
+    try {
+      for (const x of box.slice()){
+        const r = await this.sendAttempt(x);
+        if (r.error && netError(r.error)) break;
+        box = box.filter(y => y.cid !== x.cid); this.outSave(box); if (!r.error) sent++;
+      }
+    } finally { this._flushing = false; }
+    if (sent) toast(I.okCircle.replace('width="26" height="26"', 'width="18" height="18" style="color:var(--green)"') + ' ' + sent + ' résultat' + (sent > 1 ? 's envoyés' : ' envoyé') + ' à ton professeur');
+    return sent;
+  },
+  outWatch(){
+    clearInterval(this._outT);
+    this._outT = setInterval(async () => {
+      if (!this.outbox().length) return clearInterval(this._outT);
+      const n = await this.flushOutbox();
+      if (n && this.home && document.querySelector('[data-stab]') && !document.querySelector('.quiz')) this.loadList(true);
+    }, 20000);
+  },
+  cacheHome(){ store.set('exos_home_' + this.code, JSON.stringify({ at: Date.now(), me: this.me, home: this.home, copies: this.copies, fiches: this.fiches, geoTasks: this.geoTasks, qa: this.qa })); },
+  cachedHome(){ try { return JSON.parse(store.get('exos_home_' + this.code) || 'null'); } catch(e){ return null; } },
+  cacheSet(d){
+    if (!d || !d.assignment_id) return;
+    const kI = 'exos_sets_' + this.code; let idx = []; try { idx = JSON.parse(store.get(kI) || '[]') || []; } catch(e){}
+    idx = idx.filter(i => i !== d.assignment_id); idx.push(d.assignment_id);
+    while (idx.length > 6) store.del('exos_set_' + this.code + '_' + idx.shift());
+    store.set('exos_set_' + this.code + '_' + d.assignment_id, JSON.stringify(d)); store.set(kI, JSON.stringify(idx));
+  },
+  cachedSet(id){ try { return JSON.parse(store.get('exos_set_' + this.code + '_' + id) || 'null'); } catch(e){ return null; } },
+  netBanner(){
+    const w = $app.querySelector('.wrap'); if (!w || w.querySelector('.netbar')) return;
+    const n = this.outbox().length; let h = '';
+    if (this.offlineSince) h += '<div class="netbar"><div class="grow"><b>Pas de connexion.</b> Tu vois la version du ' + fmtDateTime(this.offlineSince) + '. Tu peux refaire les exercices déjà ouverts.</div><button id="netretry">Réessayer</button></div>';
+    if (n) h += '<div class="netbar info"><div class="grow"><b>' + n + ' résultat' + (n > 1 ? 's' : '') + ' en attente d\u2019envoi.</b> ' + (n > 1 ? 'Ils partiront' : 'Il partira') + ' tout seul dès que la connexion revient.</div>' + (this.offlineSince ? '' : '<button id="netsend">Envoyer</button>') + '</div>';
+    if (!h) return;
+    w.insertAdjacentHTML('afterbegin', h);
+    const a = document.getElementById('netretry'); if (a) a.onclick = () => this.loadList();
+    const b = document.getElementById('netsend'); if (b) b.onclick = async () => { b.disabled = true; const k = await this.flushOutbox(); if (k) this.loadList(true); else { b.disabled = false; toast('Toujours pas de connexion'); } };
+  },
+  errRecap(){
+    const W = (this._wrong || []).slice(0, 12); if (!W.length) return '';
+    const txt = q => { let t = ''; try { t = answerText(q); } catch(e){} return t; };
+    return '<div class="errs"><div class="section-h">À revoir (' + (this._wrong || []).length + ')</div><div class="group">' + W.map(q => {
+      const a = txt(q);
+      return '<div class="err-it"><div class="q clamp2">' + nb(esc(q.prompt || q.text || 'Question')) + '</div>' + (a ? '<div class="a">' + esc(a) + '</div>' : '') + (q.explanation ? '<div class="e">' + esc(q.explanation) + '</div>' : '') + '</div>'; }).join('') + '</div></div>';
+  },
+  confetti(){
+    try { if (matchMedia('(prefers-reduced-motion:reduce)').matches) return; } catch(e){}
+    const c = document.createElement('div'); c.className = 'confetti'; c.setAttribute('aria-hidden', 'true');
+    const cols = ['#007aff', '#34c759', '#ff9500', '#af52de', '#ff2d55', '#ffcc00'];
+    for (let i = 0; i < 36; i++){ const e = document.createElement('i'); e.style.left = (Math.random() * 100) + '%'; e.style.background = cols[i % cols.length]; e.style.animationDelay = (Math.random() * .5) + 's'; e.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px'); e.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg'); c.appendChild(e); }
+    document.body.appendChild(c); setTimeout(() => c.remove(), 2800);
   },
 
   renderResult(res, score, total){
     const R = 70, C = 2 * Math.PI * R, col = res.passed ? 'var(--green)' : 'var(--orange)';
-    $app.innerHTML = '<div class="screen center result">' +
+    const info0 = (this.list || []).find(a => a.id === (this.set || {}).assignment_id) || {};
+    const prevBest = this.preview ? null : info0.best_percent;
+    const recap = this.errRecap();
+    const hasCourse = !res.passed && !this.preview && this.set.course_id;
+    $app.innerHTML = '<div class="screen center result' + (recap ? ' long' : '') + '">' +
       '<svg class="ring" width="170" height="170" viewBox="0 0 170 170"><circle cx="85" cy="85" r="' + R + '" fill="none" stroke="var(--fill2)" stroke-width="14"/>' +
       '<circle id="arc" cx="85" cy="85" r="' + R + '" fill="none" stroke="' + col + '" stroke-width="14" stroke-linecap="round" stroke-dasharray="' + C + '" stroke-dashoffset="' + C + '" transform="rotate(-90 85 85)"/>' +
       '<text x="85" y="96" text-anchor="middle" font-size="36" font-weight="700" fill="var(--label)" font-family="-apple-system,Inter,sans-serif">' + res.percent + '%</text></svg>' +
-      '<h1>' + (res.passed ? 'Exercice validé !' : 'Encore un effort') + '</h1>' +
+      '<h1>' + (res.passed ? (res.percent === 100 ? 'Sans faute !' : 'Exercice validé !') : 'Encore un effort') + '</h1>' +
       '<p>' + score + ' bonne' + (score > 1 ? 's' : '') + ' réponse' + (score > 1 ? 's' : '') + ' du premier coup sur ' + total + '.</p>' +
-      '<p>' + (res.passed ? (this.preview ? '' : 'Ton professeur verra que tu l\u2019as terminé.') : 'Il faut ' + res.pass_score + ' % pour valider. Les questions ratées reviendront en premier.') + '</p>' +
+      '<p>' + (res.passed ? (this.preview ? '' : res.pending ? '' : 'Ton professeur verra que tu l\u2019as terminé.') : 'Il faut ' + res.pass_score + ' % pour valider. Les questions ratées reviendront en premier.') + '</p>' +
+      (!res.passed && prevBest != null && res.percent > prevBest ? '<p style="color:var(--green);font-weight:600">Tu progresses : ' + prevBest + ' % avant, ' + res.percent + ' % maintenant.</p>' : '') +
+      (res.pending ? '<div class="msg-card" style="text-align:left;background:color-mix(in srgb,var(--orange) 14%,var(--card))"><div class="from">Pas de connexion</div>Ton résultat est gardé sur ton téléphone. Il sera envoyé à ton professeur dès que la connexion revient. Tu n\u2019as rien à refaire.</div>' : '') +
+      (!res.passed && recap ? '<div class="steps3"><div><i>1</i><b>Lis tes erreurs</b>Elles sont juste en dessous.</div>' + (hasCourse ? '<div><i>2</i><b>Revois le cours</b>Quelques minutes suffisent.</div>' : '') + '<div><i>' + (hasCourse ? 3 : 2) + '</i><b>Recommence</b>Tes erreurs reviennent en premier.</div></div>' : '') +
       (res.passed && !this.preview && (this.set.anchor || 1) > 1 ? (() => {
         const before = anchorInfo(this.set.passes, this.set.anchor), after = anchorInfo((this.set.passes || []).concat([todayLocal()]), this.set.anchor);
         const txt = after.anchored && !before.anchored ? 'Série acquise ! Tu l\u2019as réussie ' + after.anchor + ' fois, à plusieurs jours d\u2019écart : c\u2019est comme ça qu\u2019on retient vraiment.'
@@ -4073,13 +4220,16 @@ const Student = {
       '<div class="stack mt2">' +
       (res.passed
         ? (res.passed && !this.preview && this.set.control && !this.set.control.done && anchorInfo((this.set.passes || []).concat([todayLocal()]), this.set.anchor).anchored ? '<button class="btn" id="b3">Passer le test de contrôle</button><button class="btn plain" id="b1">Plus tard</button>' : '<button class="btn" id="b1">' + (this.preview ? 'Terminer l\u2019aperçu' : 'Mes exercices') + '</button><button class="btn plain" id="b2">Refaire pour réviser</button>')
-        : '<button class="btn" id="b2">Recommencer</button><button class="btn plain" id="b1">' + (this.preview ? 'Terminer l\u2019aperçu' : 'Mes exercices') + '</button>') +
-      '</div></div>';
+        : '<button class="btn" id="b2">Recommencer</button>' + (hasCourse ? '<button class="btn gray" id="b4">' + I.book + ' Revoir le cours</button>' : '') + '<button class="btn plain" id="b1">' + (this.preview ? 'Terminer l\u2019aperçu' : 'Mes exercices') + '</button>') +
+      '</div>' + recap + '</div>';
     requestAnimationFrame(() => requestAnimationFrame(() => { document.getElementById('arc').style.strokeDashoffset = C * (1 - res.percent / 100); }));
+    if (res.passed && !this.preview) this.confetti();
+    window.scrollTo(0, 0);
+    const b4 = document.getElementById('b4'); if (b4) b4.onclick = () => this.courseSheet(this.set.course_id);
     document.getElementById('b1').onclick = () => this.exit();
     const b3 = document.getElementById('b3'); if (b3) b3.onclick = () => this.startControl();
     const b2 = document.getElementById('b2'); if (b2) b2.onclick = async () => {
-      if (!this.preview){ const r = await sb.rpc('student_get_set', { p_code: this.code, p_assignment_id: this.set.assignment_id }); if (r.data) this.set = r.data; }
+      if (!this.preview){ const r = await sb.rpc('student_get_set', { p_code: this.code, p_assignment_id: this.set.assignment_id }); if (r.data){ this.set = r.data; this.cacheSet(r.data); } else if (this._wrong) this.set.previously_missed = this._wrong.map(q => q.id); }
       this.startSession();
     };
   },
@@ -4147,6 +4297,23 @@ const Student = {
     this.startSession();
   }
 };
+
+/* Erreur de réseau (pas de réponse du serveur), par opposition à un refus du serveur */
+function netError(e){ return !!e && !e.code && !/JWT|permission/i.test(e.message || ''); }
+{ const _rl = Student.renderList; Student.renderList = function(){ const x = _rl.apply(this, arguments); try { this.netBanner(); } catch(e){} return x; }; }
+window.addEventListener('online', async () => {
+  if (!Student.code || location.hash.startsWith('#/prof')) return;
+  const n = await Student.flushOutbox();
+  if ((n || Student.offlineSince) && Student.home && document.querySelector('[data-stab]') && !document.querySelector('.quiz')) Student.loadList(true);
+});
+
+/* Export pour tableur (Excel, LibreOffice) : séparateur point-virgule, accents conservés */
+function downloadCsv(name, rows){
+  const cell = v => { v = v == null ? '' : String(v); return /[";\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const blob = new Blob(['\ufeff' + rows.map(r => r.map(cell).join(';')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  toast('Fichier téléchargé');
+}
 
 /* ================= ENSEIGNANT ================= */
 const Prof = {
@@ -4386,6 +4553,26 @@ const Prof = {
       '<p class="foot"><span style="color:var(--green)">■</span> validé · <span style="color:var(--orange)">■</span> en cours · <span style="color:var(--red)">■</span> en retard · <span style="color:var(--label3)">■</span> pas commencé. Le cercle donne le pourcentage d\u2019élèves qui ont validé.</p>';
   },
 
+  exportResults(){
+    const d = s => s ? new Date(s).toLocaleDateString('fr-BE') : '', dd = s => s ? s.split('-').reverse().join('/') : '';
+    const lab = { done: 'Validé', late: 'En retard', progress: 'En cours', todo: 'Pas commencé' };
+    const rows = [['Classe', 'Élève', 'Dossier', 'Série', 'Statut', 'Meilleur score (%)', 'Essais', 'Temps passé (min)', 'Première réussite', 'Dernière activité', 'À faire pour le', 'Ancrage', 'Test de contrôle (%)', 'Score à l\u2019évaluation de départ (%)']];
+    this.filteredAssignments().map(a => ({ a, st: this.stat(a), stu: this.studentById[a.student_id], set: this.sets.find(s => s.id === a.set_id) })).filter(x => x.stu && x.set)
+      .sort((x, y) => x.stu.class_name.localeCompare(y.stu.class_name, 'fr', { numeric: true }) || x.stu.first_name.localeCompare(y.stu.first_name, 'fr') || x.set.title.localeCompare(y.set.title, 'fr', { numeric: true }))
+      .forEach(({ a, st, stu, set }) => { const fp = st.atts.find(x => x.passed), bp = this.beforePct(a);
+        rows.push([stu.class_name, stu.first_name, set.folder || '', set.title, lab[st.status], st.best == null ? '' : st.best, st.count, st.time ? Math.round(st.time / 60) : (st.count ? 0 : ''), fp ? d(fp.created_at) : '', d(st.last), dd(a.due_date), st.anc ? (st.anc.anchored ? 'Acquise' : st.anc.level + '/' + st.anc.anchor) : '', st.ctl ? st.ctl.percent : '', bp == null ? '' : bp]); });
+    if (rows.length < 2) return toast('Rien à exporter pour l\u2019instant');
+    const cl = this.classFilter === 'all' ? 'toutes-les-classes' : ((this.classes.find(c => c.id === this.classFilter) || {}).name || 'classe').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w\-]+/g, '-');
+    downloadCsv('resultats-' + cl + '-' + todayLocal() + '.csv', rows);
+  },
+  exportEval(e, atts){
+    const rows = [['Élève', 'Statut', 'Note', 'Sur', 'Pourcentage', 'Pénalité', 'Blocages', 'Terminé le']];
+    const lab = { done: 'Rendue', locked: 'Bloquée', in_progress: 'En cours' };
+    atts.slice().sort((x, y) => ((this.studentById[x.student_id] || {}).first_name || '').localeCompare((this.studentById[y.student_id] || {}).first_name || '', 'fr')).forEach(a => {
+      const fs = a.status === 'done' ? finalScore(a) : null;
+      rows.push([(this.studentById[a.student_id] || {}).first_name || '', lab[a.status] || a.status, fs == null ? '' : String(fs).replace('.', ','), a.total, fs == null || !a.total ? '' : Math.round(fs / a.total * 100), a.penalty || 0, a.lock_count || 0, a.finished_at ? new Date(a.finished_at).toLocaleString('fr-BE') : '']); });
+    downloadCsv('evaluation-' + String(e.title || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w\-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) + '.csv', rows);
+  },
   renderDashboard(){
     const as = this.filteredAssignments().map(a => ({ a, st: this.stat(a) }));
     const nDone = as.filter(x => x.st.done).length, nLate = as.filter(x => x.st.late).length, nTodo = as.length - nDone;
@@ -4422,7 +4609,7 @@ const Prof = {
           '<span class="late-due">' + fmtDate(x.a.due_date) + '</span></a>').join('') +
         '<button class="row center" id="remlate">Envoyer un rappel aux élèves en retard</button><button class="row center" id="copylate">Copier la liste pour un message</button></div>' : '') +
       this.dashCols(sets, as) +
-      (sets.length ? ''
+      (sets.length ? '<div class="group mt2"><button class="row center" id="expcsv" style="gap:8px">' + I.doc + ' Exporter les résultats (tableur)</button></div><p class="foot">Un fichier CSV pour Excel ou LibreOffice : une ligne par élève et par série (score, essais, temps passé, dates).</p>'
         : '<div class="empty"><b>Rien à suivre pour l\u2019instant</b>' + (this.classes.length ? 'Crée une série dans l\u2019onglet Exercices, puis assigne-la à des élèves.' : 'Commence par créer une classe et ses élèves dans l\u2019onglet Classes.') + '</div>') +
       '</div>';
     this.shell('suivi', html);
@@ -4433,6 +4620,7 @@ const Prof = {
       if (k >= 0) c.splice(k, 1); else c.push(f);
       store.set('suivi_dossiers_fermes', JSON.stringify(c)); const y = window.scrollY; this.renderDashboard(); window.scrollTo(0, y);
     });
+    const xp = document.getElementById('expcsv'); if (xp) xp.onclick = () => this.exportResults();
     const cl = document.getElementById('copylate'); if (cl) cl.onclick = () => copyText(this.lateText(late), 'Liste copiée');
     const rl = document.getElementById('remlate'); if (rl) rl.onclick = () => this.remindSheet(late.map(x => ({ stu: x.stu, a: x.a, set: x.set, late: true })), () => this.renderDashboard());
     const gl = document.getElementById('golate'); if (gl) gl.onclick = () => document.getElementById('latehead').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -6061,7 +6249,7 @@ const Prof = {
       '<div class="section-h">Réglages</div><div class="group">' +
         '<div class="row"><div class="main t">Bloquer si l’élève quitte l’appli</div><span class="val">' + (e.anticheat ? 'Oui' : 'Non') + '</span></div>' +
         '<label class="row" style="cursor:pointer"><div class="main t">Montrer la note à la fin</div><span class="switch"><input type="checkbox" id="show" ' + (e.show_score ? 'checked' : '') + '><span></span></span></label></div>' +
-      '<div class="group mt2">' + (done.length ? '<button class="row center" id="printall" style="gap:8px">' + I.printer + ' Imprimer les copies (' + done.length + ')</button>' : '') + (e.status === 'open' ? '<button class="row danger" id="close" style="font-weight:600">Terminer l’évaluation et ramasser les copies</button>' : '') +
+      '<div class="group mt2">' + (done.length ? '<button class="row center" id="printall" style="gap:8px">' + I.printer + ' Imprimer les copies (' + done.length + ')</button><button class="row center" id="expev" style="gap:8px">' + I.doc + ' Exporter les notes (tableur)</button>' : '') + (e.status === 'open' ? '<button class="row danger" id="close" style="font-weight:600">Terminer l’évaluation et ramasser les copies</button>' : '') +
         (e.status === 'closed' ? '<button class="row center" id="reopen">Rouvrir l’évaluation</button>' : '') +
         '<button class="row danger" id="delev">Supprimer l’évaluation</button></div></div>';
     const y = window.scrollY;
@@ -6084,6 +6272,7 @@ const Prof = {
       await this.load(); go('#/prof/evals'); toast('Évaluation supprimée');
     };
     document.getElementById('show').onchange = async ev => { const { error } = await sb.from('evaluations').update({ show_score: ev.target.checked }).eq('id', id); if (error) toast('Erreur : ' + esc(error.message)); else e.show_score = ev.target.checked; };
+    const xe = document.getElementById('expev'); if (xe) xe.onclick = () => this.exportEval(e, this.evalAtts.filter(x => x.evaluation_id === e.id));
     const pa = document.getElementById('printall'); if (pa) pa.onclick = () => this.printCopies(e, done.slice().sort((x, y) => (this.studentById[x.student_id] || {}).first_name.localeCompare((this.studentById[y.student_id] || {}).first_name, 'fr')));
     const cr = document.getElementById('copyres');
     if (cr) cr.onclick = () => copyText('Prénom\tNote\tSur\n' + rows.map(r => r.st.first_name + '\t' + (r.a && r.a.status === 'done' && r.a.score != null ? finalScore(r.a) : (r.a ? 'en cours' : 'absent')) + '\t' + total).join('\n'), 'Notes copiées : colle-les dans Excel');
