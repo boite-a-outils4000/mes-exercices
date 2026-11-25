@@ -873,7 +873,7 @@ window.addEventListener('error', e => {
 </script>
 <script>
 'use strict';
-const SUPABASE_URL = 'https://gbwsvtmmgzoonoytqquv.supabase.co';
+const SUPABASE_URL = 'https://xznaawrzuxyxdhwirwkj.supabase.co';
 // Relais Netlify : certains opérateurs mobiles bloquent supabase.co. Si la connexion directe échoue, on passe par
 // mes-exercices-hl.netlify.app/sb (règle dans _redirects) et on s'en souvient pour la journée.
 const SB_PROXY = 'https://mes-exercices-hl.netlify.app/sb';
@@ -899,7 +899,7 @@ async function sbFetch(input, init){
     return r;
   }
 }
-const SUPABASE_KEY = 'sb_publishable_VOIm_5-skIkI9Mu0u3GfTw_3PUafdTZ';
+const SUPABASE_KEY = 'sb_publishable_IR7J1bUHQrqcLfJerkY05Q_nVywjC6g';
 // Pas de verrou entre onglets : un onglet mis en pause par le téléphone pouvait le garder et bloquer l'appli (écran noir)
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { lock: (name, timeout, fn) => fn() }, global: { fetch: sbFetch } });
 const $app = document.getElementById('app');
